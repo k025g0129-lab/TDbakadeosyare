@@ -1,4 +1,5 @@
 ﻿#include <Novice.h>
+#include "Vector2.h"
 
 const char kWindowTitle[] = "LC1B_19_シンモトキョウスケ_タイトル";
 
