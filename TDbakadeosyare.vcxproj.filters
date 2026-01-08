@@ -14,11 +14,26 @@
     <Filter Include="KamataEngine\Adapter">
       <UniqueIdentifier>{c6468eb4-788b-4a83-b207-a5f4804e56c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="KamataEngine\h">
+      <UniqueIdentifier>{31d6d15b-59a0-434f-8525-f5d045222c85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="C:\KamataEngine\Adapter\Novice.cpp">
       <Filter>KamataEngine\Adapter</Filter>
+    </ClCompile>
+    <ClCompile Include="Function.cpp">
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>KamataEngine\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +117,21 @@
     </ClInclude>
     <ClInclude Include="C:\KamataEngine\DirectXGame\2d\ImGuiManager.h">
       <Filter>KamataEngine\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Function.h">
+      <Filter>KamataEngine\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>KamataEngine\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>KamataEngine\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>KamataEngine\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>KamataEngine\h</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
