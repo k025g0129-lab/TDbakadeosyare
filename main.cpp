@@ -1,6 +1,4 @@
-#include <Novice.h>
-
-
+﻿#include <Novice.h>
 
 const char kWindowTitle[] = "LC1B_19_シンモトキョウスケ_タイトル";
 
