@@ -16,7 +16,7 @@ public:
 
 public:
 	void Update();
-	void Drow();
+	void Draw();
 
 public:
 

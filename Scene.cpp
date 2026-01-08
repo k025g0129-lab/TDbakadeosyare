@@ -6,6 +6,6 @@ void Scene::Update() {
 
 }
 
-void Scene::Drow() {
+void Scene::Draw() {
 
 }
