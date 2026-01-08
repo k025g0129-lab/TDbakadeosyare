@@ -131,6 +131,13 @@ void ResolveCollision(Vector2& playerPosition, float& playerRadius, Vector2& bos
     }
 }
 
+Vector2 Vector2Add(Vector2 Ve1, Vector2 Ve2) {
+    Vector2 a;
+    a.x = Ve1.x + Ve2.x;
+    a.y = Ve1.y + Ve2.y;
+    return a;
+}
+
 // 円と矩形の当たり判定 (追加)
 // selfPosition: 円の中心座標, selfRadius: 円の半径
 // targetCenter: 矩形の中心座標, targetHalfWidth: 矩形の半幅, targetHalfHeight: 矩形の半高
