@@ -95,6 +95,8 @@ void Scene::TitleUpdate() {
 	if(Novice::CheckHitKey(DIK_SPACE)){
 		gameScene = TUTORIAL;
 	}
+
+	TitleDraw();
 }
 
 void Scene::TutorialUpdate() {
