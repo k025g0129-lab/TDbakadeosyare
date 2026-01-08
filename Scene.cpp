@@ -166,7 +166,6 @@ void Scene::ChargeUpdate() {
 
 	}
 
-	ChargeDrow();
 }
 
 void Scene::ChargeDraw() {
@@ -175,8 +174,6 @@ void Scene::ChargeDraw() {
 void Scene::RiseUpdate() {
 	
 	
-	
-	RiseDrow();
 }
 
 void Scene::RiseDraw() {
