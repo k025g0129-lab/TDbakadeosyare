@@ -49,7 +49,7 @@ void Scene::Draw() {
 		break;
 
 	case MAIN_GAME:
-		MainGameUpdate();
+		MainGameDraw();
 
 		break;
 
