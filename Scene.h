@@ -5,6 +5,7 @@ class Scene {
 public:
 	enum GameScene {
 		TITLE,
+		TUTORIAL,
 		MAIN_GAME,
 		RESULT,
 	};
@@ -15,10 +16,27 @@ public:
 	};
 
 public:
+
+	GameScene gameScene = TITLE;
+	Phase phase = CHARGE;
+
+
+
+public:
+
+	Scene();
+	void Initialize();
+
 	void Update();
 	void Drow();
 
-public:
+
+	void PhaseUpdate();
+	void ChargeUpdate();
+	void ChargeDrow();
+	void RiseUpdate();
+	void RiseDrow();
+
 
 
 };
