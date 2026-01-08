@@ -12,5 +12,12 @@ public:
 		RISE,
 	};
 
+public:
+	void Update();
+	void Drow();
+
+public:
+
+
 };
 
