@@ -30,12 +30,23 @@ public:
 	void Update();
 	void Draw();
 
+	// ゲームシーン用
+	void TitleUpdate();
+	void TitleDraw();
 
+	void TutorialUpdate();
+	void TutorialDraw();
+
+	void ResultUpdate();
+	void ResultDraw();
+	
+	
+	// フェーズ用
 	void PhaseUpdate();
 	void ChargeUpdate();
-	void ChargeDrow();
+	void ChargeDraw();
 	void RiseUpdate();
-	void RiseDrow();
+	void RiseDraw();
 
 
 
