@@ -44,51 +44,31 @@ void Scene::Update() {
 
 	case TITLE:
 		TitleUpdate();
+		TitleDraw();
 		
 		break;
 
 	case TUTORIAL:
 		TutorialUpdate();
-		
-		break;
-
-	case MAIN_GAME:
-		MainGameUpdate();
-		
-		break;
-
-	case RESULT:
-		ResultUpdate();
-		
-		break;
-	}
-}
-
-void Scene::Draw() {
-	switch (gameScene) {
-	case TITLE:
-		TitleDraw();
-
-		break;
-
-	case TUTORIAL:
 		TutorialDraw();
 
 		break;
 
 	case MAIN_GAME:
+		MainGameUpdate();
 		MainGameDraw();
 
 		break;
 
-
 	case RESULT:
+		ResultUpdate();
 		ResultDraw();
-
+		
 		break;
 	}
-
 }
+
+
 
 // 更新処理
 void Scene::TitleUpdate() {
@@ -96,13 +76,13 @@ void Scene::TitleUpdate() {
 		gameScene = TUTORIAL;
 	}
 
-	TitleDraw();
 }
 
 void Scene::TutorialUpdate() {
 	if (Novice::CheckHitKey(DIK_SPACE)) {
 		gameScene = MAIN_GAME;
 	}
+
 }
 
 void Scene::MainGameUpdate() {
@@ -118,12 +98,14 @@ void Scene::PhaseUpdate() {
 		RiseUpdate();
 		break;
 	}
+
 }
 
 void Scene::ResultUpdate() {
 	if (Novice::CheckHitKey(DIK_SPACE)) {
 		gameScene = TITLE;
 	}
+
 }
 
 // 描画処理

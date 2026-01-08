@@ -60,7 +60,6 @@ public:
 	void Initialize();
 
 	void Update();
-	void Draw();
 
 	// ゲームシーン用
 	void TitleUpdate();
