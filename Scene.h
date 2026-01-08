@@ -37,6 +37,9 @@ public:
 	void TutorialUpdate();
 	void TutorialDraw();
 
+	void MainGameUpdate();
+	void MainGameDraw();
+
 	void ResultUpdate();
 	void ResultDraw();
 	
