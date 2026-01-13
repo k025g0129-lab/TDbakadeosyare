@@ -10,6 +10,7 @@ public:
 	Vector2_int currentLeftStickPos;
 
 	Vector2_int oldRightStickPos;
+
 	Vector2_int currentRightStickPos;
 
 	float oldLeftAngle;
