@@ -2,7 +2,7 @@
 #include <Windows.h> 
 #include <Xinput.h> 
 #include "Vector2.h"
-
+#include "Player.h"
 
 class Scene {
 public:
@@ -23,6 +23,11 @@ public:
 		LEFT,
 	};
 
+	struct CheckPoint {
+		float checkPointY;        // 設置する高さ
+		int isPassed;  // 通過したかどうか
+	};
+
 public:
 
 	GameScene gameScene = TITLE;
@@ -37,9 +42,9 @@ public:
 
 	int isScroll = false;
 
-
-
-
+	// チェックポイント
+	CheckPoint checkpoint;
+	
 
 public:
 
@@ -76,6 +81,8 @@ public:
 private:
 	XINPUT_STATE padState{};
 	XINPUT_STATE prevPadState{};
+
+	Player* player;
 
 };
 

@@ -1,9 +1,11 @@
 ﻿#include "Scene.h"
 #include "Vector2.h"
+
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include<Xinput.h>
+
 
 Scene::Scene() {
 	Initialize();
@@ -20,6 +22,12 @@ void Scene::Initialize() {
 	tiltDegree = 0;
 	isScroll = false;
 
+	// プレイヤー生成
+	player = new Player();
+
+	// チェックポイント
+	checkpoint.checkPointY = -1500.0f; 
+	checkpoint.isPassed = false;
 
 }
 
@@ -102,6 +110,44 @@ void Scene::PhaseUpdate() {
 
 }
 
+
+void Scene::ChargeUpdate() {
+	chargeTime--;
+
+	if (chargeTime <= 0) {
+
+		phase = RISE;
+		int difference = leftChargeAmount - rightChargeAmount;
+		tiltDegree = difference * difference;
+
+		if (leftChargeAmount > rightChargeAmount) {
+			direction = LEFT;
+		}
+		else {
+			direction = RIGHT;
+		}
+
+	}
+
+}
+
+
+void Scene::RiseUpdate() {
+	// プレイヤー更新
+	player->Update(3);
+	
+	// チェックポイント判定
+	if (!checkpoint.isPassed && player->planeWorldPos.y <= checkpoint.checkPointY) {
+		checkpoint.isPassed = true;
+
+		// 【巻き直し】
+		phase = CHARGE;
+		chargeTime = 600; // 再度チャージへ
+
+		
+	}
+}
+
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
 	if (IsTriggerB()) {
@@ -135,32 +181,9 @@ void Scene::ResultDraw() {
 }
 
 
-void Scene::ChargeUpdate() {
-	chargeTime--;
-
-	if (chargeTime <= 0) {
-
-		phase = RISE;
-		int difference = leftChargeAmount - rightChargeAmount;
-		tiltDegree = difference * difference;
-
-		if (leftChargeAmount > rightChargeAmount) {
-			direction = LEFT;
-		} else {
-			direction = RIGHT;
-		}
-
-	}
-
-}
-
 void Scene::ChargeDraw() {
 }
 
-void Scene::RiseUpdate() {
-	
-	
-}
 
 void Scene::RiseDraw() {
 }
