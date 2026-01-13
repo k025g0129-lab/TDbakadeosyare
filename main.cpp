@@ -1,5 +1,5 @@
 ﻿#include <Novice.h>
-#include "Vector2.h"
+#include "Player.h"
 
 const char kWindowTitle[] = "LC1B_19_シンモトキョウスケ_タイトル";
 
@@ -13,6 +13,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
+	Player* p = new Player();
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -25,6 +27,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓更新処理ここから
 		///
+		
+		p->Update(p->scene_trial);
 
 		///
 		/// ↑更新処理ここまで
@@ -33,7 +37,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓描画処理ここから
 		///
-
+		p->Draw();
 		///
 		/// ↑描画処理ここまで
 		///

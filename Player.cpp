@@ -1,5 +1,8 @@
 ﻿#include<Novice.h>
 #include<cmath>
+#include <corecrt_math.h>
+#define USE_MATH_DEFINES
+#include <corecrt_math_defines.h>
 #include "Player.h"
 
 Player::Player() {
@@ -29,11 +32,23 @@ Player::Player() {
 	boost = 0.0f;
 
 	angle = 0.0f;
+
+	// 本番では使わず、コードができているか確認するために使う変数
+	timer_trial = 630; // プログラム開始時のラグを考慮した10秒間
+	scene_trial = 1;
 }
 
 Player::~Player() {};
 
 void Player::Update(int scene) {
+
+	if (timer_trial != 0) {
+		timer_trial--;
+	}
+
+	if (timer_trial <= 0) {
+		scene_trial = 0;
+	}
 
 	switch (scene) {
 	case 0:
@@ -45,7 +60,7 @@ void Player::Update(int scene) {
 		// プロペラチャージ
 #pragma region Left
 		// 更新する前の座標を保存
-		oldRightStickPos = currentRightStickPos;
+		oldLeftStickPos = currentLeftStickPos;
 		// 左スティック操作
 		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
@@ -76,9 +91,9 @@ void Player::Update(int scene) {
 				}
 
 				// 4. 1周判定
-				if (totalLeftRotation >= 6.28318f) {
+				if (totalLeftRotation >= 1.2f) {
 					leftPropellerPower += 1.0f;
-					totalLeftRotation -= 6.28318f;
+					totalLeftRotation -= 1.2f;
 				}
 
 				// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
@@ -126,9 +141,9 @@ void Player::Update(int scene) {
 				}
 
 				// 4. 1周判定
-				if (totalRightRotation >= 6.28318f) {
+				if (totalRightRotation >= 1.2f) {
 					rightPropellerPower += 1.0f;
-					totalRightRotation -= 6.28318f;
+					totalRightRotation -= 1.2f;
 				}
 
 				// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
@@ -162,4 +177,21 @@ void Player::Update(int scene) {
 		// プレイ中
 		break;
 	}
+}
+
+void Player::Draw() {
+	Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
+	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);
+
+	Novice::ScreenPrintf(0, 60, "currentRightStickPos.x = %d", currentRightStickPos.x);
+	Novice::ScreenPrintf(0, 80, "currentRightStickPos.y = %d", currentRightStickPos.y);
+
+	Novice::ScreenPrintf(0, 120, "currentLeftAngle = %f", currentLeftAngle);
+	Novice::ScreenPrintf(0, 140, "currentRightAngle = %f", currentRightAngle);
+
+	Novice::ScreenPrintf(0, 180, "totalLeftRotation = %f", totalLeftRotation);
+	Novice::ScreenPrintf(0, 200, "totalRightRotation = %f", totalRightRotation);
+
+	Novice::ScreenPrintf(0, 240, "leftPropellerPower = %f", leftPropellerPower);
+	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);
 }

@@ -35,5 +35,9 @@ public:
 
 	void Update(int scene);
 	void Draw();
+
+
+	int timer_trial;
+	int scene_trial;
 };
 
