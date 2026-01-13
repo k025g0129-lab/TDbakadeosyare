@@ -21,6 +21,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Scene scene;
 	Player player;
 
+	Player* p = new Player();
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -38,6 +40,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		scene.Update();
 		player.Update(3);
 
+		
+		p->Update(p->scene_trial);
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -45,9 +50,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓描画処理ここから
 		///
-
-		
-
+		p->Draw();
 		///
 		/// ↑描画処理ここまで
 		///
