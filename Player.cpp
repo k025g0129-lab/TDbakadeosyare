@@ -1,6 +1,7 @@
 ﻿#include<Novice.h>
 #include<cmath>
 #include "Player.h"
+#include "Function.h"
 
 Player::Player() {
 	position = { 200.0f,300.0f };
@@ -29,6 +30,27 @@ Player::Player() {
 	boost = 0.0f;
 
 	angle = 0.0f;
+
+
+	//見た目
+	planeLocalCenterPos = { 0.0f,0.0f };
+	width = 100.0f;
+	height = 300.0f;
+
+	planeLocalFourCornersPos[0] = { planeLocalCenterPos.x - width / 2, planeLocalCenterPos.y - height / 2 };
+	planeLocalFourCornersPos[1] = { planeLocalCenterPos.x + width / 2, planeLocalCenterPos.y - height / 2 };
+	planeLocalFourCornersPos[2] = { planeLocalCenterPos.x - width / 2, planeLocalCenterPos.y + height / 2 };
+	planeLocalFourCornersPos[3] = { planeLocalCenterPos.x + width / 2, planeLocalCenterPos.y + height / 2 };
+
+
+	planeWorldPos = { 640.0f,720.0f };
+
+	planeWorldFourCornersPos[0] = Vector2Add(planeLocalFourCornersPos[0], planeWorldPos);
+	planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
+	planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
+	planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
+
+	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 }
 
 Player::~Player() {};
@@ -160,6 +182,42 @@ void Player::Update(int scene) {
 
 	case 3:
 		// プレイ中
+
+		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
+
+		if (currentLeftStickPos.x > 0) {
+			planeWorldPos.x += 1.0f;
+		}
+
+		if (currentLeftStickPos.x < 0) {
+			planeWorldPos.x -= 1.0f;
+		}
+
+		planeWorldFourCornersPos[0] = Vector2Add(planeLocalFourCornersPos[0], planeWorldPos);
+		planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
+		planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
+		planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
+
+		Draw();
+
 		break;
 	}
+}
+
+void Player::Draw() {
+	Novice::DrawQuad(
+		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y),
+		static_cast<int>(planeWorldFourCornersPos[1].x), static_cast<int>(planeWorldFourCornersPos[1].y),
+		static_cast<int>(planeWorldFourCornersPos[2].x), static_cast<int>(planeWorldFourCornersPos[2].y),
+		static_cast<int>(planeWorldFourCornersPos[3].x), static_cast<int>(planeWorldFourCornersPos[3].y),
+
+
+		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y),
+		static_cast<int>(width), static_cast<int>(height),
+
+		whiteTextureHandle,
+		0xFFFFFFFF
+	);
+
+	Novice::ScreenPrintf(0, 0, "%f", planeWorldFourCornersPos[0].x);
 }

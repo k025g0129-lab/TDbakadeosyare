@@ -1,8 +1,10 @@
 ﻿#include <Novice.h>
 #include "Vector2.h"
 #include "Scene.h"
+#include "Player.h"
 
 const char kWindowTitle[] = "1330_タイトル";
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -14,7 +16,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
+		Vector2_int currentLeftStickPos;
+
 	Scene scene;
+	Player player;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -28,8 +33,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓更新処理ここから
 		///
+		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
 		scene.Update();
+		player.Update(3);
 
 		///
 		/// ↑更新処理ここまで
