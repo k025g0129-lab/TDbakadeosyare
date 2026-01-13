@@ -29,6 +29,8 @@ public:
 
 	// 自機の傾き
 	float angle;
+	float powerDiff;
+	float angleFacter;
 
 	Player();
 	~Player();

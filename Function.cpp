@@ -2,8 +2,6 @@
 #include"Vector2.h"
 #include<Novice.h>
 
-
-
 // self○○   = 主観している対象
 // target○○ = 当たられる対象
 
