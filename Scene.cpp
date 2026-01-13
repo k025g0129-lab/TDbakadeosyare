@@ -65,6 +65,9 @@ void Scene::Update() {
 	}
 }
 
+/*---------
+   関数
+----------*/
 
 // 入力処理
 bool Scene::IsPressB() const {
