@@ -20,7 +20,15 @@ void Scene::Initialize() {
 	tiltDegree = 0;
 	isScroll = false;
 
+	for (int i = 0; i < 150; i++) {
+		backGround[i].skyPos.x = 0.0f;
+		backGround[i].skyPos.y = (-720.0f) * i;
+		backGround[i].skyOriginalPos.x = 0.0f;
+		backGround[i].skyOriginalPos.y = (-720.0f) * i;
+	}
+	scrollY = 0.0f;
 
+	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 }
 
 void Scene::Update() {
@@ -120,11 +128,37 @@ void Scene::TutorialDraw() {
 }
 
 void Scene::MainGameDraw() {
+
+	for (int i = 0; i < 150; i++) {
+		if (i % 2 == 0) {
+			Novice::DrawSprite(
+				static_cast<int>(backGround[i].skyPos.x),
+				static_cast<int>(backGround[i].skyPos.y),
+				whiteTextureHandle,
+				1280, 720,
+				0.0f, 0xFF000044
+			);
+		}
+
+		if (i % 2 == 1) {
+			Novice::DrawSprite(
+				static_cast<int>(backGround[i].skyPos.x),
+				static_cast<int>(backGround[i].skyPos.y),
+				whiteTextureHandle,
+				1280, 720,
+				0.0f, 0x00FF0044
+			);
+		}
+
+	}
+
+
 	switch (phase) {
 	case CHARGE:
 		ChargeDraw();
 		break;
 	case RISE:
+		
 		RiseDraw();
 		break;
 	}
@@ -158,6 +192,13 @@ void Scene::ChargeDraw() {
 }
 
 void Scene::RiseUpdate() {
+	if (isScroll) {
+		scrollY += 3.0f;
+		for (int i = 0; i < 150; i++) {
+			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
+		}
+		Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
+	}
 	
 	
 }

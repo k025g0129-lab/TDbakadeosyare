@@ -23,11 +23,18 @@ public:
 		LEFT,
 	};
 
+	struct BackGround {
+		Vector2 skyOriginalPos;
+		Vector2 skyPos;
+	};
+
 public:
 
 	GameScene gameScene = TITLE;
 	Phase phase = CHARGE;
 	Direction direction = LEFT;
+
+	BackGround backGround[150];
 
 	int leftChargeAmount = 0;
 	int rightChargeAmount = 0;
@@ -35,10 +42,11 @@ public:
 
 	int tiltDegree = 0;
 
+	float scrollY = 0.0f;
 	int isScroll = false;
+	int isTouchCheckpoint = false;
 
-
-
+	int whiteTextureHandle = 0;
 
 
 public:

@@ -183,6 +183,7 @@ void Player::Update(int scene) {
 	case 3:
 		// プレイ中
 
+		//スティック操作
 		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
 		if (currentLeftStickPos.x > 0) {
@@ -197,6 +198,11 @@ void Player::Update(int scene) {
 		planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
 		planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
 		planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
+
+		//上昇
+		
+
+
 
 		Draw();
 
