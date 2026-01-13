@@ -1,5 +1,6 @@
 ﻿#include <Novice.h>
 #include "Vector2.h"
+#include "Scene.h"
 
 const char kWindowTitle[] = "LC1B_19_シンモトキョウスケ_タイトル";
 
@@ -16,6 +17,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		int x = 500;
 		int y = 500;
 		Vector2_int currentLeftStickPos;
+
+	Scene scene;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -35,9 +38,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			x -= 2;
 		}
 
-		if (currentLeftStickPos.x >0) {
-			x += 2;
-		}
+		scene.Update();
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -46,7 +48,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓描画処理ここから
 		///
 
-		Novice::DrawEllipse(x, y, 10, 10, 0.0f, 0xFFFFFFFF, kFillModeSolid);
+		
 
 		///
 		/// ↑描画処理ここまで

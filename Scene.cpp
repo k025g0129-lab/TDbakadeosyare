@@ -3,7 +3,7 @@
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-
+#include<Xinput.h>
 
 Scene::Scene() {
 	Initialize();
@@ -43,6 +43,11 @@ void Scene::Initialize() {
 }
 
 void Scene::Update() {
+
+	// コントローラーの状態を取得
+	prevPadState = padState;
+	XInputGetState(0, &padState);
+
 	switch (gameScene) {
 
 	case TITLE:
@@ -71,7 +76,7 @@ void Scene::Update() {
 	}
 }
 
-/*
+
 bool Scene::IsPressB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
 }
@@ -80,19 +85,20 @@ bool Scene::IsTriggerB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
-*/
+
 
 // 更新処理
 void Scene::TitleUpdate() {
+
 	// Bボタンでチュートリアルへ
-	if (Novice::IsTriggerButton(0, kPadButton12)) {
+	if (IsTriggerB()) {
 		gameScene = TUTORIAL;
 	}
 }
 
 void Scene::TutorialUpdate() {
 	// Bボタンでメインゲームへ
-	if (Novice::IsTriggerButton(0, kPadButton12)) {
+	if (IsTriggerB()) {
 		gameScene = MAIN_GAME;
 	}
 
@@ -116,7 +122,7 @@ void Scene::PhaseUpdate() {
 
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
-	if (Novice::IsTriggerButton(0, kPadButton12)) {
+	if (IsTriggerB()) {
 		gameScene = TITLE;
 	}
 
@@ -128,7 +134,7 @@ void Scene::TitleDraw() {
 }
 
 void Scene::TutorialDraw() {
-	Novice::DrawBox(440, 220, 400, 280, 0.0f, 0xffffffff, kFillModeSolid);
+	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
 }
 
 void Scene::MainGameDraw() {
