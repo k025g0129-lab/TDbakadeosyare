@@ -4,6 +4,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+
 Scene::Scene() {
 	Initialize();
 }
@@ -18,6 +19,8 @@ void Scene::Initialize() {
 	chargeTime = 600;
 	tiltDegree = 0;
 	isScroll = false;
+
+
 
 	/*
 	planeLocalCenterPos = { 0.0f,0.0f };
@@ -68,18 +71,28 @@ void Scene::Update() {
 	}
 }
 
+/*
+bool Scene::IsPressB() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
+}
 
+bool Scene::IsTriggerB() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
+		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
+}
+*/
 
 // 更新処理
 void Scene::TitleUpdate() {
-	if(Novice::CheckHitKey(DIK_SPACE)){
+	// Bボタンでチュートリアルへ
+	if (Novice::IsTriggerButton(0, kPadButton12)) {
 		gameScene = TUTORIAL;
 	}
-
 }
 
 void Scene::TutorialUpdate() {
-	if (Novice::CheckHitKey(DIK_SPACE)) {
+	// Bボタンでメインゲームへ
+	if (Novice::IsTriggerButton(0, kPadButton12)) {
 		gameScene = MAIN_GAME;
 	}
 
@@ -102,7 +115,8 @@ void Scene::PhaseUpdate() {
 }
 
 void Scene::ResultUpdate() {
-	if (Novice::CheckHitKey(DIK_SPACE)) {
+	// Bボタンでタイトルへ
+	if (Novice::IsTriggerButton(0, kPadButton12)) {
 		gameScene = TITLE;
 	}
 

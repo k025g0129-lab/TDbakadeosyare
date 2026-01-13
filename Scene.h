@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Vector2.h"
 
+
 class Scene {
 public:
 	enum GameScene {
@@ -81,8 +82,14 @@ public:
 	void ChargeDraw();
 	void RiseUpdate();
 	void RiseDraw();
+/*
+	// 入力
+	bool IsPressB() const;
+	bool IsTriggerB() const;
 
-
-
+private:
+	XINPUT_STATE padState{};
+	XINPUT_STATE prevPadState{};
+*/
 };
 
