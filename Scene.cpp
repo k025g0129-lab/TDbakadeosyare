@@ -62,11 +62,12 @@ void Scene::Update() {
 	}
 }
 
-
+// 入力処理
 bool Scene::IsPressB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
 }
 
+// Bボタンが押された瞬間
 bool Scene::IsTriggerB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
