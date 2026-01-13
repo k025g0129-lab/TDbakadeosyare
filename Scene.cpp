@@ -65,6 +65,7 @@ void Scene::Update() {
 	}
 }
 
+
 // 入力処理
 bool Scene::IsPressB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
