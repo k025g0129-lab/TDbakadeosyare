@@ -82,7 +82,7 @@ public:
 	void ChargeDraw();
 	void RiseUpdate();
 	void RiseDraw();
-/*
+
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
@@ -90,6 +90,6 @@ public:
 private:
 	XINPUT_STATE padState{};
 	XINPUT_STATE prevPadState{};
-*/
+
 };
 
