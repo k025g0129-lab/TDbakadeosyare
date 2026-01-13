@@ -24,8 +24,10 @@ public:
 	float leftPropellerPower;
 	float rightPropellerPower;
 
-	float speed;
+	Vector2 speed;
 	float boost;
+	float upValue;
+	const float MAX_UP_VALUE = 1.127f; // 1f当たりに進む上昇量の最大値
 
 	// 自機の傾き
 	float angle;

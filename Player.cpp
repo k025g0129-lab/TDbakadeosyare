@@ -36,7 +36,8 @@ Player::Player() {
 	leftPropellerPower = 0.0f;
 	rightPropellerPower = 0.0f;
 
-	speed = 5.0f; // 速度
+	speed = { 0.0f,0.0f }; // 速度
+	upValue = 0.0f; // プロペラパワー[ ? ]により上昇する量
 	boost = 0.0f; // ブースト
 
 	angle = 0.0f; // 傾き
@@ -194,8 +195,74 @@ void Player::Update(int scene) {
 	case 3:
 		// プレイ中
 
+		// 毎フレーム左右のプロペラパワーを減少
+		if (rightPropellerPower > 0.0f) {
+			rightPropellerPower -= 0.025f;
+
+			if (rightPropellerPower < 0.0f) {
+				rightPropellerPower = 0.0f;
+			}
+		}
+
+		if (leftPropellerPower > 0.0f) {
+			leftPropellerPower -= 0.025f;
+
+			if (leftPropellerPower < 0.0f) {
+				leftPropellerPower = 0.0f;
+			}
+		}
+
+		// 上昇量の管理 ------------------------------------------------------------------------
+		
+		// 徐々に数値が上がり、上限値で固定(1fあたりの上昇量は全ステージ固定)
+		if (upValue < MAX_UP_VALUE) {
+			upValue += 0.392f;
+
+			if (upValue >= MAX_UP_VALUE) {
+				upValue = MAX_UP_VALUE;
+			}
+		}
+
+		// *  if  *  左右どちらも死んだとき、上昇量を減らし続ける
+		// * else *  左右どちらかのプロペラが死んだとき、上昇量を徐々に減らし、上限値の半分に固定
+		if ((rightPropellerPower <= 0.0f) && (leftPropellerPower <= 0.0f)) {
+			upValue -= 0.774f;
+		} else if ((rightPropellerPower <= 0.0f) || (leftPropellerPower <= 0.0f)) {
+			if (upValue > MAX_UP_VALUE / 2.0f) {
+				upValue -= 0.188f;
+
+				if (upValue <= MAX_UP_VALUE / 2.0f) {
+					upValue = MAX_UP_VALUE / 2.0f;
+				}
+			}
+		}
+
+		// ------------------------------------------------------------------------------------
+
+		// 傾く量の管理 --------------------------------------------------------------------------
+		
+		// 右のプロペラが尽きた時、右側へ大きく傾き続ける
+		if (rightPropellerPower <= 0.0f) {
+			angle += (powerDiff * 1.15f) * (angleFacter + 0.004f);
+		}
+
+		// 左のプロペラが尽きた時、左側へ大きく傾き続ける
+		if (leftPropellerPower <= 0.0f) {
+			angle -= (powerDiff * 1.15f) * (angleFacter + 0.004f);
+		}
+
+		// ------------------------------------------------------------------------------------
+		
+		// 上昇処理
+		speed.x = sinf(angle) * upValue;
+		speed.y = -cosf(angle) * upValue;
+
+		position.x += speed.x;
+		position.y += speed.y;
+
 		// 毎フレーム左右の差によって傾きを追加
 		angle += powerDiff * angleFacter;
+
 		break;
 	}
 }
