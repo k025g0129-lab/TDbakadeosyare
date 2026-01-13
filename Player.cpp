@@ -160,6 +160,17 @@ void Player::Update(int scene) {
 
 	case 3:
 		// プレイ中
+
+		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
+
+		if (currentLeftStickPos.x > 0) {
+
+		}
+
+		if (currentLeftStickPos.x < 0) {
+
+		}
+
 		break;
 	}
 }

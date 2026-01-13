@@ -34,7 +34,7 @@ void DrawBulletLine(
 void ResolveCollision(Vector2& playerPosition, float& playerRadius, Vector2& bossPosition, float& bossRadius);
 
 /// <summary>
-/// 円同士の当たり判定(押し戻し)
+/// Vector2同士の足し算
 /// </summary>
 Vector2 Vector2Add(Vector2 Ve1,Vector2 Ve2);
 

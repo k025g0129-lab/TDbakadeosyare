@@ -35,7 +35,7 @@ public:
 
 	int isScroll = false;
 
-	/*Vector2 planeLocalCenterPos = {0.0f,0.0f};
+	Vector2 planeLocalCenterPos = {0.0f,0.0f};
 	float width = 100.0f;
 	float height = 300.0f;
 
@@ -48,8 +48,7 @@ public:
 	};
 
 	Vector2 planeWorldPos = {640.0f,720.0f};
-	Vector2 planeWorldFourCornersPos[4] = {};
-*/
+	//Vector2 planeWorldFourCornersPos[4];
 
 
 
