@@ -22,22 +22,8 @@ void Scene::Initialize() {
 
 
 
-	/*
-	planeLocalCenterPos = { 0.0f,0.0f };
-	width = 100.0f;
-	height = 300.0f;
+	
 
-	planeLocalFourCornersPos[0] = {planeLocalCenterPos.x - width / 2, planeLocalCenterPos.y - height / 2};
-	planeLocalFourCornersPos[1] = {planeLocalCenterPos.x + width / 2, planeLocalCenterPos.y - height / 2};
-	planeLocalFourCornersPos[2] = {planeLocalCenterPos.x - width / 2, planeLocalCenterPos.y + height / 2};
-	planeLocalFourCornersPos[3] = {planeLocalCenterPos.x + width / 2, planeLocalCenterPos.y + height / 2};
-
-
-	planeWorldPos = { 640.0f,720.0f };
-	planeWorldFourCornersPos[0] = { planeLocalFourCornersPos[0]. + planeWorldPos, planeLocalFourCornersPos[0] + planeWorldPos };
-	planeWorldFourCornersPos[1] =
-	planeWorldFourCornersPos[2] =
-	planeWorldFourCornersPos[3] =*/
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 }
