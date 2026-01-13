@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <Windows.h> 
+#include <Xinput.h> 
 #include "Vector2.h"
 
 
