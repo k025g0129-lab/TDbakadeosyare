@@ -28,15 +28,6 @@ public:
 	float speed;
 	float boost;
 
-	// 自機の傾き
-	float angle;
-
-	Player();
-	~Player();
-
-	void Update(int scene);
-	void Draw();
-
 	//見た目
 	Vector2 planeLocalCenterPos = { 0.0f,0.0f };
 	float width = 100.0f;
@@ -51,6 +42,21 @@ public:
 	};
 
 	Vector2 planeWorldPos = { 640.0f,720.0f };
-	//Vector2 planeWorldFourCornersPos[4];
+	Vector2 planeWorldFourCornersPos[4] = {};
+
+
+	int whiteTextureHandle = 0;
+
+	
+	// 自機の傾き
+	float angle;
+
+	Player();
+	~Player();
+
+	void Update(int scene);
+	void Draw();
+
+
 };
 

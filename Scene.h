@@ -40,7 +40,6 @@ public:
 
 
 
-	int whiteTextureHandle = 0;
 
 public:
 

@@ -21,11 +21,6 @@ void Scene::Initialize() {
 	isScroll = false;
 
 
-
-	
-
-
-	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 }
 
 void Scene::Update() {
