@@ -1,5 +1,6 @@
 ﻿#include <Novice.h>
 #include "Vector2.h"
+#include "Scene.h"
 
 const char kWindowTitle[] = "LC1B_19_シンモトキョウスケ_タイトル";
 
@@ -12,6 +13,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
 	char preKeys[256] = {0};
+
+	Scene scene;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -26,6 +29,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓更新処理ここから
 		///
 
+		scene.Update();
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -33,6 +38,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓描画処理ここから
 		///
+
+		scene.TitleDraw();
 
 		///
 		/// ↑描画処理ここまで
