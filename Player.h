@@ -1,5 +1,11 @@
 ﻿#pragma once
 #include"Vector2.h"
+
+enum Chrge {
+	PROPELLER,
+	BOOST,
+};
+
 class Player {
 public:
 	Vector2 position;
@@ -38,6 +44,9 @@ public:
 	~Player();
 
 	void Update(int scene);
+	void Update_charge();
+	void Update_play();
+
 	void Draw();
 
 
