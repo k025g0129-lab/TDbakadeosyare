@@ -1,7 +1,7 @@
 ﻿#include <Novice.h>
 #include "Vector2.h"
 
-const char kWindowTitle[] = "LC1B_19_シンモトキョウスケ_タイトル";
+const char kWindowTitle[] = "1330_タイトル";
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
