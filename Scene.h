@@ -30,7 +30,7 @@ public:
 	};
 
 	struct CheckPoint {
-		Vector2 pos;
+		float checkPointY;
 		int isPreparingForLanding;
 		int lv;
 		float distance;

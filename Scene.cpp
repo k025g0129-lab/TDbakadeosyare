@@ -32,7 +32,7 @@ void Scene::Initialize() {
 	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
-	checkPoint.pos = {0.0f, -float(checkPoint.lv) * checkPoint.distance };
+	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 }
@@ -191,7 +191,7 @@ void Scene::ChargeUpdate() {
 
 		//チェックポイント決め
 		checkPoint.lv++;
-		checkPoint.pos = { 0.0f, -float(checkPoint.lv) * checkPoint.distance };
+		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 		
 		//無しにする原因
 		int difference = leftChargeAmount - rightChargeAmount;
@@ -204,7 +204,7 @@ void Scene::ChargeUpdate() {
 		}
 
 	}
-	Novice::DrawLine(0, int(checkPoint.pos.y + scrollY), 1280, int(checkPoint.pos.y + scrollY), 0xFF0000FF);
+	Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 }
 
 void Scene::ChargeDraw() {
@@ -220,8 +220,8 @@ void Scene::RiseUpdate() {
 		}
 		Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
 
-		Novice::DrawLine(0, int(checkPoint.pos.y + scrollY ), 1280, int(checkPoint.pos.y + scrollY),0xFF0000FF);
-		Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.pos.y + scrollY));
+		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY ), 1280, -int(checkPoint.checkPointY - scrollY),0xFF0000FF);
+		Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.checkPointY - scrollY));
 
 
 	}
@@ -231,7 +231,7 @@ void Scene::RiseUpdate() {
 
 	//チェックポイント触れ
 	//チェックポイントがスクリーン依存なので変える必要あり
-	if (checkPoint.pos.y + scrollY >= 300.0f){
+	if (checkPoint.checkPointY <= scrollY - 300.0f ){
 		phase = LANDING;
 	}
 	
@@ -251,11 +251,11 @@ void Scene::LandingUpdate() {
 		}
 
 		
-		if (checkPoint.pos.y + scrollY >= 600.0f) {
+		if (scrollY - checkPoint.checkPointY >= 600.0f) {
 			phase = CHARGE;
 			
 		}
-		Novice::DrawLine(0, int(checkPoint.pos.y + scrollY), 1280, int(checkPoint.pos.y + scrollY), 0xFF0000FF);
+		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 	}
 }
 
