@@ -51,10 +51,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓描画処理ここから
 		///
 
-		Novice::ScreenPrintf(0, 40, "%d", scene.isScroll);
+		Novice::ScreenPrintf(0, 40, "%f", scene.scrollY);
 
 
-		float aaaa = 123.4f;
 
 		///
 		/// ↑描画処理ここまで

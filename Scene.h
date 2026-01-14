@@ -16,6 +16,7 @@ public:
 	enum Phase {
 		CHARGE,
 		RISE,
+		LANDING,
 	};
 
 	enum Direction {
@@ -26,6 +27,14 @@ public:
 	struct BackGround {
 		Vector2 skyOriginalPos;
 		Vector2 skyPos;
+	};
+
+	struct CheckPoint {
+		Vector2 pos;
+		int isPreparingForLanding;
+		int lv;
+		float distance;
+
 	};
 
 public:
@@ -45,6 +54,9 @@ public:
 	float scrollY = 0.0f;
 	int isScroll = false;
 	int isTouchCheckpoint = false;
+
+	CheckPoint checkPoint;
+
 
 	int whiteTextureHandle = 0;
 
@@ -76,6 +88,8 @@ public:
 	void ChargeDraw();
 	void RiseUpdate();
 	void RiseDraw();
+	void LandingUpdate();
+	void LandingDraw();
 
 	// 入力
 	bool IsPressB() const;

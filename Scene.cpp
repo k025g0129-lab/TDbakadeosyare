@@ -27,6 +27,12 @@ void Scene::Initialize() {
 		backGround[i].skyOriginalPos.y = (-720.0f) * i;
 	}
 	scrollY = 0.0f;
+	isTouchCheckpoint = false;
+	
+	checkPoint.distance = 1500.0f;
+	checkPoint.lv = 1;
+	checkPoint.isPreparingForLanding = false;
+	checkPoint.pos = {0.0f, -float(checkPoint.lv) * checkPoint.distance };
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 }
@@ -106,6 +112,10 @@ void Scene::PhaseUpdate() {
 	case RISE:
 		RiseUpdate();
 		break;
+	case LANDING:
+		LandingUpdate();
+		break;
+		
 	}
 
 }
@@ -170,11 +180,20 @@ void Scene::ResultDraw() {
 
 
 void Scene::ChargeUpdate() {
+
+	//ここらへんは一部勝手に作ったので採用するか微妙
 	chargeTime--;
 
 	if (chargeTime <= 0) {
 
+		chargeTime = 600;
 		phase = RISE;
+
+		//チェックポイント決め
+		checkPoint.lv++;
+		checkPoint.pos = { 0.0f, -float(checkPoint.lv) * checkPoint.distance };
+		
+		//無しにする原因
 		int difference = leftChargeAmount - rightChargeAmount;
 		tiltDegree = difference * difference;
 
@@ -185,23 +204,60 @@ void Scene::ChargeUpdate() {
 		}
 
 	}
-
+	Novice::DrawLine(0, int(checkPoint.pos.y + scrollY), 1280, int(checkPoint.pos.y + scrollY), 0xFF0000FF);
 }
 
 void Scene::ChargeDraw() {
 }
 
 void Scene::RiseUpdate() {
+
+	//上昇
 	if (isScroll) {
 		scrollY += 3.0f;
 		for (int i = 0; i < 150; i++) {
 			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 		}
 		Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
+
+		Novice::DrawLine(0, int(checkPoint.pos.y + scrollY ), 1280, int(checkPoint.pos.y + scrollY),0xFF0000FF);
+		Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.pos.y + scrollY));
+
+
 	}
+
+	//左右の壁に触れた時ゲームオーバーを書く予定
 	
+
+	//チェックポイント触れ
+	//チェックポイントがスクリーン依存なので変える必要あり
+	if (checkPoint.pos.y + scrollY >= 300.0f){
+		phase = LANDING;
+	}
 	
 }
 
 void Scene::RiseDraw() {
+}
+
+//プレイヤーへの真ん中から下の描画用場所
+void Scene::LandingUpdate() {
+	
+
+	if (isScroll) {
+		scrollY += 1.5f;
+		for (int i = 0; i < 150; i++) {
+			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
+		}
+
+		
+		if (checkPoint.pos.y + scrollY >= 600.0f) {
+			phase = CHARGE;
+			
+		}
+		Novice::DrawLine(0, int(checkPoint.pos.y + scrollY), 1280, int(checkPoint.pos.y + scrollY), 0xFF0000FF);
+	}
+}
+
+void Scene::LandingDraw() {
 }
