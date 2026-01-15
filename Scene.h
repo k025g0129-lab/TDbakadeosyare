@@ -30,17 +30,15 @@ public:
 	};
 
 	struct CheckPoint {
-		float checkPointY;
-		int isPreparingForLanding;
+		float checkPointY; // 設置する高さ
+		int isPreparingForLanding; // 通過したかどうか?
 		int lv;
 		float distance;
+		int isPassed; // 通過したかどうか
 
 	};
 
-	struct CheckPoint {
-		float checkPointY;        // 設置する高さ
-		int isPassed;  // 通過したかどうか
-	};
+	
 
 public:
 
@@ -71,6 +69,7 @@ public:
 	void Initialize();
 
 	void Update();
+	void Draw();
 
 	// ゲームシーン用
 	void TitleUpdate();

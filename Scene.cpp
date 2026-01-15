@@ -31,18 +31,20 @@ void Scene::Initialize() {
 	scrollY = 0.0f;
 	isTouchCheckpoint = false;
 	
+	// チェックポイント
 	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
+	
 	// プレイヤー生成
 	player = new Player();
 
-	// チェックポイント
-	checkpoint.checkPointY = -1500.0f; 
-	checkpoint.isPassed = false;
+	
+	// checkpoint.checkPointY = -1500.0f; 
+	 checkPoint.isPassed = false;
 
 }
 
@@ -134,42 +136,8 @@ void Scene::PhaseUpdate() {
 }
 
 
-void Scene::ChargeUpdate() {
-	chargeTime--;
-
-	if (chargeTime <= 0) {
-
-		phase = RISE;
-		int difference = leftChargeAmount - rightChargeAmount;
-		tiltDegree = difference * difference;
-
-		if (leftChargeAmount > rightChargeAmount) {
-			direction = LEFT;
-		}
-		else {
-			direction = RIGHT;
-		}
-
-	}
-
-}
 
 
-void Scene::RiseUpdate() {
-	// プレイヤー更新
-	player->Update(3);
-	
-	// チェックポイント判定
-	if (!checkpoint.isPassed && player->planeWorldPos.y <= checkpoint.checkPointY) {
-		checkpoint.isPassed = true;
-
-		// 【巻き直し】
-		phase = CHARGE;
-		chargeTime = 600; // 再度チャージへ
-
-		
-	}
-}
 
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ

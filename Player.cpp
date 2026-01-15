@@ -308,8 +308,7 @@ void Player::Update_play() {
 
 		Draw();
 
-		break;
-	}
+	
 }
 
 void Player::Draw() {
