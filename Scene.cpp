@@ -232,7 +232,7 @@ void Scene::RiseUpdate() {
 //プレイヤーへの真ん中から下の描画用場所
 void Scene::LandingUpdate() {
 
-
+	
 	if (isScroll) {
 		scrollY += 1.5f;
 		for (int i = 0; i < 150; i++) {
