@@ -278,12 +278,19 @@ void Player::Update_play() {
 		planeWorldPos.x -= 1.0f;
 	}
 
-	planeWorldFourCornersPos[0] = Vector2Add(planeLocalFourCornersPos[0], planeWorldPos);
-	planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
-	planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
-	planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
+	// 1. 各頂点を回転させる（2次元回転行列の適用）
+// planeLocalFourCornersPos をベースに、現在の angle で回転させた一時的な頂点を作る
+	Vector2 rotatedCorners[4];
+	for (int i = 0; i < 4; ++i) {
+		rotatedCorners[i].x = planeLocalFourCornersPos[i].x * cosf(angle) - planeLocalFourCornersPos[i].y * sinf(angle);
+		rotatedCorners[i].y = planeLocalFourCornersPos[i].x * sinf(angle) + planeLocalFourCornersPos[i].y * cosf(angle);
+	}
 
-	//上昇
+	// 2. 回転させた頂点に現在のワールド座標（planeWorldPos）を足す
+	planeWorldFourCornersPos[0] = Vector2Add(rotatedCorners[0], planeWorldPos);
+	planeWorldFourCornersPos[1] = Vector2Add(rotatedCorners[1], planeWorldPos);
+	planeWorldFourCornersPos[2] = Vector2Add(rotatedCorners[2], planeWorldPos);
+	planeWorldFourCornersPos[3] = Vector2Add(rotatedCorners[3], planeWorldPos);
 }
 
 void Player::Draw() {
@@ -294,9 +301,10 @@ void Player::Draw() {
 		static_cast<int>(planeWorldFourCornersPos[2].x), static_cast<int>(planeWorldFourCornersPos[2].y),
 		static_cast<int>(planeWorldFourCornersPos[3].x), static_cast<int>(planeWorldFourCornersPos[3].y),
 
-
-		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y),
-		static_cast<int>(width), static_cast<int>(height),
+		// ここから修正：テクスチャのどこを切り取るか
+		0, 0,               // 左上から
+		static_cast<int>(width),  // テクスチャの幅（元のサイズ）
+		static_cast<int>(height), // テクスチャの高さ（元のサイズ）
 
 		whiteTextureHandle,
 		0xFFFFFFFF
