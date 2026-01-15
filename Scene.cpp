@@ -156,9 +156,8 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
-
-		ChargeUpdate();
-
+		/*ChargeUpdate();*/
+		player->Update_charge_propeller();
 		break;
 
 	case RISE:
@@ -198,38 +197,39 @@ void Scene::ChargeUpdate() {
 }
 
 void Scene::RiseUpdate() {
-
-
-	//チェックポイント
-	// 1.プレイヤーを更新
 	player->Update_play();
 
-	// 2.スクロール量をプレイヤーの速度分減少させる
-	scrollY += checkPoint.scrollSpeed;
+	// 2. しきい値
+	float screenYLimit = 500.0f;
 
-	// 3.背景の位置を更新
+	// 3. プレイヤーが限界を超えた分の「現在の計算上のスクロール量」
+	// (500 - プレイヤーの現在位置) 
+	// プレイヤーが 500 より上にいれば正の値、下にいれば負の値になる
+	float currentScroll = screenYLimit - player->position.y;
+
+	// 4. 【重要】スクロール量を「増える方向（上方向への進行）」だけに限定する
+	// 今までの scrollY より currentScroll が大きくなった時だけ更新する
+	if (currentScroll > scrollY) {
+		scrollY = currentScroll;
+	}
+
+	// 5. 背景の更新（scrollY は減らないので、プレイヤーが下がっても背景は止まったままになる）
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
-	// 4.左右の壁に触れた時ゲームオーバー
-	float halfW = player->width * 0.5f;
+	player->playerScreenY = player->position.y + scrollY;
 
-	bool hitLeft = (player->position.x - halfW <= 0.0f);
-	bool hitRight = (player->position.x + halfW >= 1280.0f);
-
-	if (gameScene != RESULT && (hitLeft || hitRight)) {
-		gameScene = RESULT;
-		return;
+	if (player->position.y + scrollY < 500.0f) {
+		// 【上昇中・中央固定モード】
+		// プレイヤーが画面中央より上にいこうとする間は、500に固定する
+		player->playerScreenY = 500.0f;
 	}
-
-
-	// 5.チェックポイント通過判定
-	if (scrollY - checkPoint.checkPointY >= 600.0f) {
-		phase = LANDING;
-		isScroll = false;
+	else {
+		// 【落下・自由移動モード】
+		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
+		player->playerScreenY = player->position.y + scrollY;
 	}
-
 }
 
 
@@ -298,16 +298,14 @@ void Scene::MainGameDraw() {
 		);
 	}
 
-
-	player->Draw(scrollY);
 }
-
 
 
 void Scene::ChargeDraw() {
 
 	Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 }
+
 
 
 void Scene::RiseDraw() {
