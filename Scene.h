@@ -66,10 +66,12 @@ public:
 public:
 
 	Scene();
-	void Initialize();
+	~Scene();
 
+	// 初期化
+	void Initialize();
 	void Update();
-	/**/void Draw();
+	void Draw();
 
 	// ゲームシーン用
 	void TitleUpdate();

@@ -35,7 +35,6 @@ void Scene::Initialize() {
 	// チェックポイント
 	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
-	checkPoint.isPreparingForLanding = false;
 	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 	checkPoint.scrollSpeed = 1.5f;
 	
@@ -44,9 +43,14 @@ void Scene::Initialize() {
 	// プレイヤー生成
 	player = new Player();
 
-	
 }
 
+Scene::~Scene() {
+	delete player;
+	player = nullptr;
+}
+
+// 更新処理
 void Scene::Update() {
 
 	// コントローラーの状態を取得
@@ -81,6 +85,7 @@ void Scene::Update() {
 	}
 }
 
+// 描画処理
 void Scene::Draw() {
 
 	switch (gameScene) {
@@ -114,7 +119,6 @@ void Scene::Draw() {
 /*---------
    関数
 ----------*/
-
 // 入力処理
 bool Scene::IsPressB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
@@ -126,8 +130,9 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
-
-// 更新処理
+/*----------------
+   更新処理
+-----------------*/
 void Scene::TitleUpdate() {
 
 	// Bボタンでチュートリアルへ
@@ -172,7 +177,6 @@ void Scene::PhaseUpdate() {
 
 }
 
-
 void Scene::ChargeUpdate() {
 
 	//ここらへんは一部勝手に作ったので採用するか微妙
@@ -214,7 +218,7 @@ void Scene::RiseUpdate() {
 	bool hitLeft = (player->position.x - halfW <= 0.0f);
 	bool hitRight = (player->position.x + halfW >= 1280.0f);
 
-	if (hitLeft || hitRight) {
+	if (gameScene != RESULT && (hitLeft || hitRight)) {
 		gameScene = RESULT;
 		return;
 	}
@@ -251,6 +255,7 @@ void Scene::LandingUpdate() {
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
 	if (IsTriggerB()) {
+		Initialize();
 		gameScene = TITLE;
 	}
 
@@ -258,7 +263,9 @@ void Scene::ResultUpdate() {
 
 // ------------------------------------------------------------------------------------
 
-// 描画処理
+/*---------------
+    描画処理
+-----------------*/
 void Scene::TitleDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
 }
@@ -291,26 +298,6 @@ void Scene::MainGameDraw() {
 		);
 	}
 
-
-	switch (phase) {
-	case CHARGE:
-
-		ChargeDraw();
-
-		break;
-
-	case RISE:
-		
-		RiseDraw();
-
-		break;
-
-	case LANDING:
-
-		LandingDraw();
-
-		break;
-	}
 
 	player->Draw(scrollY);
 }
