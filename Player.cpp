@@ -34,8 +34,8 @@ Player::Player() {
 	totalRightRotation = 0.0f;
 
 	// 左右プロペラパワー
-	leftPropellerPower = 50.0f;
-	rightPropellerPower = 30.0f;
+	leftPropellerPower = 0.0f;
+	rightPropellerPower = 0.0f;
 
 	speed = { 0.0f,0.0f }; // 速度
 	upValue = 0.0f; // プロペラパワー[ ? ]により上昇する量
@@ -43,9 +43,9 @@ Player::Player() {
 
 	angle = 0.0f; // 傾き
 	powerDiff = 0.0f; // 左右差
-	angleFacter = 0.00004f; // 傾きの係数
+	angleFacter = 0.00007f; // 傾きの係数
 
-
+	playerScreenY=0.0f;
 
 	// ----------------  本番では使わず、コードができているか確認するために使う変数  --------------------
 
@@ -230,7 +230,7 @@ void Player::Update_play() {
 	// *  if  *  左右どちらも死んだとき、上昇量を減らし続ける
 	// * else *  左右どちらかのプロペラが死んだとき、上昇量を徐々に減らし、上限値の半分に固定
 	if ((rightPropellerPower <= 0.0f) && (leftPropellerPower <= 0.0f)) {
-		upValue -= 0.774f;
+		upValue -= 0.5f;
 	} else if ((rightPropellerPower <= 0.0f) || (leftPropellerPower <= 0.0f)) {
 		if (upValue > MAX_UP_VALUE / 2.0f) {
 			upValue -= 0.188f;
@@ -247,12 +247,12 @@ void Player::Update_play() {
 
 	// 右のプロペラが尽きた時、右側へ大きく傾き続ける
 	if (rightPropellerPower <= 0.0f) {
-		angle += (powerDiff) * (angleFacter + 0.00005f);
+		angle += (powerDiff) * (angleFacter + 0.0005f);
 	}
 
 	// 左のプロペラが尽きた時、左側へ大きく傾き続ける
 	if (leftPropellerPower <= 0.0f) {
-		angle -= (powerDiff) * (angleFacter + 0.00005f);
+		angle -= (powerDiff) * (angleFacter + 0.0005f);
 	}
 
 	// ------------------------------------------------------------------------------------
@@ -326,16 +326,20 @@ void Player::Update_play() {
 	}
 }
 
-void Player::Draw(float scrollY) {
+void Player::Draw(float finalY) {
+
+	// 画面上の理想の位置(finalY) と 物理的な座標(position.y) の差を出す
+	float offsetY = finalY - position.y;
 
 	Novice::DrawQuad(
-		// ワールド座標の各点に scrollY を足すことで、
-		// 「上に進むほど、下に押し戻されて画面内に留まる」ように見える
-		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y + scrollY),
-		static_cast<int>(planeWorldFourCornersPos[1].x), static_cast<int>(planeWorldFourCornersPos[1].y + scrollY),
-		static_cast<int>(planeWorldFourCornersPos[2].x), static_cast<int>(planeWorldFourCornersPos[2].y + scrollY),
-		static_cast<int>(planeWorldFourCornersPos[3].x), static_cast<int>(planeWorldFourCornersPos[3].y + scrollY),
-
+		static_cast<int>(planeWorldFourCornersPos[0].x),
+		static_cast<int>(planeWorldFourCornersPos[0].y + offsetY), // offsetYを足す
+		static_cast<int>(planeWorldFourCornersPos[1].x),
+		static_cast<int>(planeWorldFourCornersPos[1].y + offsetY),
+		static_cast<int>(planeWorldFourCornersPos[2].x),
+		static_cast<int>(planeWorldFourCornersPos[2].y + offsetY),
+		static_cast<int>(planeWorldFourCornersPos[3].x),
+		static_cast<int>(planeWorldFourCornersPos[3].y + offsetY),
 		0, 0, (int)width, (int)height,
 		whiteTextureHandle, 0xFFFFFFFF
 	);
@@ -348,6 +352,8 @@ void Player::Draw(float scrollY) {
 	Novice::ScreenPrintf(0, 80, "propeller R %0.2f", rightPropellerPower);
 
 	Novice::ScreenPrintf(0, 100, "velocity %0.2f", velocity.x);
+
+	Novice::ScreenPrintf(0, 120, "playerScreenY %0.2f", playerScreenY);
 
 	/*Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
 	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);

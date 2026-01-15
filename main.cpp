@@ -19,10 +19,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Vector2_int currentLeftStickPos;
 
 	Scene scene;
-	Player player;
 
 	scene.gameScene = scene.MAIN_GAME;
 	scene.phase = scene.RISE;
+	int timer = 0;
+	scene.gameScene = scene.MAIN_GAME;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -41,11 +42,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (keys[DIK_SPACE]) {
 			scene.isScroll = true;
 		}
-		
-		if (scene.isScroll) {
-			scene.Update();
-			player.Update_play();
+		if (timer < 800) {
+			timer++;
 		}
+
+		if (timer < 700) {
+			scene.phase = scene.CHARGE;
+		}
+
+		if (timer > 700) {
+			scene.phase = scene.RISE;
+		}
+
+		scene.MainGameUpdate();
 
 		///
 		/// ↑更新処理ここまで
@@ -56,8 +65,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 
 		scene.MainGameDraw();
-		player.Draw(scene.scrollY);
-		Novice::ScreenPrintf(0, 40, "%f", scene.scrollY);
+		Novice::ScreenPrintf(0, 40, "timer %d", timer);
 
 
 

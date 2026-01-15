@@ -119,7 +119,8 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
-		ChargeUpdate();
+		/*ChargeUpdate();*/
+		player->Update_charge_propeller();
 		break;
 	case RISE:
 		RiseUpdate();
@@ -181,10 +182,12 @@ void Scene::MainGameDraw() {
 	switch (phase) {
 	case CHARGE:
 		ChargeDraw();
+		player->Draw(player->playerScreenY);
 		break;
 	case RISE:
 		
 		RiseDraw();
+		player->Draw(player->playerScreenY);
 		break;
 	}
 }
@@ -226,7 +229,6 @@ void Scene::ChargeDraw() {
 }
 
 void Scene::RiseUpdate() {
-	// 1. プレイヤーの更新
 	player->Update_play();
 
 	// 2. しきい値
@@ -247,6 +249,8 @@ void Scene::RiseUpdate() {
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
+
+	player->playerScreenY = player->position.y + scrollY;
 
 	if (player->position.y + scrollY < 500.0f) {
 		// 【上昇中・中央固定モード】
