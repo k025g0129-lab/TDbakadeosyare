@@ -267,30 +267,65 @@ void Player::Update_play() {
 	angle += powerDiff * angleFacter;
 
 
-	//スティック操作
+#pragma region スティックによる移動
+	// 左スティックの座標を取得
 	Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
-	if (currentLeftStickPos.x > 0) {
-		planeWorldPos.x += 1.0f;
+	// stickの中央（未操作時）を0とする
+	int offsetX = currentLeftStickPos.x - 32768;
+
+	// 右移動
+	if (offsetX > 100) {
+		velocity.x += 0.002f;
 	}
 
-	if (currentLeftStickPos.x < 0) {
-		planeWorldPos.x -= 1.0f;
+	// 左
+	if (offsetX < -100) {
+		velocity.x -= 0.002f;
 	}
 
-	// 1. 各頂点を回転させる（2次元回転行列の適用）
-// planeLocalFourCornersPos をベースに、現在の angle で回転させた一時的な頂点を作る
-	Vector2 rotatedCorners[4];
+	// positionを変動
+	position.x += 2.0f * velocity.x;
+
+	// 動いていないとき、velocityが0になるまで徐々に減らす
+	if (offsetX <= 100 && offsetX >= 100) {
+		if (velocity.x != 0.0f) {
+
+			// 0超過のとき
+			if (velocity.x > 0.0f) {
+				velocity.x -= 0.02f;
+
+				if (velocity.x < 0.0f) {
+					velocity.x = 0.0f;
+				}
+			}
+
+			// 0未満の時
+			if (velocity.x < 0.0f) {
+				velocity.x += 0.02f;
+
+				if (velocity.x > 0.0f) {
+					velocity.x = 0.0f;
+				}
+			}
+		}
+	}
+
+#pragma endregion
+
+	// 3. 傾きの更新
+	angle += powerDiff * angleFacter;
+
+	// 4. 最後に「集約された position」を使って全頂点を一括計算
+	Vector2 rotatedCorners[4]{};
 	for (int i = 0; i < 4; ++i) {
+		// ローカル座標を回転
 		rotatedCorners[i].x = planeLocalFourCornersPos[i].x * cosf(angle) - planeLocalFourCornersPos[i].y * sinf(angle);
 		rotatedCorners[i].y = planeLocalFourCornersPos[i].x * sinf(angle) + planeLocalFourCornersPos[i].y * cosf(angle);
-	}
 
-	// 2. 回転させた頂点に現在のワールド座標（planeWorldPos）を足す
-	planeWorldFourCornersPos[0] = Vector2Add(rotatedCorners[0], planeWorldPos);
-	planeWorldFourCornersPos[1] = Vector2Add(rotatedCorners[1], planeWorldPos);
-	planeWorldFourCornersPos[2] = Vector2Add(rotatedCorners[2], planeWorldPos);
-	planeWorldFourCornersPos[3] = Vector2Add(rotatedCorners[3], planeWorldPos);
+		// 回転した頂点に「共通の position」を足してワールド座標にする
+		planeWorldFourCornersPos[i] = Vector2Add(rotatedCorners[i], position);
+	}
 }
 
 void Player::Draw() {
