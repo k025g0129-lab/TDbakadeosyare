@@ -31,12 +31,14 @@ void Scene::Initialize() {
 	scrollY = 0.0f;
 	isTouchCheckpoint = false;
 	
+
 	// チェックポイント
 	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
-
+	checkPoint.scrollSpeed = 1.5f;
+	
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 	
 	// プレイヤー生成
@@ -187,8 +189,6 @@ void Scene::ChargeUpdate() {
 		checkPoint.lv++;
 		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 
-
-
 	}
 
 }
@@ -203,7 +203,7 @@ void Scene::RiseUpdate() {
 	player->Update_play();
 
 	// 2.スクロール量をプレイヤーの速度分減少させる
-	scrollY -= player->speed.y;
+	scrollY += checkPoint.scrollSpeed;
 
 	// 3.背景の位置を更新
 	for(int i = 0; i < 150; i++){
@@ -336,5 +336,3 @@ void Scene::LandingDraw() {
 void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
 }
-
-

@@ -34,7 +34,8 @@ public:
 		int isPreparingForLanding; // 通過したかどうか
 		int lv;
 		float distance;
-		
+		float scrollSpeed;  // 世界のスクロール速度
+
 	};
 
 	
