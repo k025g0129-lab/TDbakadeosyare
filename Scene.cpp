@@ -195,7 +195,7 @@ void Scene::ChargeUpdate() {
 
 void Scene::RiseUpdate() {
 
-	
+
 	//チェックポイント
 	// 1.プレイヤーを更新
 	player->Update_play();
@@ -204,7 +204,7 @@ void Scene::RiseUpdate() {
 	scrollY += checkPoint.scrollSpeed;
 
 	// 3.背景の位置を更新
-	for(int i = 0; i < 150; i++){
+	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
@@ -215,14 +215,8 @@ void Scene::RiseUpdate() {
 	bool hitRight = (player->position.x + halfW >= 1280.0f);
 
 	if (hitLeft || hitRight) {
-
-		// スクロール停止
-		checkPoint.scrollSpeed = 0.0f;
-
-		// 落下用の速度を与える
-		player->speed.y = 5.0f;
-
-		phase = LANDING; // とりあえずLANDINGに逃がす
+		gameScene = RESULT;
+		return;
 	}
 
 
@@ -233,6 +227,7 @@ void Scene::RiseUpdate() {
 	}
 
 }
+
 
 //プレイヤーへの真ん中から下の描画用場所
 void Scene::LandingUpdate() {
@@ -275,26 +270,25 @@ void Scene::TutorialDraw() {
 void Scene::MainGameDraw() {
 
 	for (int i = 0; i < 150; i++) {
-		if (i % 2 == 0) {
-			Novice::DrawSprite(
-				static_cast<int>(backGround[i].skyPos.x),
-				static_cast<int>(backGround[i].skyPos.y),
-				whiteTextureHandle,
-				1280, 720,
-				0.0f, 0xFF000044
-			);
+		// 描画するY座標（skyPos.y は Update 内で skyOriginalPos.y + scrollY と計算されているはず）
+		int drawY = static_cast<int>(backGround[i].skyPos.y);
+
+		// 【重要】画面外の背景は描画しない（カリング）
+		// 720以上（画面より下）または -720以下（画面より上）ならスキップ
+		if (drawY > 720 || drawY < -720) {
+			continue;
 		}
 
-		if (i % 2 == 1) {
-			Novice::DrawSprite(
-				static_cast<int>(backGround[i].skyPos.x),
-				static_cast<int>(backGround[i].skyPos.y),
-				whiteTextureHandle,
-				1280, 720,
-				0.0f, 0x00FF0044
-			);
-		}
+		// 色の決定（偶数・奇数）
+		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
 
+		// 描画実行
+		Novice::DrawSprite(
+			0, drawY,           // Xは0固定、Yは計算後の座標
+			whiteTextureHandle,
+			1280, 720,
+			0.0f, color
+		);
 	}
 
 
@@ -318,7 +312,7 @@ void Scene::MainGameDraw() {
 		break;
 	}
 
-	player->Draw();
+	player->Draw(scrollY);
 }
 
 
@@ -329,18 +323,31 @@ void Scene::ChargeDraw() {
 }
 
 
-
 void Scene::RiseDraw() {
 
-	Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
+	// MainGameDrawから引っ張ってきた
+	for (int i = 0; i < 150; i++) {
+		// 描画するY座標（skyPos.y は Update 内で skyOriginalPos.y + scrollY と計算されているはず）
+		int drawY = static_cast<int>(backGround[i].skyPos.y);
 
-	Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
-	Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.checkPointY - scrollY));
+		// 【重要】画面外の背景は描画しない（カリング）
+		// 720以上（画面より下）または -720以下（画面より上）ならスキップ
+		if (drawY > 720 || drawY < -720) {
+			continue;
+		}
 
+		// 色の決定（偶数・奇数）
+		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
 
+		// 描画実行
+		Novice::DrawSprite(
+			0, drawY,           // Xは0固定、Yは計算後の座標
+			whiteTextureHandle,
+			1280, 720,
+			0.0f, color
+		);
+	}
 }
-
-
 
 void Scene::LandingDraw() {
 

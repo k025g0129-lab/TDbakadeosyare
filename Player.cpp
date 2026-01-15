@@ -9,7 +9,7 @@
 
 Player::Player() {
 	// 座標　加速度　速度
-	position = { 200.0f,300.0f };
+	position = { 640.0f,600.0f };
 	accerelation = { 0.0f,0.0f };
 	velocity = { 0.0f,0.0f };
 
@@ -34,8 +34,8 @@ Player::Player() {
 	totalRightRotation = 0.0f;
 
 	// 左右プロペラパワー
-	leftPropellerPower = 0.0f;
-	rightPropellerPower = 0.0f;
+	leftPropellerPower = 50.0f;
+	rightPropellerPower = 30.0f;
 
 	speed = { 0.0f,0.0f }; // 速度
 	upValue = 0.0f; // プロペラパワー[ ? ]により上昇する量
@@ -43,7 +43,7 @@ Player::Player() {
 
 	angle = 0.0f; // 傾き
 	powerDiff = 0.0f; // 左右差
-	angleFacter = 0.007f; // 傾きの係数
+	angleFacter = 0.00004f; // 傾きの係数
 
 
 
@@ -58,7 +58,7 @@ Player::Player() {
 	//見た目
 	planeLocalCenterPos = { 0.0f,0.0f };
 	width = 100.0f;
-	height = 300.0f;
+	height = 100.0f;
 
 	planeLocalFourCornersPos[0] = { planeLocalCenterPos.x - width / 2, planeLocalCenterPos.y - height / 2 };
 	planeLocalFourCornersPos[1] = { planeLocalCenterPos.x + width / 2, planeLocalCenterPos.y - height / 2 };
@@ -215,6 +215,7 @@ void Player::Update_play() {
 		}
 	}
 
+	powerDiff = leftPropellerPower - rightPropellerPower;
 	// 上昇量の管理 ------------------------------------------------------------------------
 
 	// 徐々に数値が上がり、上限値で固定(1fあたりの上昇量は全ステージ固定)
@@ -246,12 +247,12 @@ void Player::Update_play() {
 
 	// 右のプロペラが尽きた時、右側へ大きく傾き続ける
 	if (rightPropellerPower <= 0.0f) {
-		angle += (powerDiff * 1.15f) * (angleFacter + 0.004f);
+		angle += (powerDiff) * (angleFacter + 0.00005f);
 	}
 
 	// 左のプロペラが尽きた時、左側へ大きく傾き続ける
 	if (leftPropellerPower <= 0.0f) {
-		angle -= (powerDiff * 1.15f) * (angleFacter + 0.004f);
+		angle -= (powerDiff) * (angleFacter + 0.00005f);
 	}
 
 	// ------------------------------------------------------------------------------------
@@ -271,16 +272,13 @@ void Player::Update_play() {
 	// 左スティックの座標を取得
 	Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
-	// stickの中央（未操作時）を0とする
-	int offsetX = currentLeftStickPos.x - 32768;
-
 	// 右移動
-	if (offsetX > 100) {
+	if (currentLeftStickPos.x > 100) {
 		velocity.x += 0.002f;
 	}
 
 	// 左
-	if (offsetX < -100) {
+	if (currentLeftStickPos.x < -100) {
 		velocity.x -= 0.002f;
 	}
 
@@ -288,12 +286,12 @@ void Player::Update_play() {
 	position.x += 2.0f * velocity.x;
 
 	// 動いていないとき、velocityが0になるまで徐々に減らす
-	if (offsetX <= 100 && offsetX >= 100) {
+	if (currentLeftStickPos.x <= 100 && currentLeftStickPos.x >= -100) {
 		if (velocity.x != 0.0f) {
 
 			// 0超過のとき
 			if (velocity.x > 0.0f) {
-				velocity.x -= 0.02f;
+				velocity.x -= 0.004f;
 
 				if (velocity.x < 0.0f) {
 					velocity.x = 0.0f;
@@ -302,7 +300,7 @@ void Player::Update_play() {
 
 			// 0未満の時
 			if (velocity.x < 0.0f) {
-				velocity.x += 0.02f;
+				velocity.x += 0.004f;
 
 				if (velocity.x > 0.0f) {
 					velocity.x = 0.0f;
@@ -328,24 +326,30 @@ void Player::Update_play() {
 	}
 }
 
-void Player::Draw() {
+void Player::Draw(float scrollY) {
 
 	Novice::DrawQuad(
-		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y),
-		static_cast<int>(planeWorldFourCornersPos[1].x), static_cast<int>(planeWorldFourCornersPos[1].y),
-		static_cast<int>(planeWorldFourCornersPos[2].x), static_cast<int>(planeWorldFourCornersPos[2].y),
-		static_cast<int>(planeWorldFourCornersPos[3].x), static_cast<int>(planeWorldFourCornersPos[3].y),
+		// ワールド座標の各点に scrollY を足すことで、
+		// 「上に進むほど、下に押し戻されて画面内に留まる」ように見える
+		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y + scrollY),
+		static_cast<int>(planeWorldFourCornersPos[1].x), static_cast<int>(planeWorldFourCornersPos[1].y + scrollY),
+		static_cast<int>(planeWorldFourCornersPos[2].x), static_cast<int>(planeWorldFourCornersPos[2].y + scrollY),
+		static_cast<int>(planeWorldFourCornersPos[3].x), static_cast<int>(planeWorldFourCornersPos[3].y + scrollY),
 
-		// ここから修正：テクスチャのどこを切り取るか
-		0, 0,               // 左上から
-		static_cast<int>(width),  // テクスチャの幅（元のサイズ）
-		static_cast<int>(height), // テクスチャの高さ（元のサイズ）
-
-		whiteTextureHandle,
-		0xFFFFFFFF
+		0, 0, (int)width, (int)height,
+		whiteTextureHandle, 0xFFFFFFFF
 	);
 
+	Novice::ScreenPrintf(0, 600, "pos = %0.2f, %0.2f", position.x, position.y);
+
 	Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
+
+	Novice::ScreenPrintf(0, 60, "propeller L %0.2f", leftPropellerPower);
+	Novice::ScreenPrintf(0, 80, "propeller R %0.2f", rightPropellerPower);
+
+	Novice::ScreenPrintf(0, 100, "velocity %0.2f", velocity.x);
+
+	/*Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
 	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);
 
 	Novice::ScreenPrintf(0, 60, "currentRightStickPos.x = %d", currentRightStickPos.x);
@@ -358,5 +362,5 @@ void Player::Draw() {
 	Novice::ScreenPrintf(0, 200, "totalRightRotation = %f", totalRightRotation);
 
 	Novice::ScreenPrintf(0, 240, "leftPropellerPower = %f", leftPropellerPower);
-	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);
+	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);*/
 }

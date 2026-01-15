@@ -69,7 +69,7 @@ public:
 	void Initialize();
 
 	void Update();
-	void Draw();
+	/**/void Draw();
 
 	// ゲームシーン用
 	void TitleUpdate();

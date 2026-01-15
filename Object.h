@@ -11,7 +11,7 @@ public:
 	Object(Vector2 initialPosition);
 	~Object();
 
-	void Update();
+	
 	void Draw();
 };
 

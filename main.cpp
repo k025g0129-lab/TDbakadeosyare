@@ -41,8 +41,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (keys[DIK_SPACE]) {
 			scene.isScroll = true;
 		}
-		scene.Update();
-		player.Update_play();
+		
+		if (scene.isScroll) {
+			scene.Update();
+			player.Update_play();
+		}
 
 		///
 		/// ↑更新処理ここまで
@@ -52,7 +55,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓描画処理ここから
 		///
 
-		player.Draw();
+		scene.MainGameDraw();
+		player.Draw(scene.scrollY);
 		Novice::ScreenPrintf(0, 40, "%f", scene.scrollY);
 
 
