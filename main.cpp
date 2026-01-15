@@ -42,7 +42,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			scene.isScroll = true;
 		}
 		scene.Update();
-		
+		player.Update_play();
+
 		///
 		/// ↑更新処理ここまで
 		///

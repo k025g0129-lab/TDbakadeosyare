@@ -287,6 +287,21 @@ void Player::Update_play() {
 }
 
 void Player::Draw() {
+
+	Novice::DrawQuad(
+		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y),
+		static_cast<int>(planeWorldFourCornersPos[1].x), static_cast<int>(planeWorldFourCornersPos[1].y),
+		static_cast<int>(planeWorldFourCornersPos[2].x), static_cast<int>(planeWorldFourCornersPos[2].y),
+		static_cast<int>(planeWorldFourCornersPos[3].x), static_cast<int>(planeWorldFourCornersPos[3].y),
+
+
+		static_cast<int>(planeWorldFourCornersPos[0].x), static_cast<int>(planeWorldFourCornersPos[0].y),
+		static_cast<int>(width), static_cast<int>(height),
+
+		whiteTextureHandle,
+		0xFFFFFFFF
+	);
+
 	Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
 	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);
 
