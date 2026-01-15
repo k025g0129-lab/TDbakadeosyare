@@ -130,6 +130,10 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
+
+// ------------------------------------------------------------------------------------
+
+
 /*----------------
    更新処理
 -----------------*/
@@ -156,7 +160,7 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
-		/*ChargeUpdate();*/
+		ChargeUpdate();
 		player->Update_charge_propeller();
 		break;
 
@@ -197,6 +201,8 @@ void Scene::ChargeUpdate() {
 }
 
 void Scene::RiseUpdate() {
+
+	// 1. プレイヤーの更新
 	player->Update_play();
 
 	// 2. しきい値
@@ -230,13 +236,18 @@ void Scene::RiseUpdate() {
 		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
 		player->playerScreenY = player->position.y + scrollY;
 	}
+
+	// 6. チェックポイント通過判定
+	if (scrollY >= checkPoint.checkPointY) {
+		phase = LANDING; 
+	}
 }
 
 
 //プレイヤーへの真ん中から下の描画用場所
 void Scene::LandingUpdate() {
 
-	
+	// スクロール開始
 	if (isScroll) {
 		scrollY += 1.5f;
 		for (int i = 0; i < 150; i++) {
@@ -250,6 +261,18 @@ void Scene::LandingUpdate() {
 		}
 		
 	}
+
+	// 600ピクセル分くらい余韻で進んだら
+	if (scrollY - checkPoint.checkPointY >= 600.0f) {
+
+		// ここでプレイヤーの状態をリセット
+		player->leftPropellerPower = 0.0f;
+		player->rightPropellerPower = 0.0f;
+		player->upValue = 0.0f; // 上昇速度もリセット
+
+		phase = CHARGE;
+		isScroll = false;
+	}
 }
 
 void Scene::ResultUpdate() {
@@ -260,6 +283,7 @@ void Scene::ResultUpdate() {
 	}
 
 }
+
 
 // ------------------------------------------------------------------------------------
 
