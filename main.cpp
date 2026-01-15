@@ -16,7 +16,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Vector2_int currentLeftStickPos;
+		Vector2_int currentLeftStickPos;
 
 	Scene scene;
 	Player player;

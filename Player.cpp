@@ -49,8 +49,7 @@ Player::Player() {
 
 	// ----------------  本番では使わず、コードができているか確認するために使う変数  --------------------
 
-	timer_trial = 630; // プログラム開始時のラグを考慮した10秒間
-	scene_trial = 1; // シーン
+	
 
 	// ------------------------------------------------------------------------------------------
 	angle = 0.0f;
@@ -79,138 +78,121 @@ Player::Player() {
 
 Player::~Player() {};
 
-void Player::Update_charge() {
-
-	switch (scene_trial) {
-	case PROPELLER:
-
-		// プロペラチャージ
+void Player::Update_charge_propeller() {
+	// プロペラチャージ
 #pragma region Left
 		// 更新する前の座標を保存
-		oldLeftStickPos = currentLeftStickPos;
-		// 左スティック操作
-		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
+	oldLeftStickPos = currentLeftStickPos;
+	// 左スティック操作
+	Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
-		// 1f前から座標が変化しているならtrue
-		if ((oldLeftStickPos.x != currentLeftStickPos.x) || (oldLeftStickPos.y != currentLeftStickPos.y)) {
-			// 正規化(norm = Normalizedの略)
-			float leftNormX = (static_cast<float>(currentLeftStickPos.x) - 32768.0f) / 32768.0f;
-			float leftNormY = (static_cast<float>(currentLeftStickPos.y) - 32768.0f) / 32768.0f;
+	// 1f前から座標が変化しているならtrue
+	if ((oldLeftStickPos.x != currentLeftStickPos.x) || (oldLeftStickPos.y != currentLeftStickPos.y)) {
+		// 正規化(norm = Normalizedの略)
+		float leftNormX = (static_cast<float>(currentLeftStickPos.x) - 32768.0f) / 32768.0f;
+		float leftNormY = (static_cast<float>(currentLeftStickPos.y) - 32768.0f) / 32768.0f;
 
-			// 現在の角度
-			currentLeftAngle = atan2f(leftNormY, leftNormX);
+		// 現在の角度
+		currentLeftAngle = atan2f(leftNormY, leftNormX);
 
-			// 中心からどれだけスティックを倒しているかの距離
-			float length = sqrtf(leftNormX * leftNormX + leftNormY * leftNormY);
+		// 中心からどれだけスティックを倒しているかの距離
+		float length = sqrtf(leftNormX * leftNormX + leftNormY * leftNormY);
 
-			// 一定距離以上で判定開始
-			if (length > 0.3f) {
-				// 1. 差分を出す
-				float diff = currentLeftAngle - oldLeftAngle;
+		// 一定距離以上で判定開始
+		if (length > 0.3f) {
+			// 1. 差分を出す
+			float diff = currentLeftAngle - oldLeftAngle;
 
-				// 2. 補正
-				if (diff > 3.14159f) diff -= 2.0f * 3.14159f;
-				if (diff < -3.14159f) diff += 2.0f * 3.14159f;
+			// 2. 補正
+			if (diff > 3.14159f) diff -= 2.0f * 3.14159f;
+			if (diff < -3.14159f) diff += 2.0f * 3.14159f;
 
-				// 3. 【修正】左回り（反時計回り）は diff がマイナスになる
-				if (diff < 0) {
-					// totalLeftRotation はプラスで溜めていきたいので、マイナスの diff を引く（＝プラスにする）
-					totalLeftRotation += fabsf(diff);
-				}
-
-				// 4. 1周判定
-				if (totalLeftRotation >= 1.2f) {
-					leftPropellerPower += 1.0f;
-					totalLeftRotation -= 1.2f;
-				}
-
-				// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
-				oldLeftAngle = currentLeftAngle;
-			} else {
-				// スティックを離した時は、次に倒した時に「変なジャンプ」が起きないよう
-				// 今の角度を old に逃がしておく処理を入れるとより安全です
-				oldLeftAngle = currentLeftAngle;
+			// 3. 【修正】左回り（反時計回り）は diff がマイナスになる
+			if (diff < 0) {
+				// totalLeftRotation はプラスで溜めていきたいので、マイナスの diff を引く（＝プラスにする）
+				totalLeftRotation += fabsf(diff);
 			}
+
+			// 4. 1周判定
+			if (totalLeftRotation >= 1.2f) {
+				leftPropellerPower += 1.0f;
+				totalLeftRotation -= 1.2f;
+			}
+
+			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
+			oldLeftAngle = currentLeftAngle;
+		} else {
+			// スティックを離した時は、次に倒した時に「変なジャンプ」が起きないよう
+			// 今の角度を old に逃がしておく処理を入れるとより安全です
+			oldLeftAngle = currentLeftAngle;
 		}
+	}
 
 #pragma endregion
 
 #pragma region Right
-		// 更新する前の座標を保存
-		oldRightStickPos = currentRightStickPos;
+	// 更新する前の座標を保存
+	oldRightStickPos = currentRightStickPos;
 
-		// 右スティック操作
-		Novice::GetAnalogInputRight(0, &currentRightStickPos.x, &currentRightStickPos.y);
+	// 右スティック操作
+	Novice::GetAnalogInputRight(0, &currentRightStickPos.x, &currentRightStickPos.y);
 
-		// 1f前から座標が変化しているならtrue
-		if ((oldRightStickPos.x != currentRightStickPos.x) || (oldRightStickPos.y != currentRightStickPos.y)) {
-			// 正規化(norm = Normalizedの略)
-			float rightNormX = (static_cast<float>(currentRightStickPos.x) - 32768.0f) / 32768.0f;
-			float rightNormY = (static_cast<float>(currentRightStickPos.y) - 32768.0f) / 32768.0f;
+	// 1f前から座標が変化しているならtrue
+	if ((oldRightStickPos.x != currentRightStickPos.x) || (oldRightStickPos.y != currentRightStickPos.y)) {
+		// 正規化(norm = Normalizedの略)
+		float rightNormX = (static_cast<float>(currentRightStickPos.x) - 32768.0f) / 32768.0f;
+		float rightNormY = (static_cast<float>(currentRightStickPos.y) - 32768.0f) / 32768.0f;
 
-			// 現在の角度
-			currentRightAngle = atan2f(rightNormY, rightNormX);
+		// 現在の角度
+		currentRightAngle = atan2f(rightNormY, rightNormX);
 
-			// 中心からどれだけスティックを倒しているかの距離
-			float length = sqrtf(rightNormX * rightNormX + rightNormY * rightNormY);
+		// 中心からどれだけスティックを倒しているかの距離
+		float length = sqrtf(rightNormX * rightNormX + rightNormY * rightNormY);
 
-			// 一定距離以上で判定開始
-			if (length > 0.3f) {
-				// 1. 差分を出す
-				float diff = currentRightAngle - oldRightAngle;
+		// 一定距離以上で判定開始
+		if (length > 0.3f) {
+			// 1. 差分を出す
+			float diff = currentRightAngle - oldRightAngle;
 
-				// 2. 補正
-				if (diff > 3.14159f) diff -= 2.0f * 3.14159f;
-				if (diff < -3.14159f) diff += 2.0f * 3.14159f;
+			// 2. 補正
+			if (diff > 3.14159f) diff -= 2.0f * 3.14159f;
+			if (diff < -3.14159f) diff += 2.0f * 3.14159f;
 
-				// 3. 【修正】右回り
-				if (diff > 0) {
-					// totalRightRotation はプラスで溜めていきたいので、マイナスの diff を引く（＝プラスにする）
-					totalRightRotation += fabsf(diff);
-				}
-
-				// 4. 1周判定
-				if (totalRightRotation >= 1.2f) {
-					rightPropellerPower += 1.0f;
-					totalRightRotation -= 1.2f;
-				}
-
-				// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
-				oldRightAngle = currentRightAngle;
-			} else {
-				// スティックを離した時は、次に倒した時に「変なジャンプ」が起きないよう
-				// 今の角度を old に逃がしておく処理を入れるとより安全です
-				oldRightAngle = currentRightAngle;
+			// 3. 【修正】右回り
+			if (diff > 0) {
+				// totalRightRotation はプラスで溜めていきたいので、マイナスの diff を引く（＝プラスにする）
+				totalRightRotation += fabsf(diff);
 			}
+
+			// 4. 1周判定
+			if (totalRightRotation >= 1.2f) {
+				rightPropellerPower += 1.0f;
+				totalRightRotation -= 1.2f;
+			}
+
+			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
+			oldRightAngle = currentRightAngle;
+		} else {
+			// スティックを離した時は、次に倒した時に「変なジャンプ」が起きないよう
+			// 今の角度を old に逃がしておく処理を入れるとより安全です
+			oldRightAngle = currentRightAngle;
 		}
+	}
 
 #pragma endregion
-		break;
+}
 
-	case BOOST:
-
-		if (timer_trial != 0) {
-			timer_trial--;
-		}
-
-		if (timer_trial <= 0) {
-			scene_trial = 0;
-		}
-
-		// ブーストチャージ
+void Player::Update_charge_boost() {
+	// ブーストチャージ
 		// L2押されたとき
-		if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
-			boost += 0.4f;
-		}
-
-		// R2押されたとき
-		if (Novice::IsTriggerButton(0, PadButton::kPadButton11)) {
-			boost += 0.4f;
-		}
-
-		break;
+	if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
+		boost += 0.4f;
 	}
-	
+
+	// R2押されたとき
+	if (Novice::IsTriggerButton(0, PadButton::kPadButton11)) {
+		boost += 0.4f;
+	}
 }
 
 void Player::Update_play() {
@@ -285,30 +267,23 @@ void Player::Update_play() {
 	angle += powerDiff * angleFacter;
 
 
-		//スティック操作
-		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
+	//スティック操作
+	Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
-		if (currentLeftStickPos.x > 0) {
-			planeWorldPos.x += 1.0f;
-		}
+	if (currentLeftStickPos.x > 0) {
+		planeWorldPos.x += 1.0f;
+	}
 
-		if (currentLeftStickPos.x < 0) {
-			planeWorldPos.x -= 1.0f;
-		}
+	if (currentLeftStickPos.x < 0) {
+		planeWorldPos.x -= 1.0f;
+	}
 
-		planeWorldFourCornersPos[0] = Vector2Add(planeLocalFourCornersPos[0], planeWorldPos);
-		planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
-		planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
-		planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
+	planeWorldFourCornersPos[0] = Vector2Add(planeLocalFourCornersPos[0], planeWorldPos);
+	planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
+	planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
+	planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
 
-		//上昇
-		
-
-
-
-		Draw();
-
-	
+	//上昇
 }
 
 void Player::Draw() {
