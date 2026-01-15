@@ -16,11 +16,25 @@ public:
 	enum Phase {
 		CHARGE,
 		RISE,
+		LANDING,
 	};
 
 	enum Direction {
 		RIGHT,
 		LEFT,
+	};
+
+	struct BackGround {
+		Vector2 skyOriginalPos;
+		Vector2 skyPos;
+	};
+
+	struct CheckPoint {
+		float checkPointY;
+		int isPreparingForLanding;
+		int lv;
+		float distance;
+
 	};
 
 	struct CheckPoint {
@@ -34,17 +48,22 @@ public:
 	Phase phase = CHARGE;
 	Direction direction = LEFT;
 
+	BackGround backGround[150];
+
 	int leftChargeAmount = 0;
 	int rightChargeAmount = 0;
 	int chargeTime = 600;
 
 	int tiltDegree = 0;
 
+	float scrollY = 0.0f;
 	int isScroll = false;
+	int isTouchCheckpoint = false;
 
-	// チェックポイント
-	CheckPoint checkpoint;
-	
+	CheckPoint checkPoint;
+
+
+	int whiteTextureHandle = 0;
 
 public:
 
@@ -73,6 +92,8 @@ public:
 	void ChargeDraw();
 	void RiseUpdate();
 	void RiseDraw();
+	void LandingUpdate();
+	void LandingDraw();
 
 	// 入力
 	bool IsPressB() const;

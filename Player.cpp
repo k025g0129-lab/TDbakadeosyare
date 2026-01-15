@@ -285,6 +285,7 @@ void Player::Update_play() {
 	angle += powerDiff * angleFacter;
 
 
+		//スティック操作
 		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
 		if (currentLeftStickPos.x > 0) {
@@ -299,6 +300,11 @@ void Player::Update_play() {
 		planeWorldFourCornersPos[1] = Vector2Add(planeLocalFourCornersPos[1], planeWorldPos);
 		planeWorldFourCornersPos[2] = Vector2Add(planeLocalFourCornersPos[2], planeWorldPos);
 		planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
+
+		//上昇
+		
+
+
 
 		Draw();
 
