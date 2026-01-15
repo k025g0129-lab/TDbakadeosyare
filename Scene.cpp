@@ -167,7 +167,7 @@ void Scene::PhaseUpdate() {
 		LandingUpdate();
 
 		break;
-		
+
 	}
 
 }
@@ -209,7 +209,21 @@ void Scene::RiseUpdate() {
 	}
 
 	// 4.左右の壁に触れた時ゲームオーバー
+	float halfW = player->width * 0.5f;
 
+	bool hitLeft = (player->position.x - halfW <= 0.0f);
+	bool hitRight = (player->position.x + halfW >= 1280.0f);
+
+	if (hitLeft || hitRight) {
+
+		// スクロール停止
+		checkPoint.scrollSpeed = 0.0f;
+
+		// 落下用の速度を与える
+		player->speed.y = 5.0f;
+
+		phase = LANDING; // とりあえずLANDINGに逃がす
+	}
 
 
 	// 5.チェックポイント通過判定

@@ -87,12 +87,16 @@ public:
 	
 	// フェーズ用
 	void PhaseUpdate();
+
 	void ChargeUpdate();
 	void ChargeDraw();
+
 	void RiseUpdate();
 	void RiseDraw();
+
 	void LandingUpdate();
 	void LandingDraw();
+
 
 	// 入力
 	bool IsPressB() const;
