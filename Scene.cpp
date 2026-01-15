@@ -149,13 +149,21 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
+
 		ChargeUpdate();
+
 		break;
+
 	case RISE:
+
 		RiseUpdate();
+
 		break;
+
 	case LANDING:
+
 		LandingUpdate();
+
 		break;
 		
 	}
@@ -172,6 +180,8 @@ void Scene::ChargeUpdate() {
 
 		chargeTime = 600;
 		phase = RISE;
+
+		isScroll = true;
 
 		//チェックポイント決め
 		checkPoint.lv++;
@@ -200,12 +210,7 @@ void Scene::RiseUpdate() {
 		for (int i = 0; i < 150; i++) {
 			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 		}
-		Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
-
-		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
-		Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.checkPointY - scrollY));
-
-
+		
 	}
 
 	//左右の壁に触れた時ゲームオーバーを書く予定
@@ -215,6 +220,7 @@ void Scene::RiseUpdate() {
 	//チェックポイントがスクリーン依存なので変える必要あり
 	if (checkPoint.checkPointY <= scrollY - 300.0f) {
 		phase = LANDING;
+		isScroll = true;
 	}
 
 }
@@ -232,7 +238,7 @@ void Scene::LandingUpdate() {
 
 		if (scrollY - checkPoint.checkPointY >= 600.0f) {
 			phase = CHARGE;
-
+			isScroll = false;
 		}
 		
 	}
@@ -283,17 +289,25 @@ void Scene::MainGameDraw() {
 
 	switch (phase) {
 	case CHARGE:
+
 		ChargeDraw();
+
 		break;
+
 	case RISE:
 		
 		RiseDraw();
+
+		break;
+
+	case LANDING:
+
+		LandingDraw();
+
 		break;
 	}
-}
 
-void Scene::ResultDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	player->Draw();
 }
 
 
@@ -306,6 +320,13 @@ void Scene::ChargeDraw() {
 
 
 void Scene::RiseDraw() {
+
+	Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
+
+	Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
+	Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.checkPointY - scrollY));
+
+
 }
 
 
@@ -315,3 +336,10 @@ void Scene::LandingDraw() {
 	Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 
 }
+
+
+void Scene::ResultDraw() {
+	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+}
+
+
