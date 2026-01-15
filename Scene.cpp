@@ -43,9 +43,6 @@ void Scene::Initialize() {
 	player = new Player();
 
 	
-	// checkpoint.checkPointY = -1500.0f; 
-	 checkPoint.isPassed = false;
-
 }
 
 void Scene::Update() {

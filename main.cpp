@@ -23,7 +23,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	scene.gameScene = scene.MAIN_GAME;
 	scene.phase = scene.RISE;
-	Player* p = new Player();
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -43,11 +42,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			scene.isScroll = true;
 		}
 		scene.Update();
-		player.Update(3);
-
 		
-		p->Update(p->scene_trial);
-
 		///
 		/// ↑更新処理ここまで
 		///
