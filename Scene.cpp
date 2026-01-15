@@ -183,20 +183,11 @@ void Scene::ChargeUpdate() {
 
 		isScroll = true;
 
-		//チェックポイント決め
+		// チェックポイント決め
 		checkPoint.lv++;
 		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 
-		//無しにする原因
-		int difference = leftChargeAmount - rightChargeAmount;
-		tiltDegree = difference * difference;
 
-		if (leftChargeAmount > rightChargeAmount) {
-			direction = LEFT;
-		}
-		else {
-			direction = RIGHT;
-		}
 
 	}
 
@@ -204,23 +195,25 @@ void Scene::ChargeUpdate() {
 
 void Scene::RiseUpdate() {
 
-	//上昇
-	if (isScroll) {
-		scrollY += 3.0f;
-		for (int i = 0; i < 150; i++) {
-			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
-		}
-		
-	}
-
 	//左右の壁に触れた時ゲームオーバーを書く予定
 
 
-	//チェックポイント触れ
-	//チェックポイントがスクリーン依存なので変える必要あり
-	if (checkPoint.checkPointY <= scrollY - 300.0f) {
+	//チェックポイント
+	// 1.プレイヤーを更新
+	player->Update_play();
+
+	// 2.スクロール量をプレイヤーの速度分減少させる
+	scrollY -= player->speed.y;
+
+	// 3.背景の位置を更新
+	for(int i = 0; i < 150; i++){
+		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
+	}
+
+	// 4.チェックポイント通過判定
+	if (scrollY - checkPoint.checkPointY >= 600.0f) {
 		phase = LANDING;
-		isScroll = true;
+		isScroll = false;
 	}
 
 }
@@ -251,6 +244,8 @@ void Scene::ResultUpdate() {
 	}
 
 }
+
+// ------------------------------------------------------------------------------------
 
 // 描画処理
 void Scene::TitleDraw() {
