@@ -154,7 +154,7 @@ void Scene::ChargeUpdate() {
 
 void Scene::RiseUpdate() {
 	// プレイヤー更新
-	player->Update(3);
+	player->Update_play();
 	
 	// チェックポイント判定
 	if (!checkpoint.isPassed && player->planeWorldPos.y <= checkpoint.checkPointY) {
