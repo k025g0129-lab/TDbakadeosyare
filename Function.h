@@ -34,6 +34,11 @@ void DrawBulletLine(
 void ResolveCollision(Vector2& playerPosition, float& playerRadius, Vector2& bossPosition, float& bossRadius);
 
 /// <summary>
+/// Vector2同士の足し算
+/// </summary>
+Vector2 Vector2Add(Vector2 Ve1,Vector2 Ve2);
+
+/// <summary>
 /// 円と回転した矩形が当たってるかどうか
 /// </summary>
 bool IsCollisionCircleRect(

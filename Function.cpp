@@ -2,8 +2,6 @@
 #include"Vector2.h"
 #include<Novice.h>
 
-
-
 // self○○   = 主観している対象
 // target○○ = 当たられる対象
 
@@ -129,6 +127,13 @@ void ResolveCollision(Vector2& playerPosition, float& playerRadius, Vector2& bos
         playerPosition.x += N.x * push_amount;
         playerPosition.y += N.y * push_amount;
     }
+}
+
+Vector2 Vector2Add(Vector2 Ve1, Vector2 Ve2) {
+    Vector2 a;
+    a.x = Ve1.x + Ve2.x;
+    a.y = Ve1.y + Ve2.y;
+    return a;
 }
 
 // 円と矩形の当たり判定 (追加)
