@@ -195,9 +195,7 @@ void Scene::ChargeUpdate() {
 
 void Scene::RiseUpdate() {
 
-	//左右の壁に触れた時ゲームオーバーを書く予定
-
-
+	
 	//チェックポイント
 	// 1.プレイヤーを更新
 	player->Update_play();
@@ -210,7 +208,11 @@ void Scene::RiseUpdate() {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
-	// 4.チェックポイント通過判定
+	// 4.左右の壁に触れた時ゲームオーバー
+
+
+
+	// 5.チェックポイント通過判定
 	if (scrollY - checkPoint.checkPointY >= 600.0f) {
 		phase = LANDING;
 		isScroll = false;
