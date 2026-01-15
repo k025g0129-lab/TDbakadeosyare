@@ -54,29 +54,59 @@ void Scene::Update() {
 	switch (gameScene) {
 
 	case TITLE:
+
 		TitleUpdate();
-		TitleDraw();
 		
 		break;
 
 	case TUTORIAL:
+
 		TutorialUpdate();
-		TutorialDraw();
 
 		break;
 
 	case MAIN_GAME:
+
 		MainGameUpdate();
-		MainGameDraw();
 
 		break;
 
 	case RESULT:
+
 		ResultUpdate();
-		ResultDraw();
 		
 		break;
 	}
+}
+
+void Scene::Draw() {
+
+	switch (gameScene) {
+	case TITLE:
+
+		TitleDraw();
+
+		break;
+	
+	case TUTORIAL:
+
+		TutorialDraw();
+	
+		break;
+	
+	case MAIN_GAME:
+
+		MainGameDraw();
+	
+		break;
+	
+	case RESULT:
+
+		ResultDraw();
+	
+		break;
+	}
+	
 }
 
 /*---------
@@ -133,8 +163,80 @@ void Scene::PhaseUpdate() {
 }
 
 
+void Scene::ChargeUpdate() {
+
+	//ここらへんは一部勝手に作ったので採用するか微妙
+	chargeTime--;
+
+	if (chargeTime <= 0) {
+
+		chargeTime = 600;
+		phase = RISE;
+
+		//チェックポイント決め
+		checkPoint.lv++;
+		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
+
+		//無しにする原因
+		int difference = leftChargeAmount - rightChargeAmount;
+		tiltDegree = difference * difference;
+
+		if (leftChargeAmount > rightChargeAmount) {
+			direction = LEFT;
+		}
+		else {
+			direction = RIGHT;
+		}
+
+	}
+
+}
+
+void Scene::RiseUpdate() {
+
+	//上昇
+	if (isScroll) {
+		scrollY += 3.0f;
+		for (int i = 0; i < 150; i++) {
+			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
+		}
+		Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
+
+		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
+		Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.checkPointY - scrollY));
 
 
+	}
+
+	//左右の壁に触れた時ゲームオーバーを書く予定
+
+
+	//チェックポイント触れ
+	//チェックポイントがスクリーン依存なので変える必要あり
+	if (checkPoint.checkPointY <= scrollY - 300.0f) {
+		phase = LANDING;
+	}
+
+}
+
+//プレイヤーへの真ん中から下の描画用場所
+void Scene::LandingUpdate() {
+
+
+	if (isScroll) {
+		scrollY += 1.5f;
+		for (int i = 0; i < 150; i++) {
+			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
+		}
+
+
+		if (scrollY - checkPoint.checkPointY >= 600.0f) {
+			phase = CHARGE;
+
+		}
+		
+	}
+}
 
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
@@ -195,85 +297,21 @@ void Scene::ResultDraw() {
 }
 
 
-void Scene::ChargeUpdate() {
 
-	//ここらへんは一部勝手に作ったので採用するか微妙
-	chargeTime--;
+void Scene::ChargeDraw() {
 
-	if (chargeTime <= 0) {
-
-		chargeTime = 600;
-		phase = RISE;
-
-		//チェックポイント決め
-		checkPoint.lv++;
-		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
-		
-		//無しにする原因
-		int difference = leftChargeAmount - rightChargeAmount;
-		tiltDegree = difference * difference;
-
-		if (leftChargeAmount > rightChargeAmount) {
-			direction = LEFT;
-		} else {
-			direction = RIGHT;
-		}
-
-	}
 	Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 }
 
-void Scene::ChargeDraw() {
-}
 
-void Scene::RiseUpdate() {
-
-	//上昇
-	if (isScroll) {
-		scrollY += 3.0f;
-		for (int i = 0; i < 150; i++) {
-			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
-		}
-		Novice::ScreenPrintf(0, 20, "%f", backGround[1].skyPos.y);
-
-		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY ), 1280, -int(checkPoint.checkPointY - scrollY),0xFF0000FF);
-		Novice::ScreenPrintf(0, 80, "%d", int(checkPoint.checkPointY - scrollY));
-
-
-	}
-
-	//左右の壁に触れた時ゲームオーバーを書く予定
-	
-
-	//チェックポイント触れ
-	//チェックポイントがスクリーン依存なので変える必要あり
-	if (checkPoint.checkPointY <= scrollY - 300.0f ){
-		phase = LANDING;
-	}
-	
-}
 
 void Scene::RiseDraw() {
 }
 
-//プレイヤーへの真ん中から下の描画用場所
-void Scene::LandingUpdate() {
-	
 
-	if (isScroll) {
-		scrollY += 1.5f;
-		for (int i = 0; i < 150; i++) {
-			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
-		}
-
-		
-		if (scrollY - checkPoint.checkPointY >= 600.0f) {
-			phase = CHARGE;
-			
-		}
-		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
-	}
-}
 
 void Scene::LandingDraw() {
+
+	Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
+
 }
