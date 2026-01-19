@@ -179,7 +179,7 @@ void Scene::ChargeUpdate() {
 
 	if (chargeTimer < 1200) {
 		chargeTimer++;
-	} else if (chargeTimer > 1200 && chargeTimer <= 1201){
+	} else if (chargeTimer <= 1200){
 		phase = RISE;
 	}
 
