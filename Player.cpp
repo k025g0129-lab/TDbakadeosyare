@@ -264,7 +264,7 @@ void Player::Update_play() {
 	// * else * boostPowerを1に固定
 	if (boostGauge > 0.0f) {
 		if (Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) {
-			boostGauge -= 0.02f;
+			boostGauge -= 0.08f;
 			boostPower = 1.35f;
 		} else {
 			boostPower = 1.0f;
