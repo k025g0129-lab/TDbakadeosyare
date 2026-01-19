@@ -32,6 +32,9 @@ public:
 	float upValue;
 	const float MAX_UP_VALUE = 1.127f; // 1f当たりに進む上昇量の最大値
 
+	// プレイヤー用スクロール変数
+	float playerScreenY;
+
 	//見た目
 	Vector2 planeLocalCenterPos = { 0.0f,0.0f };
 	float width = 100.0f;
@@ -64,6 +67,6 @@ public:
 	void Update_charge_boost();
 	void Update_play();
 
-	void Draw();
+	void Draw(float scrollY);
 };
 
