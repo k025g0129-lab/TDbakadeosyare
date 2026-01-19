@@ -39,7 +39,8 @@ Player::Player() {
 
 	speed = { 0.0f,0.0f }; // 速度
 	upValue = 0.0f; // プロペラパワー[ ? ]により上昇する量
-	boost = 0.0f; // ブースト
+	boostGauge = 0.0f; // ブースト
+	boostPower = 1.0f; // ブースト消費により速度を上げる係数
 
 	angle = 0.0f; // 傾き
 	powerDiff = 0.0f; // 左右差
@@ -186,12 +187,12 @@ void Player::Update_charge_boost() {
 	// ブーストチャージ
 		// L2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
-		boost += 0.4f;
+		boostGauge += 0.4f;
 	}
 
 	// R2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton11)) {
-		boost += 0.4f;
+		boostGauge += 0.4f;
 	}
 }
 
@@ -239,7 +240,7 @@ void Player::Update_play() {
 			}
 		}
 	}
-
+	
 	// ------------------------------------------------------------------------------------
 
 	// 傾く量の管理 --------------------------------------------------------------------------
@@ -256,16 +257,29 @@ void Player::Update_play() {
 
 	// ------------------------------------------------------------------------------------
 
+#pragma region ブーストの操作
+	// ブーストゲージ0超過で実行
+	// *  if  * R2 L2同時押しでブーストゲージを消費しboostPowerを設定
+	// * else * boostPowerを1に固定
+	if (boostGauge > 0.0f) {
+		if (Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) {
+			boostGauge -= 0.02f;
+			boostPower = 1.35f;
+		} else {
+			boostPower = 1.0f;
+		}
+	}
+#pragma endregion
+
 	// 上昇処理
-	speed.x = sinf(angle) * upValue;
-	speed.y = -cosf(angle) * upValue;
+	speed.x = sinf(angle) * upValue * boostPower;
+	speed.y = -cosf(angle) * upValue * boostPower;
 
 	position.x += speed.x;
 	position.y += speed.y;
 
 	// 毎フレーム左右の差によって傾きを追加
 	angle += powerDiff * angleFacter;
-
 
 #pragma region スティックによる移動
 	// 左スティックの座標を取得
