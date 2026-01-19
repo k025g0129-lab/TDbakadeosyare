@@ -18,7 +18,7 @@ void Scene::Initialize() {
 
 	leftChargeAmount = 0;
 	rightChargeAmount = 0;
-	chargeTime = 600;
+	chargeTimer = 0;
 	tiltDegree = 0;
 	isScroll = false;
 
@@ -156,8 +156,7 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
-		/*ChargeUpdate();*/
-		player->Update_charge_propeller();
+		ChargeUpdate();
 		break;
 
 	case RISE:
@@ -178,13 +177,19 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
-	//ここらへんは一部勝手に作ったので採用するか微妙
-	chargeTime--;
-
-	if (chargeTime <= 0) {
-
-		chargeTime = 600;
+	if (chargeTimer < 1200) {
+		chargeTimer++;
+	} else if (chargeTimer > 1200 && chargeTimer <= 1201){
 		phase = RISE;
+	}
+
+	if (chargeTimer < 700 ) {
+		player->Update_charge_propeller();
+	}
+	
+	if (chargeTimer > 701 && chargeTimer < 1200) {
+		player->Update_charge_boost();
+	}
 
 		isScroll = true;
 

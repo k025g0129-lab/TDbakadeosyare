@@ -358,16 +358,19 @@ void Player::Draw(float finalY) {
 		whiteTextureHandle, 0xFFFFFFFF
 	);
 
-	Novice::ScreenPrintf(0, 600, "pos = %0.2f, %0.2f", position.x, position.y);
+	Novice::ScreenPrintf(0, 180, "pos = %0.2f, %0.3f", position.x, position.y);
 
 	Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
 
-	Novice::ScreenPrintf(0, 60, "propeller L %0.2f", leftPropellerPower);
-	Novice::ScreenPrintf(0, 80, "propeller R %0.2f", rightPropellerPower);
+	Novice::ScreenPrintf(0, 60, "L propeller power %0.3f", leftPropellerPower);
+	Novice::ScreenPrintf(0, 80, "R propeller power %0.3f", rightPropellerPower);
 
-	Novice::ScreenPrintf(0, 100, "velocity %0.2f", velocity.x);
+	Novice::ScreenPrintf(0, 120, "boost Gauge = %0.3f", boostGauge);
+	Novice::ScreenPrintf(0, 140, "boost Power = %0.3f", boostPower);
 
-	Novice::ScreenPrintf(0, 120, "playerScreenY %0.2f", playerScreenY);
+	Novice::ScreenPrintf(0, 210, "velocity %0.3f", velocity.x);
+
+	Novice::ScreenPrintf(0, 240, "playerScreenY %0.3f", playerScreenY);
 
 	/*Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
 	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);
