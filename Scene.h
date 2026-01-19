@@ -49,7 +49,7 @@ public:
 
 	int leftChargeAmount = 0;
 	int rightChargeAmount = 0;
-	int chargeTime = 600;
+	int chargeTimer = 600;
 
 	int tiltDegree = 0;
 

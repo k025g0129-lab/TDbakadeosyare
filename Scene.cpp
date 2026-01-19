@@ -18,7 +18,7 @@ void Scene::Initialize() {
 
 	leftChargeAmount = 0;
 	rightChargeAmount = 0;
-	chargeTime = 600;
+	chargeTimer = 0;
 	tiltDegree = 0;
 	isScroll = false;
 
@@ -119,8 +119,7 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
-		/*ChargeUpdate();*/
-		player->Update_charge_propeller();
+		ChargeUpdate();
 		break;
 	case RISE:
 		RiseUpdate();
@@ -183,6 +182,7 @@ void Scene::MainGameDraw() {
 	case CHARGE:
 		ChargeDraw();
 		player->Draw(player->playerScreenY);
+
 		break;
 	case RISE:
 		
@@ -199,33 +199,56 @@ void Scene::ResultDraw() {
 
 void Scene::ChargeUpdate() {
 
-	//ここらへんは一部勝手に作ったので採用するか微妙
-	chargeTime--;
-
-	if (chargeTime <= 0) {
-
-		chargeTime = 600;
+	if (chargeTimer < 1200) {
+		chargeTimer++;
+	} else if (chargeTimer > 1200 && chargeTimer <= 1201){
 		phase = RISE;
-
-		//チェックポイント決め
-		checkPoint.lv++;
-		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
-		
-		//無しにする原因
-		int difference = leftChargeAmount - rightChargeAmount;
-		tiltDegree = difference * difference;
-
-		if (leftChargeAmount > rightChargeAmount) {
-			direction = LEFT;
-		} else {
-			direction = RIGHT;
-		}
-
 	}
-	Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
+
+	if (chargeTimer < 700 ) {
+		player->Update_charge_propeller();
+	}
+	
+	if (chargeTimer > 701 && chargeTimer < 1200) {
+		player->Update_charge_boost();
+	}
+
+	////ここらへんは一部勝手に作ったので採用するか微妙
+	//chargeTime--;
+
+	//if (chargeTime <= 0) {
+
+	//	chargeTime = 600;
+	//	phase = RISE;
+
+	//	//チェックポイント決め
+	//	checkPoint.lv++;
+	//	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
+	//	
+	//	//無しにする原因
+	//	int difference = leftChargeAmount - rightChargeAmount;
+	//	tiltDegree = difference * difference;
+
+	//	if (leftChargeAmount > rightChargeAmount) {
+	//		direction = LEFT;
+	//	} else {
+	//		direction = RIGHT;
+	//	}
+
+	//}
+	//Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 }
 
 void Scene::ChargeDraw() {
+	if (chargeTimer < 700) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
+	}
+
+	if (chargeTimer > 701 && chargeTimer < 1200) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
+	}
+
+	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
 
 void Scene::RiseUpdate() {
