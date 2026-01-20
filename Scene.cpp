@@ -150,17 +150,19 @@ void Scene::MainGameUpdate() {
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
-
 		ChargeUpdate();
 
 		break;
 
 	case RISE:
-
 		RiseUpdate();
 
 		break;
 
+	case LANDING:
+		LandingUpdate();
+
+		break;
 	}
 
 }
@@ -220,7 +222,11 @@ void Scene::MainGameDraw() {
 
 		player->Draw(player->playerScreenY);
 		break;
-;
+
+	case LANDING:
+		LandingDraw();
+		
+		break;
 	}
 }
 
@@ -317,23 +323,7 @@ void Scene::RiseUpdate() {
 
 	// 6. チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
-
-		// ① 着地：速度を完全に止める
-		player->velocity.y = 0.0f;
-
-		// ② チャージフェーズ（巻き直し）に戻る
-		phase = CHARGE;
-
-		// チャージタイマーをリセットする場合
-		chargeTimer = 0;
-
-		// ③ 次のチェックポイント目標を更新（今のレベル * 距離）
-		checkPoint.lv++;
-		checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
-
-		// ④ 次の上昇基準地点を、現在の座標に更新
-		playerStartY = player->position.y;
-
+		phase = LANDING;
 	}
 }
 
@@ -363,8 +353,24 @@ void Scene::RiseDraw() {
 
 	}
 
-	Novice::DrawLine(0, -int(checkPoint.triggerProgressY - scrollY), 1280, -int(checkPoint.triggerProgressY - scrollY), 0xFF0000FF);
-
 }
 
+void Scene::LandingUpdate() {
 
+	// 完全停止
+	player->velocity.y = 0.0f;
+
+	// 次のチェックポイント準備
+	checkPoint.lv++;
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
+
+	// 次の上昇基準点
+	playerStartY = player->position.y;
+
+	// チャージへ
+	chargeTimer = 0;
+	phase = CHARGE;
+}
+
+void Scene::LandingDraw() {
+}
