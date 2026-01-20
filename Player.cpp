@@ -274,7 +274,7 @@ void Player::Update_play() {
 
 			// --- コストの計算 ---
 			// 燃料が多いほど、追加で消費されるペナルティを大きくする
-			float penaltyCost = 0.03f * fuelRatio;
+			float penaltyCost = 0.082f * fuelRatio;
 
 			leftPropellerPower -= (0.025f + penaltyCost);
 			rightPropellerPower -= (0.025f + penaltyCost);
@@ -300,10 +300,10 @@ void Player::Update_play() {
 
 	// 上昇処理
 	if (boostPower >= 1.0f) {
-		speed.x = sinf(angle) * upValue;
+		speed.x = sinf(angle) * upValue * (boostPower/2.0f);
 		speed.y = -cosf(angle) * upValue * boostPower;
 	} else if (boostPower < 1.0f){
-		speed.x = sinf(angle) * upValue;
+		speed.x = sinf(angle) * upValue + (0.5f * boostPower);
 		speed.y = -cosf(angle) * upValue + (1.0f * boostPower);
 	}
 
