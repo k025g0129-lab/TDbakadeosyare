@@ -233,17 +233,7 @@ void Scene::ChargeUpdate() {
 	//Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 }
 
-void Scene::ChargeDraw() {
-	if (chargeTimer < 700) {
-		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
-	}
 
-	if (chargeTimer > 701 && chargeTimer < 1200) {
-		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
-	}
-
-	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
-}
 
 void Scene::RiseUpdate() {
 
@@ -362,6 +352,17 @@ void Scene::MainGameDraw() {
 
 }
 
+void Scene::ChargeDraw() {
+	if (chargeTimer < 700) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
+	}
+
+	if (chargeTimer > 701 && chargeTimer < 1200) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
+	}
+
+	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
+}
 
 void Scene::RiseDraw() {
 
