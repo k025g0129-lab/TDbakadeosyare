@@ -60,24 +60,47 @@ void Scene::Update() {
 
 	case TITLE:
 		TitleUpdate();
-		TitleDraw();
 
 		break;
 
 	case TUTORIAL:
 		TutorialUpdate();
-		TutorialDraw();
 
 		break;
 
 	case MAIN_GAME:
 		MainGameUpdate();
-		MainGameDraw();
 
 		break;
 
 	case RESULT:
 		ResultUpdate();
+
+		break;
+	}
+
+}
+
+void Scene::Draw() {
+
+	switch (gameScene) {
+
+	case TITLE:
+		TitleDraw();
+
+		break;
+
+	case TUTORIAL:
+		TutorialDraw();
+
+		break;
+
+	case MAIN_GAME:
+		MainGameDraw();
+
+		break;
+
+	case RESULT:
 		ResultDraw();
 
 		break;
@@ -136,9 +159,6 @@ void Scene::PhaseUpdate() {
 	}
 
 }
-
-
-
 
 
 void Scene::ResultUpdate() {
@@ -291,6 +311,16 @@ void Scene::RiseUpdate() {
 		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
 		player->playerScreenY = player->position.y + scrollY;
 	}
+
+	// チェックポイント到達判定
+	if (!checkPoint.isPreparingForLanding &&
+		player->position.y <= checkPoint.checkPointY) {
+
+		checkPoint.isPreparingForLanding = true;
+		phase = LANDING;
+		isScroll = true;
+	}
+
 }
 
 void Scene::RiseDraw() {
@@ -321,20 +351,22 @@ void Scene::RiseDraw() {
 
 //プレイヤーへの真ん中から下の描画用場所
 void Scene::LandingUpdate() {
-
-
 	if (isScroll) {
 		scrollY += 1.5f;
+
 		for (int i = 0; i < 150; i++) {
 			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 		}
 
-
 		if (scrollY - checkPoint.checkPointY >= 600.0f) {
-			phase = CHARGE;
 
+			checkPoint.lv++;
+			checkPoint.checkPointY = checkPoint.lv * checkPoint.distance;
+			checkPoint.isPreparingForLanding = false;
+
+			phase = CHARGE;
+			isScroll = false;
 		}
-		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 	}
 }
 
