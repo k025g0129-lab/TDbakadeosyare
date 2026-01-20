@@ -30,7 +30,7 @@ public:
 	float boostGauge;
 	float boostPower;
 	float upValue;
-	const float MAX_UP_VALUE = 1.127f; // 1f当たりに進む上昇量の最大値
+	const float MAX_UP_VALUE = 2.127f; // 1f当たりに進む上昇量の最大値
 
 	// プレイヤー用スクロール変数
 	float playerScreenY;
