@@ -152,12 +152,19 @@ void Scene::PhaseUpdate() {
 	case CHARGE:
 
 		ChargeUpdate();
+
 		break;
+
 	case RISE:
+
 		RiseUpdate();
+
 		break;
+
 	case LANDING:
+
 		LandingUpdate();
+
 		break;
 
 	}
@@ -213,9 +220,17 @@ void Scene::MainGameDraw() {
 		player->Draw(player->playerScreenY);
 
 		break;
-	case RISE:
 
+	case RISE:
 		RiseDraw();
+		// ★上昇中もチェックポイントの線を表示する
+		LandingDraw();
+		player->Draw(player->playerScreenY);
+		break;
+
+	case LANDING:
+		// ★ここを追加！これがないと着地フェーズで線が消える
+		LandingDraw();
 		player->Draw(player->playerScreenY);
 		break;
 	}
@@ -305,6 +320,7 @@ void Scene::RiseUpdate() {
 		scrollY >= checkPoint.triggerProgressY) {
 
 		checkPoint.isPreparingForLanding = true;
+		isScroll = true;
 		phase = LANDING;
 	}
 }
@@ -341,7 +357,6 @@ void Scene::RiseDraw() {
 //プレイヤーへの真ん中から下の描画用場所
 void Scene::LandingUpdate() {
 
-
 	if (isScroll) {
 		scrollY += 1.5f;
 		for (int i = 0; i < 150; i++) {
@@ -351,7 +366,6 @@ void Scene::LandingUpdate() {
 
 		if (scrollY - checkPoint.triggerProgressY >= 600.0f) {
 			phase = CHARGE;
-
 
 		}
 	}
