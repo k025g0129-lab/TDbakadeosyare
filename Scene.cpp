@@ -314,6 +314,7 @@ void Scene::RiseUpdate() {
 		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
 		player->playerScreenY = player->position.y + scrollY;
 	}
+
 }
 
 void Scene::RiseDraw() {
@@ -339,7 +340,10 @@ void Scene::RiseDraw() {
 			1280, 720,
 			0.0f, color
 		);
+
 	}
+
+
 }
 
 //プレイヤーへの真ん中から下の描画用場所
