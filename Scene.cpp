@@ -308,9 +308,6 @@ void Scene::LandingUpdate() {
 		phase = CHARGE;
 		isScroll = false;
 	}
-
-	checkPoint.lv++;
-	checkPoint.checkPointY = checkPoint.lv * checkPoint.distance;
 }
 
 
@@ -330,90 +327,68 @@ void Scene::TutorialDraw() {
 }
 
 void Scene::MainGameDraw() {
-
+	// --- 1. 背景描画 (全フェーズ共通) ---
 	for (int i = 0; i < 150; i++) {
-		// 描画するY座標（skyPos.y は Update 内で skyOriginalPos.y + scrollY と計算されているはず）
 		int drawY = static_cast<int>(backGround[i].skyPos.y);
+		// 画面外（上下720px以上外）なら描画スキップ
+		if (drawY > 720 || drawY < -720) continue;
 
-		// 【重要】画面外の背景は描画しない（カリング）
-		// 720以上（画面より下）または -720以下（画面より上）ならスキップ
-		if (drawY > 720 || drawY < -720) {
-			continue;
-		}
-
-		// 色の決定（偶数・奇数）
 		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
-
-		// 描画実行
-		Novice::DrawSprite(
-			0, drawY,           // Xは0固定、Yは計算後の座標
-			whiteTextureHandle,
-			1280, 720,
-			0.0f, color
-		);
+		Novice::DrawSprite(0, drawY, whiteTextureHandle, 1280, 720, 0.0f, color);
 	}
 
-
+	// --- 2. フェーズごとの特殊描画 (UIやエフェクト) ---
 	switch (phase) {
 	case CHARGE:
 		ChargeDraw();
-		player->Draw(player->playerScreenY);
-
 		break;
 	case RISE:
-
+		// RiseDraw()に背景描画を重複させていたので、必要なければ中身を空にするか削除
 		RiseDraw();
-		player->Draw(player->playerScreenY);
+		break;
+	case LANDING:
+		LandingDraw();
 		break;
 	}
+
+	// --- 3. プレイヤー描画 (全フェーズ共通) ---
+	// Updateで計算された playerScreenY を使用
+	player->Draw(player->playerScreenY);
+
+	// デバッグ用情報
+	Novice::ScreenPrintf(10, 10, "Phase: %d", phase);
+	Novice::ScreenPrintf(10, 30, "ScrollY: %f", scrollY);
 }
 
-
 void Scene::ChargeDraw() {
+	// チャージ時間に応じて背景の色を変えるなどの演出
 	if (chargeTimer < 700) {
+		// 暗い青
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
 	}
-
-	if (chargeTimer > 701 && chargeTimer < 1200) {
+	else if (chargeTimer < 1200) {
+		// 少し明るい紫
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
 	}
 
-	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
+	// デバッグ用にタイマーを表示
+	Novice::ScreenPrintf(300, 10, "charge Timer = %d / 1200", chargeTimer);
 }
 
+// 既存のRiseDrawから背景描画を削除（MainGameDrawで一括で行うため）
 void Scene::RiseDraw() {
-
-	// MainGameDrawから引っ張ってきた
-	for (int i = 0; i < 150; i++) {
-		// 描画するY座標（skyPos.y は Update 内で skyOriginalPos.y + scrollY と計算されているはず）
-		int drawY = static_cast<int>(backGround[i].skyPos.y);
-
-		// 【重要】画面外の背景は描画しない（カリング）
-		// 720以上（画面より下）または -720以下（画面より上）ならスキップ
-		if (drawY > 720 || drawY < -720) {
-			continue;
-		}
-
-		// 色の決定（偶数・奇数）
-		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
-
-		// 描画実行
-		Novice::DrawSprite(
-			0, drawY,           // Xは0固定、Yは計算後の座標
-			whiteTextureHandle,
-			1280, 720,
-			0.0f, color
-		);
-	}
+	// 上昇中のみ出したいエフェクト等があればここに書く
 }
 
 void Scene::LandingDraw() {
-
-	Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
-
+	// チェックポイントのラインを描画
+	// 世界座標とスクロール量から描画位置を特定
+	int lineY = static_cast<int>(checkPoint.checkPointY + scrollY);
+	Novice::DrawLine(0, lineY, 1280, lineY, 0xFF0000FF);
 }
 
 
 void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
 }
+
