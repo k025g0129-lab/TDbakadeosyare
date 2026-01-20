@@ -68,5 +68,6 @@ public:
 	void Update_play();
 
 	void Draw(float scrollY);
+
 };
 

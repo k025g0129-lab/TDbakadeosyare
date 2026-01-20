@@ -40,13 +40,14 @@ void Scene::Initialize() {
 	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
-	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 
 	// プレイヤー生成
 	player = new Player();
 
+	playerStartY = player->position.y;
 
 }
 
@@ -123,6 +124,7 @@ bool Scene::IsTriggerB() const {
 }
 
 
+
 // 更新処理
 void Scene::TitleUpdate() {
 
@@ -141,12 +143,14 @@ void Scene::TutorialUpdate() {
 }
 
 void Scene::MainGameUpdate() {
+
 	PhaseUpdate();
 }
 
 void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
+
 		ChargeUpdate();
 		break;
 	case RISE:
@@ -159,9 +163,6 @@ void Scene::PhaseUpdate() {
 	}
 
 }
-
-
-
 
 
 void Scene::ResultUpdate() {
@@ -280,42 +281,34 @@ void Scene::ChargeDraw() {
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
 
+
 void Scene::RiseUpdate() {
 	player->Update_play();
 
-	// 2. しきい値
-	float screenYLimit = 500.0f;
+	// 上昇距離の計算
+	float currentScroll = playerStartY - player->position.y;
 
-	// 3. プレイヤーが限界を超えた分の「現在の計算上のスクロール量」
-	// (500 - プレイヤーの現在位置) 
-	// プレイヤーが 500 より上にいれば正の値、下にいれば負の値になる
-	float currentScroll = screenYLimit - player->position.y;
-
-	// 4. 【重要】スクロール量を「増える方向（上方向への進行）」だけに限定する
-	// 今までの scrollY より currentScroll が大きくなった時だけ更新する
 	if (currentScroll > scrollY) {
 		scrollY = currentScroll;
 	}
 
-	// 5. 背景の更新（scrollY は減らないので、プレイヤーが下がっても背景は止まったままになる）
+	// 背景更新
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
+	// プレイヤー描画用Y
 	player->playerScreenY = player->position.y + scrollY;
 
-	if (player->position.y + scrollY < 500.0f) {
-		// 【上昇中・中央固定モード】
-		// プレイヤーが画面中央より上にいこうとする間は、500に固定する
-		player->playerScreenY = 500.0f;
-	}
-	else {
-		// 【落下・自由移動モード】
-		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
-		player->playerScreenY = player->position.y + scrollY;
-	}
+	// チェックポイント判定（上昇距離）
+	if (!checkPoint.isPreparingForLanding &&
+		scrollY >= checkPoint.triggerProgressY) {
 
+		checkPoint.isPreparingForLanding = true;
+		phase = LANDING;
+	}
 }
+
 
 void Scene::RiseDraw() {
 
@@ -343,7 +336,6 @@ void Scene::RiseDraw() {
 
 	}
 
-
 }
 
 //プレイヤーへの真ん中から下の描画用場所
@@ -357,13 +349,15 @@ void Scene::LandingUpdate() {
 		}
 
 
-		if (scrollY - checkPoint.checkPointY >= 600.0f) {
+		if (scrollY - checkPoint.triggerProgressY >= 600.0f) {
 			phase = CHARGE;
 
+
 		}
-		Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 	}
 }
 
 void Scene::LandingDraw() {
+	Novice::DrawLine(0, -int(checkPoint.triggerProgressY - scrollY), 1280, -int(checkPoint.triggerProgressY - scrollY), 0xFF0000FF);
+
 }

@@ -30,7 +30,7 @@ public:
 	};
 
 	struct CheckPoint {
-		float checkPointY; // 設置する高さ
+		float triggerProgressY; // 設置する高さ
 		int isPreparingForLanding; // 通過したかどうか
 		int lv;
 		float distance;
@@ -62,6 +62,9 @@ public:
 
 
 	int whiteTextureHandle = 0;
+
+	// チェックポイント用
+	float progressY = 0.0f;
 
 public:
 
@@ -104,11 +107,12 @@ public:
 	bool IsPressB() const;
 	bool IsTriggerB() const;
 
+
 private:
 	XINPUT_STATE padState{};
 	XINPUT_STATE prevPadState{};
 
 	Player* player;
-
+	float playerStartY;
 };
 
