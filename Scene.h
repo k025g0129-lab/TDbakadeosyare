@@ -16,7 +16,6 @@ public:
 	enum Phase {
 		CHARGE,
 		RISE,
-		LANDING,
 	};
 
 	enum Direction {

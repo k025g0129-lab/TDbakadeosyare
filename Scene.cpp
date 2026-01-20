@@ -161,12 +161,6 @@ void Scene::PhaseUpdate() {
 
 		break;
 
-	case LANDING:
-
-		LandingUpdate();
-
-		break;
-
 	}
 
 }
@@ -223,16 +217,10 @@ void Scene::MainGameDraw() {
 
 	case RISE:
 		RiseDraw();
-		// ★上昇中もチェックポイントの線を表示する
-		LandingDraw();
-		player->Draw(player->playerScreenY);
-		break;
 
-	case LANDING:
-		// ★ここを追加！これがないと着地フェーズで線が消える
-		LandingDraw();
 		player->Draw(player->playerScreenY);
 		break;
+;
 	}
 }
 
@@ -296,35 +284,58 @@ void Scene::ChargeDraw() {
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
 
-
 void Scene::RiseUpdate() {
+	// 1. プレイヤーの移動更新
 	player->Update_play();
 
-	// 上昇距離の計算
-	float currentScroll = playerStartY - player->position.y;
+	// 2. スクロール処理 (カメラの制御)
+	float screenYLimit = 500.0f;
+	float currentScroll = screenYLimit - player->position.y;
 
 	if (currentScroll > scrollY) {
 		scrollY = currentScroll;
 	}
 
-	// 背景更新
+	// 3. 背景の更新
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
-	// プレイヤー描画用Y
-	player->playerScreenY = player->position.y + scrollY;
+	// 4. プレイヤーの描画座標計算（上昇中は中央固定、落下中は自由移動）
+	if (player->position.y + scrollY < 500.0f) {
+		player->playerScreenY = 500.0f;
+	}
+	else {
+		player->playerScreenY = player->position.y + scrollY;
+	}
 
-	// チェックポイント判定（上昇距離）
-	if (!checkPoint.isPreparingForLanding &&
-		scrollY >= checkPoint.triggerProgressY) {
+	// --- ここから統合ロジック ---
 
-		checkPoint.isPreparingForLanding = true;
-		isScroll = true;
-		phase = LANDING;
+	// 5. 進捗（どれだけ上に進んだか）の計算
+	// playerStartY（前回の着地地点）から、現在のposition.yを引く
+	progressY = playerStartY - player->position.y;
+
+	// 6. チェックポイント（着地判定）
+	if (progressY >= checkPoint.triggerProgressY) {
+
+		// ① 着地：速度を完全に止める
+		player->velocity.y = 0.0f;
+
+		// ② チャージフェーズ（巻き直し）に戻る
+		phase = CHARGE;
+
+		// チャージタイマーをリセットする場合
+		chargeTimer = 0;
+
+		// ③ 次のチェックポイント目標を更新（今のレベル * 距離）
+		checkPoint.lv++;
+		checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
+
+		// ④ 次の上昇基準地点を、現在の座標に更新
+		playerStartY = player->position.y;
+
 	}
 }
-
 
 void Scene::RiseDraw() {
 
@@ -352,26 +363,8 @@ void Scene::RiseDraw() {
 
 	}
 
-}
-
-//プレイヤーへの真ん中から下の描画用場所
-void Scene::LandingUpdate() {
-
-	if (isScroll) {
-		scrollY += 1.5f;
-		for (int i = 0; i < 150; i++) {
-			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
-		}
-
-
-		if (scrollY - checkPoint.triggerProgressY >= 600.0f) {
-			phase = CHARGE;
-
-		}
-	}
-}
-
-void Scene::LandingDraw() {
 	Novice::DrawLine(0, -int(checkPoint.triggerProgressY - scrollY), 1280, -int(checkPoint.triggerProgressY - scrollY), 0xFF0000FF);
 
 }
+
+
