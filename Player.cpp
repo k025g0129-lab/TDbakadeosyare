@@ -166,9 +166,9 @@ void Player::Update_charge_propeller() {
 			}
 
 			// 4. 1周判定
-			if (totalRightRotation >= 1.2f) {
+			if (totalRightRotation >= 1.0f) {
 				rightPropellerPower += 1.0f;
-				totalRightRotation -= 1.2f;
+				totalRightRotation -= 1.0f;
 			}
 
 			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
@@ -283,22 +283,27 @@ void Player::Update_play() {
 			// 残量に比例するので、燃料が多いほどパワーは出る
 			boostPower = ((leftPropellerPower / 12.0f) + (rightPropellerPower / 12.0f)) * 0.9f;
 
-			if (boostGauge <= 0.0f) {
+			if (boostGauge < 0.0f) {
 				boostGauge = 0.0f;
 			}
 
 		} else {
 			boostPower = 1.0f;
 		}
+	} else {
+		if (boostPower > 1.0f) {
+			boostPower = 1.0f;
+		}
 	}
+
 #pragma endregion
 
 	// 上昇処理
 	if (boostPower >= 1.0f) {
-		speed.x = sinf(angle) * upValue * boostPower;
+		speed.x = sinf(angle) * upValue;
 		speed.y = -cosf(angle) * upValue * boostPower;
 	} else if (boostPower < 1.0f){
-		speed.x = sinf(angle) * upValue + (1.0f * boostPower);
+		speed.x = sinf(angle) * upValue;
 		speed.y = -cosf(angle) * upValue + (1.0f * boostPower);
 	}
 
