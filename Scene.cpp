@@ -273,7 +273,7 @@ void Scene::RiseUpdate() {
 	}
 
 	// 6. チェックポイント通過判定
-	if (scrollY >= checkPoint.checkPointY) {
+	if (player->position.y <= checkPoint.checkPointY) {
 		phase = LANDING; 
 	}
 }
@@ -308,6 +308,9 @@ void Scene::LandingUpdate() {
 		phase = CHARGE;
 		isScroll = false;
 	}
+
+	checkPoint.lv++;
+	checkPoint.checkPointY = checkPoint.lv * checkPoint.distance;
 }
 
 
@@ -350,7 +353,21 @@ void Scene::MainGameDraw() {
 		);
 	}
 
+
+	switch (phase) {
+	case CHARGE:
+		ChargeDraw();
+		player->Draw(player->playerScreenY);
+
+		break;
+	case RISE:
+
+		RiseDraw();
+		player->Draw(player->playerScreenY);
+		break;
+	}
 }
+
 
 void Scene::ChargeDraw() {
 	if (chargeTimer < 700) {
