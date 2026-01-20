@@ -202,20 +202,22 @@ void Player::Update_play() {
 	// 毎フレーム左右のプロペラパワーを減少
 	if (rightPropellerPower > 0.0f) {
 		rightPropellerPower -= 0.025f;
-
-		if (rightPropellerPower < 0.0f) {
-			rightPropellerPower = 0.0f;
-		}
 	}
 
 	if (leftPropellerPower > 0.0f) {
 		leftPropellerPower -= 0.025f;
-
-		if (leftPropellerPower < 0.0f) {
-			leftPropellerPower = 0.0f;
-		}
 	}
 
+	// 0以下で0に固定
+	if (rightPropellerPower < 0.0f) {
+		rightPropellerPower = 0.0f;
+	}
+
+	if (leftPropellerPower < 0.0f) {
+		leftPropellerPower = 0.0f;
+	}
+
+	// 左右のプロペラ残量の差(傾きに使う)
 	powerDiff = leftPropellerPower - rightPropellerPower;
 	// 上昇量の管理 ------------------------------------------------------------------------
 
@@ -263,9 +265,28 @@ void Player::Update_play() {
 	// *  if  * R2 L2同時押しでブーストゲージを消費しboostPowerを設定
 	// * else * boostPowerを1に固定
 	if (boostGauge > 0.0f) {
+		if(leftPropellerPower > 0.0f || rightPropellerPower > 0.0f)
 		if (Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) {
-			boostGauge -= 0.08f;
-			boostPower = 1.35f;
+			boostGauge -= 0.12f;
+
+			// 現在の燃料の割合 (1.0 ～ 0.0)
+			float fuelRatio = (leftPropellerPower + rightPropellerPower) / 100.0f;
+
+			// --- コストの計算 ---
+			// 燃料が多いほど、追加で消費されるペナルティを大きくする
+			float penaltyCost = 0.03f * fuelRatio;
+
+			leftPropellerPower -= (0.025f + penaltyCost);
+			rightPropellerPower -= (0.025f + penaltyCost);
+
+			// --- パワーの計算（あなたの元のロジックを維持） ---
+			// 残量に比例するので、燃料が多いほどパワーは出る
+			boostPower = ((leftPropellerPower / 12.0f) + (rightPropellerPower / 12.0f)) * 0.9f;
+
+			if (boostGauge <= 0.0f) {
+				boostGauge = 0.0f;
+			}
+
 		} else {
 			boostPower = 1.0f;
 		}
@@ -273,8 +294,13 @@ void Player::Update_play() {
 #pragma endregion
 
 	// 上昇処理
-	speed.x = sinf(angle) * upValue * boostPower;
-	speed.y = -cosf(angle) * upValue * boostPower;
+	if (boostPower >= 1.0f) {
+		speed.x = sinf(angle) * upValue * boostPower;
+		speed.y = -cosf(angle) * upValue * boostPower;
+	} else if (boostPower < 1.0f){
+		speed.x = sinf(angle) * upValue + (1.0f * boostPower);
+		speed.y = -cosf(angle) * upValue + (1.0f * boostPower);
+	}
 
 	position.x += speed.x;
 	position.y += speed.y;
