@@ -27,7 +27,8 @@ public:
 	float rightPropellerPower;
 
 	Vector2 speed;
-	float boost;
+	float boostGauge;
+	float boostPower;
 	float upValue;
 	const float MAX_UP_VALUE = 1.127f; // 1f当たりに進む上昇量の最大値
 

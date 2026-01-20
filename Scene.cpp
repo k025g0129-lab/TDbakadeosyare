@@ -18,7 +18,7 @@ void Scene::Initialize() {
 
 	leftChargeAmount = 0;
 	rightChargeAmount = 0;
-	chargeTime = 600;
+	chargeTimer = 0;
 	tiltDegree = 0;
 	isScroll = false;
 
@@ -161,7 +161,6 @@ void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
 		ChargeUpdate();
-		player->Update_charge_propeller();
 		break;
 
 	case RISE:
@@ -173,6 +172,62 @@ void Scene::PhaseUpdate() {
 	case LANDING:
 
 		LandingUpdate();
+		break;
+		
+	}
+
+}
+
+
+
+
+
+void Scene::ResultUpdate() {
+	// Bボタンでタイトルへ
+	if (IsTriggerB()) {
+		gameScene = TITLE;
+	}
+
+}
+
+// 描画処理
+void Scene::TitleDraw() {
+	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+}
+
+void Scene::TutorialDraw() {
+	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
+}
+
+void Scene::MainGameDraw() {
+
+	for (int i = 0; i < 150; i++) {
+		// 描画するY座標（skyPos.y は Update 内で skyOriginalPos.y + scrollY と計算されているはず）
+		int drawY = static_cast<int>(backGround[i].skyPos.y);
+
+		// 【重要】画面外の背景は描画しない（カリング）
+		// 720以上（画面より下）または -720以下（画面より上）ならスキップ
+		if (drawY > 720 || drawY < -720) {
+			continue;
+		}
+
+		// 色の決定（偶数・奇数）
+		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
+
+		// 描画実行
+		Novice::DrawSprite(
+			0, drawY,           // Xは0固定、Yは計算後の座標
+			whiteTextureHandle,
+			1280, 720,
+			0.0f, color
+		);
+	}
+
+
+	switch (phase) {
+	case CHARGE:
+		ChargeDraw();
+		player->Draw(player->playerScreenY);
 
 		break;
 
@@ -182,22 +237,56 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
-	//ここらへんは一部勝手に作ったので採用するか微妙
-	chargeTime--;
-
-	if (chargeTime <= 0) {
-
-		chargeTime = 600;
+	if (chargeTimer < 1200) {
+		chargeTimer++;
+	} else if (chargeTimer <= 1200){
 		phase = RISE;
-
-		isScroll = true;
-
-		// チェックポイント決め
-		checkPoint.lv++;
-		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
-
 	}
 
+	if (chargeTimer < 700 ) {
+		player->Update_charge_propeller();
+	}
+	
+	if (chargeTimer > 701 && chargeTimer < 1200) {
+		player->Update_charge_boost();
+	}
+
+	////ここらへんは一部勝手に作ったので採用するか微妙
+	//chargeTime--;
+
+	//if (chargeTime <= 0) {
+
+	//	chargeTime = 600;
+	//	phase = RISE;
+
+	//	//チェックポイント決め
+	//	checkPoint.lv++;
+	//	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
+	//	
+	//	//無しにする原因
+	//	int difference = leftChargeAmount - rightChargeAmount;
+	//	tiltDegree = difference * difference;
+
+	//	if (leftChargeAmount > rightChargeAmount) {
+	//		direction = LEFT;
+	//	} else {
+	//		direction = RIGHT;
+	//	}
+
+	//}
+	//Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
+}
+
+void Scene::ChargeDraw() {
+	if (chargeTimer < 700) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
+	}
+
+	if (chargeTimer > 701 && chargeTimer < 1200) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
+	}
+
+	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
 
 void Scene::RiseUpdate() {
