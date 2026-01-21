@@ -3,6 +3,7 @@
 #include <Xinput.h> 
 #include "Vector2.h"
 #include "Player.h"
+#include "Object.h"
 
 class Scene {
 public:
@@ -59,6 +60,8 @@ public:
 
 	CheckPoint checkPoint;
 
+	int isClear = false;
+
 
 	int whiteTextureHandle = 0;
 
@@ -102,6 +105,7 @@ private:
 	XINPUT_STATE prevPadState{};
 
 	Player* player;
+	Object* bird;
 
 };
 

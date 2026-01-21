@@ -8,10 +8,27 @@ public:
 	float width;
 	bool isActive;
 
+
+	struct Bird {
+		Vector2 pos;
+		float radius;
+		float moveSpeedX;
+		int isActive;
+		int leftOrRight;
+	};
+
+	Bird bird;
+
 	Object(Vector2 initialPosition);
 	~Object();
 
-	
 	void Draw();
+
+
+	void BirdInitialize();
+	void BirdUpdate();
+	void BirdDraw();
+	
+
 };
 

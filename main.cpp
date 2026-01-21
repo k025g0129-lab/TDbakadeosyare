@@ -37,7 +37,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
-		scene.MainGameUpdate();
+		//scene.MainGameUpdate();
+		scene.Update();
 
 		///
 		/// ↑更新処理ここまで

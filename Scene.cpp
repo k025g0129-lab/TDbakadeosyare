@@ -1,5 +1,6 @@
 ﻿#include "Scene.h"
 #include "Vector2.h"
+#include "Object.h"
 
 #include <Novice.h>
 #define _USE_MATH_DEFINES
@@ -37,11 +38,13 @@ void Scene::Initialize() {
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
 
+	isClear = false;
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 	
 	// プレイヤー生成
 	player = new Player();
-
+	Vector2 a = {0.0f,0.0f};
+	bird = new Object(a);
 	
 }
 
@@ -66,8 +69,9 @@ void Scene::Update() {
 		break;
 
 	case MAIN_GAME:
-		MainGameUpdate();
 		MainGameDraw();
+		MainGameUpdate();
+
 
 		break;
 
@@ -142,6 +146,12 @@ void Scene::ResultUpdate() {
 		gameScene = TITLE;
 	}
 
+	if (isClear) {
+
+	} else {
+
+	}
+
 }
 
 // 描画処理
@@ -194,6 +204,14 @@ void Scene::MainGameDraw() {
 
 void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+
+	if (isClear) {
+		Novice::ScreenPrintf(300, 0, "kuria");
+	} else {
+		Novice::ScreenPrintf(300, 0, "gemuoba");
+	}
+
+
 }
 
 
@@ -253,6 +271,7 @@ void Scene::ChargeDraw() {
 
 void Scene::RiseUpdate() {
 	player->Update_play();
+	bird->BirdUpdate();
 
 	// 2. しきい値
 	float screenYLimit = 500.0f;
@@ -268,6 +287,14 @@ void Scene::RiseUpdate() {
 		scrollY = currentScroll;
 	}
 
+	if (scrollY >= 400.0f) {
+		bird->bird.isActive = true;
+	}
+
+	Novice::ScreenPrintf(320, 0, "scrollY = %f", scrollY);
+	Novice::ScreenPrintf(320,20, "birdx = %f", bird->bird.pos.x);
+	Novice::ScreenPrintf(320,40, "birdy = %f", bird->bird.pos.y);
+
 	// 5. 背景の更新（scrollY は減らないので、プレイヤーが下がっても背景は止まったままになる）
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
@@ -279,10 +306,23 @@ void Scene::RiseUpdate() {
 		// 【上昇中・中央固定モード】
 		// プレイヤーが画面中央より上にいこうとする間は、500に固定する
 		player->playerScreenY = 500.0f;
+
+		if (bird->bird.isActive) {
+			bird->bird.pos.y += 2.0f;
+		}
+
 	} else {
 		// 【落下・自由移動モード】
 		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
 		player->playerScreenY = player->position.y + scrollY;
+	}
+
+	if (player->position.x >= 1280.0f || player->position.x <= 0.0f) {
+		gameScene = RESULT;
+	}
+
+	if (player->playerScreenY >= 720.0f) {
+		gameScene = RESULT;
 	}
 }
 
