@@ -295,7 +295,7 @@ void Player::Update_play() {
 
 	// 上昇処理
 	if (boostPower >= 1.0f) {
-		speed.x = sinf(angle) * upValue * (boostPower / 2.0f);
+		speed.x = sinf(angle) * upValue * (boostPower) / 2.0f;
 		speed.y = -cosf(angle) * upValue * boostPower;
 	} else if (boostPower < 1.0f){
 		speed.x = sinf(angle) * upValue + (1.0f * boostPower);

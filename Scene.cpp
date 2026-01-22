@@ -44,9 +44,12 @@ void Scene::Initialize() {
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 
+	// チャージ時間
+	maxChargeTime = 1200; 
+	propellerEndTime = 700;
+
 	// プレイヤー生成
 	player = new Player();
-
 	playerStartY = player->position.y;
 
 }
@@ -111,7 +114,6 @@ void Scene::Draw() {
 /*---------
    関数
 ----------*/
-
 // 入力処理
 bool Scene::IsPressB() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
@@ -163,21 +165,19 @@ void Scene::PhaseUpdate() {
 
 }
 
-
 void Scene::ChargeUpdate() {
 
-	if (chargeTimer < 1200) {
+	if (chargeTimer < maxChargeTime) {
 		chargeTimer++;
 	}
-	else if (chargeTimer <= 1200) {
+	else {
 		phase = RISE;
 	}
 
-	if (chargeTimer < 700) {
+	if (chargeTimer < propellerEndTime) {
 		player->Update_charge_propeller();
 	}
-
-	if (chargeTimer > 701 && chargeTimer < 1200) {
+	else if (chargeTimer < maxChargeTime) {
 		player->Update_charge_boost();
 	}
 
@@ -225,6 +225,16 @@ void Scene::RiseUpdate() {
 
 		// 次の上昇基準点をここにする
 		playerStartY = player->position.y;
+
+		// チャージ時間を半分にする
+		maxChargeTime /= 2;
+		propellerEndTime /= 2;
+
+
+		if (maxChargeTime < 60) {
+			maxChargeTime = 60;
+			propellerEndTime = 30; // プロペラ時間も適当に調整
+		}
 
 		// チャージへ戻る
 		chargeTimer = 0;
@@ -300,11 +310,10 @@ void Scene::ResultDraw() {
 }
 
 void Scene::ChargeDraw() {
-	if (chargeTimer < 700) {
+	if (chargeTimer < propellerEndTime) {
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
 	}
-
-	if (chargeTimer > 701 && chargeTimer < 1200) {
+	else if (chargeTimer < maxChargeTime) {
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
 	}
 

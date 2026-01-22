@@ -53,6 +53,8 @@ public:
 
 	// チャージ時間
 	int chargeTimer = 600;
+	int propellerEndTime = 700;
+	int maxChargeTime = 1200;
 
 	// 傾き
 	int tiltDegree = 0;
