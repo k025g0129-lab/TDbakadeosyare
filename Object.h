@@ -10,7 +10,8 @@ public:
 
 
 	struct Bird {
-		Vector2 pos;
+		Vector2 skyPos;
+		Vector2 screenPos;
 		float radius;
 		float moveSpeedX;
 		int isActive;
@@ -18,6 +19,7 @@ public:
 	};
 
 	Bird bird;
+	int birdGH = 0;
 
 	Object(Vector2 initialPosition);
 	~Object();

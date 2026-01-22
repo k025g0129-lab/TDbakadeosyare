@@ -1,11 +1,14 @@
 ﻿#include "Scene.h"
 #include "Vector2.h"
 #include "Object.h"
+#include "Function.h"
 
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include<Xinput.h>
+
+
 
 
 Scene::Scene() {
@@ -288,12 +291,12 @@ void Scene::RiseUpdate() {
 	}
 
 	if (scrollY >= 400.0f) {
-		bird->bird.isActive = true;
-	}
+		if (bird->bird.isActive == false) {
+			bird->bird.isActive = true;
+			bird->bird.skyPos.y = player->position.y - 500.0f;
+		}
 
-	Novice::ScreenPrintf(320, 0, "scrollY = %f", scrollY);
-	Novice::ScreenPrintf(320,20, "birdx = %f", bird->bird.pos.x);
-	Novice::ScreenPrintf(320,40, "birdy = %f", bird->bird.pos.y);
+	}
 
 	// 5. 背景の更新（scrollY は減らないので、プレイヤーが下がっても背景は止まったままになる）
 	for (int i = 0; i < 150; i++) {
@@ -301,15 +304,24 @@ void Scene::RiseUpdate() {
 	}
 
 	player->playerScreenY = player->position.y + scrollY;
+	bird->bird.screenPos.y = bird->bird.skyPos.y + scrollY;
+
+
+
+
+	/*if (IsCollisionCircleRect({bird->bird.screenPos.x, bird->bird.skyPos.y}, bird->bird.radius, player->position, player->width, player->height)) {
+		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
+	}*/
+
+	if (IsCollision({bird->bird.screenPos.x,bird->bird.skyPos.y}, player->position, bird->bird.radius, player->width)) {
+		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
+	}
 
 	if (player->position.y + scrollY < 500.0f) {
 		// 【上昇中・中央固定モード】
 		// プレイヤーが画面中央より上にいこうとする間は、500に固定する
 		player->playerScreenY = 500.0f;
 
-		if (bird->bird.isActive) {
-			bird->bird.pos.y += 2.0f;
-		}
 
 	} else {
 		// 【落下・自由移動モード】

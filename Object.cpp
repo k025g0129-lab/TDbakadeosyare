@@ -8,22 +8,24 @@ Object::Object(Vector2 initialPosition) {
 	isActive = false;
 
 
-	bird.radius = 50.0f;
+	bird.radius = 30.0f;
 
 	bird.leftOrRight = rand() %2;
 
 	if (bird.leftOrRight == 0) {
-		bird.pos = { 0.0f,1280.0f + bird.radius };
-		bird.moveSpeedX = -float(rand() % 5 + 5);
+		bird.skyPos = { 0.0f - bird.radius ,0.0f };
+		bird.screenPos = { 0.0f - bird.radius ,0.0f };
+		bird.moveSpeedX = float(rand() % 5 + 5);
 
 	}
 
 	if (bird.leftOrRight == 1) {
-		bird.pos = {0.0f,0.0f - bird.radius};
-		bird.moveSpeedX = float(rand() % 5 + 5);
+		bird.skyPos = { 1280.0f + bird.radius,0.0f };
+		bird.screenPos = { 1280.0f + bird.radius,0.0f };
+		bird.moveSpeedX = -float(rand() % 5 + 5);
 	}
 
-
+	birdGH = Novice::LoadTexture("./Resources/images/bird.png");;
 	bird.isActive = false;
 }
 
@@ -51,17 +53,17 @@ void Object::BirdInitialize() {
 
 void Object::BirdUpdate() {
 	if (bird.isActive) {
-		bird.pos.x += bird.moveSpeedX;
+		bird.screenPos.x += bird.moveSpeedX;
 
 		if (bird.leftOrRight == 0) {
-			if (bird.pos.x  >= 1280.0f + bird.radius) {
+			if (bird.screenPos.x  >= 1280.0f + bird.radius) {
 				bird.isActive = false;
 
 			}
 		}
 
 		if (bird.leftOrRight == 1) {
-			if (bird.pos.x <= 0.0f - bird.radius) {
+			if (bird.screenPos.x <= 0.0f - bird.radius) {
 				bird.isActive = false;
 
 			}
@@ -75,12 +77,22 @@ void Object::BirdUpdate() {
 void Object::BirdDraw() {
 
 	Novice::DrawEllipse(
-		static_cast<int>(bird.pos.x),
-		static_cast<int>(bird.pos.y),
+		static_cast<int>(bird.screenPos.x),
+		static_cast<int>(bird.screenPos.y),
 		static_cast<int>(bird.radius),
 		static_cast<int>(bird.radius),
 		0.0f, 0x0000FFFF,
 		kFillModeSolid
 
 	);
+
+	Novice::DrawSprite(
+		static_cast<int>(bird.screenPos.x - bird.radius),
+		static_cast<int>(bird.screenPos.y - bird.radius),
+		birdGH,
+		1.0f, 1.0f,
+		0.0f,
+		0xFFFFFFFF
+	);
+
 }
