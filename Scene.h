@@ -3,6 +3,7 @@
 #include <Xinput.h> 
 #include "Vector2.h"
 #include "Player.h"
+#include "Easing.h"
 
 class Scene {
 public:

@@ -37,7 +37,7 @@ void Scene::Initialize() {
 	isTouchCheckpoint = false;
 
 	// チェックポイント
-	checkPoint.distance = 3000.0f;
+	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -173,8 +173,90 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
+	switch (chargeSubPhase) {
 
+	// プロペラ案内表示
+	case SHOW_PROPELLER_TEXT:
+	{
+		chargeTextT += 0.01f; // 進行
+		float t = chargeTextT;
 
+		// t を 0→2 に拡張
+		if (t < 1.0f) {
+			// 下 → 真ん中
+			chargeTextPos.y = EaseOutBack(t, TEXT_START_Y, TEXT_END_Y);
+		}
+		else if (t < 2.0f) {
+			// 真ん中 → 下
+			float t2 = t - 1.0f; // 0〜1
+			chargeTextPos.y = EaseInBack(t2, TEXT_END_Y, TEXT_START_Y);
+		}
+		else {
+			// 完全に終了
+			chargeTextT = 0.0f;
+			chargeTimer = 0;
+			chargeSubPhase = PROPELLER_CHARGE;
+			chargeTextPos.y = TEXT_START_Y;
+		}
+	}
+	return;
+
+	// プロペラチャージ
+	case PROPELLER_CHARGE:
+		chargeTimer++;
+
+		player->Update_charge_propeller();
+
+		if (chargeTimer >= propellerEndTime) {
+			chargeTextT = 0.0f;
+
+			if (checkPoint.lv >= 2) {
+				chargeSubPhase = BOOST_CHARGE;
+			}
+			else {
+				chargeSubPhase = SHOW_BOOST_TEXT;
+			}
+		}
+
+		return;
+
+	// ブースト案内表示
+	case SHOW_BOOST_TEXT:
+	{
+		chargeTextT += 0.01f; // 進行
+		float t = chargeTextT;
+
+		// t を 0→2 に拡張
+		if (t < 1.0f) {
+			// 下 → 真ん中
+			chargeTextPos.y = EaseOutBack(t, TEXT_START_Y, TEXT_END_Y);
+		}
+		else if (t < 2.0f) {
+			// 真ん中 → 下
+			float t2 = t - 1.0f; // 0〜1
+			chargeTextPos.y = EaseInBack(t2, TEXT_END_Y, TEXT_START_Y);
+		}
+		else {
+			// 完全に終了
+			chargeTextT = 0.0f;
+			chargeSubPhase = BOOST_CHARGE;
+			chargeTextPos.y = TEXT_START_Y;
+		}
+	}
+	return;
+
+	// ブーストチャージ
+	case BOOST_CHARGE:
+		chargeTimer++;
+
+		player->Update_charge_boost();
+
+		if (chargeTimer >= maxChargeTime) {
+			phase = RISE;
+		}
+
+		return;
+	}
 }
 
 
@@ -234,8 +316,17 @@ void Scene::RiseUpdate() {
 
 		// チャージへ戻る
 		chargeTimer = 0;
+		chargeTextT = 0.0f;
 		player->ResetForCharge();
 		phase = CHARGE;
+
+		// Lv2以降（1回着地した後）は演出を飛ばす
+		if (checkPoint.lv >= 2) {
+			chargeSubPhase = PROPELLER_CHARGE;
+		}
+		else {
+			chargeSubPhase = SHOW_PROPELLER_TEXT;
+		}
 	}
 
 }
@@ -306,15 +397,29 @@ void Scene::ResultDraw() {
 }
 
 void Scene::ChargeDraw() {
+	// 1. まず背景色を決定して画面全体を塗りつぶす
 	if (chargeTimer < propellerEndTime) {
+		// プロペラの色（暗い青系）
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
 	}
-	else if (chargeTimer < maxChargeTime) {
+	else {
+		// ブーストの色（紫系）
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
 	}
 
+	// 2. その上に演出の案内（箱）を重ねる
+	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
+		Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0xFAFAD2FF, kFillModeSolid);
+	}
+
+	if (chargeSubPhase == SHOW_BOOST_TEXT) {
+		Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0x006400FF, kFillModeSolid);
+	}
+
+	// 3. デバッグ情報の表示
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
+
 
 void Scene::RiseDraw() {
 
