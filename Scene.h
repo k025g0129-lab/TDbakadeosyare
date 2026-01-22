@@ -37,7 +37,12 @@ public:
 
 	};
 
-	
+	enum ChargeSubPhase {
+		SHOW_PROPELLER_TEXT,
+		PROPELLER_CHARGE,
+		SHOW_BOOST_TEXT,
+		BOOST_CHARGE,
+	};
 
 public:
 
