@@ -69,5 +69,8 @@ public:
 
 	void Draw(float scrollY);
 
+	// 着地リセット
+	void ResetForCharge();
+
 };
 

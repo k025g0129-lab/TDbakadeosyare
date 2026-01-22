@@ -111,8 +111,9 @@ public:
 
 
 private:
-	XINPUT_STATE padState{};
-	XINPUT_STATE prevPadState{};
+	// コントローラー
+	XINPUT_STATE padState{}; // 今のフレームの入力状態
+	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
 
 	Player* player;
 	float playerStartY;

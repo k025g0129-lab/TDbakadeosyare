@@ -295,7 +295,7 @@ void Player::Update_play() {
 
 	// 上昇処理
 	if (boostPower >= 1.0f) {
-		speed.x = sinf(angle) * upValue * boostPower;
+		speed.x = sinf(angle) * upValue * (boostPower / 2.0f);
 		speed.y = -cosf(angle) * upValue * boostPower;
 	} else if (boostPower < 1.0f){
 		speed.x = sinf(angle) * upValue + (1.0f * boostPower);
@@ -413,3 +413,15 @@ void Player::Draw(float finalY) {
 	Novice::ScreenPrintf(0, 240, "leftPropellerPower = %f", leftPropellerPower);
 	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);*/
 }
+
+// 着地リセット
+void Player::ResetForCharge() {
+	// 物理
+	velocity = { 0.0f, 0.0f };
+
+	// 上昇関連
+	upValue = 0.0f;
+	boostPower = 1.0f;
+
+}
+

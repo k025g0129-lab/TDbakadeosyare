@@ -37,7 +37,7 @@ void Scene::Initialize() {
 	isTouchCheckpoint = false;
 
 	// チェックポイント
-	checkPoint.distance = 1500.0f;
+	checkPoint.distance = 3000.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -185,10 +185,10 @@ void Scene::ChargeUpdate() {
 
 
 void Scene::RiseUpdate() {
-	// 1. プレイヤーの移動更新
+	// プレイヤーの移動更新
 	player->Update_play();
 
-	// 2. スクロール処理 (カメラの制御)
+	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
 	float currentScroll = screenYLimit - player->position.y;
 
@@ -196,12 +196,12 @@ void Scene::RiseUpdate() {
 		scrollY = currentScroll;
 	}
 
-	// 3. 背景の更新
+	// 背景の更新
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
-	// 4. プレイヤーの描画座標計算（上昇中は中央固定、落下中は自由移動）
+	// プレイヤーの描画座標計算（上昇中は中央固定、落下中は自由移動）
 	if (player->position.y + scrollY < 500.0f) {
 		player->playerScreenY = 500.0f;
 	}
@@ -209,11 +209,10 @@ void Scene::RiseUpdate() {
 		player->playerScreenY = player->position.y + scrollY;
 	}
 
-	// 5. 進捗（どれだけ上に進んだか）の計算
-	// playerStartY（前回の着地地点）から、現在のposition.yを引く
+	// 進捗（どれだけ上に進んだか）の計算
 	progressY = playerStartY - player->position.y;
 
-	// 6. チェックポイント（着地判定）
+	// チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
 
 		// 着地：完全停止
@@ -229,6 +228,7 @@ void Scene::RiseUpdate() {
 
 		// チャージへ戻る
 		chargeTimer = 0;
+		player->ResetForCharge();
 		phase = CHARGE;
 	}
 
