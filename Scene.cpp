@@ -37,7 +37,7 @@ void Scene::Initialize() {
 	isTouchCheckpoint = false;
 
 	// チェックポイント
-	checkPoint.distance = 1500.0f;
+	checkPoint.distance = 3000.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -227,11 +227,16 @@ void Scene::RiseUpdate() {
 		playerStartY = player->position.y;
 
 		// チャージ時間を半分にする
-		maxChargeTime /= 2;
-		propellerEndTime /= 2;
+		if (checkPoint.lv == 2) {
+			maxChargeTime = 600;       // 直接 600 を代入
+			propellerEndTime = 350;    // プロペラも半分（700の半分）にする
+		}
 
 		// チャージ時間の制限
-
+		if (maxChargeTime < 60) {
+			maxChargeTime = 60;
+			propellerEndTime = 30;
+		}
 
 		// チャージへ戻る
 		chargeTimer = 0;
