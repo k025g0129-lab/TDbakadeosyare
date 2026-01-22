@@ -48,6 +48,12 @@ void Scene::Initialize() {
 	maxChargeTime = 1200; 
 	propellerEndTime = 700;
 
+	// チャージ演出初期化
+	chargeSubPhase = SHOW_PROPELLER_TEXT;
+	chargeTimer = 0;
+	chargeTextT = 0.0f;
+	chargeTextPos = { 0.0f, TEXT_START_Y };
+
 	// プレイヤー生成
 	player = new Player();
 	playerStartY = player->position.y;
@@ -167,21 +173,7 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
-	if (chargeTimer < maxChargeTime) {
-		chargeTimer++;
-	}
-	else if (chargeTimer <= maxChargeTime) {
-		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
-		phase = RISE;
-	}
 
-	if (chargeTimer < propellerEndTime) {
-		player->Update_charge_propeller();
-	}
-
-	else if (chargeTimer < maxChargeTime) {
-		player->Update_charge_boost();
-	}
 
 }
 

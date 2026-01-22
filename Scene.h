@@ -122,7 +122,20 @@ private:
 	XINPUT_STATE padState{}; // 今のフレームの入力状態
 	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
 
+	// プレイヤー
 	Player* player;
 	float playerStartY;
+
+	// チャージ演出用
+	ChargeSubPhase chargeSubPhase = SHOW_PROPELLER_TEXT;
+
+	// 文字演出用
+	float chargeTextT = 0.0f;
+	Vector2 chargeTextPos;
+
+	// 定数
+	const float TEXT_START_Y = 800.0f;
+	const float TEXT_END_Y = 360.0f;
+
 };
 

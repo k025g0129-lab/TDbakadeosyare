@@ -281,9 +281,6 @@ void Player::Update_play() {
 			leftPropellerPower -= (0.05f + penaltyCost);
 			rightPropellerPower -= (0.05f + penaltyCost);
 
-			Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
-			Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
-
 			// --- パワーの計算（あなたの元のロジックを維持） ---
 			// 残量に比例するので、燃料が多いほどパワーは出る
 			boostPower = ((leftPropellerPower / 12.0f) + (rightPropellerPower / 12.0f)) * 0.9f;
