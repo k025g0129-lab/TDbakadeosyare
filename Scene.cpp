@@ -11,6 +11,11 @@ Scene::Scene() {
 	Initialize();
 }
 
+Scene::~Scene() {
+	delete player;
+	player = nullptr;
+}
+
 void Scene::Initialize() {
 	gameScene = TITLE;
 	phase = CHARGE;
@@ -30,27 +35,25 @@ void Scene::Initialize() {
 	}
 	scrollY = 0.0f;
 	isTouchCheckpoint = false;
-	
 
 	// チェックポイント
-	checkPoint.distance = 1500.0f;
+	checkPoint.distance = 3000.0f;
 	checkPoint.lv = 1;
-	checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
-	checkPoint.scrollSpeed = 1.5f;
-	
+	checkPoint.isPreparingForLanding = false;
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
+
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
-	
+
+	// チャージ時間
+	maxChargeTime = 1200; 
+	propellerEndTime = 700;
+
 	// プレイヤー生成
 	player = new Player();
+	playerStartY = player->position.y;
 
 }
 
-Scene::~Scene() {
-	delete player;
-	player = nullptr;
-}
-
-// 更新処理
 void Scene::Update() {
 
 	// コントローラーの状態を取得
@@ -60,60 +63,52 @@ void Scene::Update() {
 	switch (gameScene) {
 
 	case TITLE:
-
 		TitleUpdate();
-		
+
 		break;
 
 	case TUTORIAL:
-
 		TutorialUpdate();
 
 		break;
 
 	case MAIN_GAME:
-
 		MainGameUpdate();
 
 		break;
 
 	case RESULT:
-
 		ResultUpdate();
-		
+
 		break;
 	}
+
 }
 
-// 描画処理
 void Scene::Draw() {
 
 	switch (gameScene) {
-	case TITLE:
 
+	case TITLE:
 		TitleDraw();
 
 		break;
-	
+
 	case TUTORIAL:
-
 		TutorialDraw();
-	
+
 		break;
-	
+
 	case MAIN_GAME:
-
 		MainGameDraw();
-	
-		break;
-	
-	case RESULT:
 
+		break;
+
+	case RESULT:
 		ResultDraw();
-	
+
 		break;
 	}
-	
 }
 
 /*---------
@@ -130,9 +125,10 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
-/*----------------
+
+/*------------
    更新処理
------------------*/
+--------------*/
 void Scene::TitleUpdate() {
 
 	// Bボタンでチュートリアルへ
@@ -146,10 +142,10 @@ void Scene::TutorialUpdate() {
 	if (IsTriggerB()) {
 		gameScene = MAIN_GAME;
 	}
-
 }
 
 void Scene::MainGameUpdate() {
+
 	PhaseUpdate();
 }
 
@@ -157,17 +153,11 @@ void Scene::PhaseUpdate() {
 	switch (phase) {
 	case CHARGE:
 		ChargeUpdate();
+
 		break;
 
 	case RISE:
-
 		RiseUpdate();
-
-		break;
-
-	case LANDING:
-
-		LandingUpdate();
 
 		break;
 
@@ -177,100 +167,99 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
-	if (chargeTimer < 1200) {
+	if (chargeTimer < maxChargeTime) {
 		chargeTimer++;
-	} else if (chargeTimer <= 1200){
+	}
+	else if (chargeTimer <= maxChargeTime) {
+		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 		phase = RISE;
 	}
 
-	if (chargeTimer < 700 ) {
+	if (chargeTimer < propellerEndTime) {
 		player->Update_charge_propeller();
 	}
-	
-	if (chargeTimer > 701 && chargeTimer < 1200) {
+
+	else if (chargeTimer < maxChargeTime) {
 		player->Update_charge_boost();
-	}
-
-		isScroll = true;
-
-		// チェックポイント決め
-		checkPoint.lv++;
-		checkPoint.checkPointY = float(checkPoint.lv) * checkPoint.distance;
-
 	}
 
 }
 
+
 void Scene::RiseUpdate() {
+	// プレイヤーの移動更新
 	player->Update_play();
 
-	// 2. しきい値
+	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
-
-	// 3. プレイヤーが限界を超えた分の「現在の計算上のスクロール量」
-	// (500 - プレイヤーの現在位置) 
-	// プレイヤーが 500 より上にいれば正の値、下にいれば負の値になる
 	float currentScroll = screenYLimit - player->position.y;
 
-	// 4. 【重要】スクロール量を「増える方向（上方向への進行）」だけに限定する
-	// 今までの scrollY より currentScroll が大きくなった時だけ更新する
 	if (currentScroll > scrollY) {
 		scrollY = currentScroll;
 	}
 
-	// 5. 背景の更新（scrollY は減らないので、プレイヤーが下がっても背景は止まったままになる）
+	// 背景の更新
 	for (int i = 0; i < 150; i++) {
 		backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
 	}
 
-	player->playerScreenY = player->position.y + scrollY;
-
+	// プレイヤーの描画座標計算（上昇中は中央固定、落下中は自由移動）
 	if (player->position.y + scrollY < 500.0f) {
-		// 【上昇中・中央固定モード】
-		// プレイヤーが画面中央より上にいこうとする間は、500に固定する
 		player->playerScreenY = 500.0f;
 	}
 	else {
-		// 【落下・自由移動モード】
-		// 500より下（画面下端側）にいるときは、スクロールの影響をそのまま受けて下に下がる
 		player->playerScreenY = player->position.y + scrollY;
 	}
-}
 
+	// 進捗（どれだけ上に進んだか）の計算
+	progressY = playerStartY - player->position.y;
 
-//プレイヤーへの真ん中から下の描画用場所
-void Scene::LandingUpdate() {
+	// チェックポイント（着地判定）
+	if (progressY >= checkPoint.triggerProgressY) {
 
-	
-	if (isScroll) {
-		scrollY += 1.5f;
-		for (int i = 0; i < 150; i++) {
-			backGround[i].skyPos.y = backGround[i].skyOriginalPos.y + scrollY;
+		// 着地：完全停止
+		player->velocity.y = 0.0f;
+
+		// 次のチェックポイント準備
+		checkPoint.lv++;
+		checkPoint.triggerProgressY =
+			float(checkPoint.lv) * checkPoint.distance;
+
+		// 次の上昇基準点をここにする
+		playerStartY = player->position.y;
+
+		// チャージ時間を半分にする
+		if (checkPoint.lv == 2) {
+			maxChargeTime = 600;       // 直接 600 を代入
+			propellerEndTime = 350;    // プロペラも半分（700の半分）にする
 		}
 
-
-		if (scrollY - checkPoint.checkPointY >= 600.0f) {
-			phase = CHARGE;
-			isScroll = false;
+		// チャージ時間の制限
+		if (maxChargeTime < 60) {
+			maxChargeTime = 60;
+			propellerEndTime = 30;
 		}
-		
+
+		// チャージへ戻る
+		chargeTimer = 0;
+		player->ResetForCharge();
+		phase = CHARGE;
 	}
+
 }
 
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
 	if (IsTriggerB()) {
-		Initialize();
 		gameScene = TITLE;
 	}
 
 }
 
-// ------------------------------------------------------------------------------------
 
-/*---------------
-    描画処理
------------------*/
+/*------------
+   描画処理
+--------------*/
 void Scene::TitleDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
 }
@@ -303,15 +292,37 @@ void Scene::MainGameDraw() {
 		);
 	}
 
+
+	switch (phase) {
+	case CHARGE:
+		ChargeDraw();
+		player->Draw(player->playerScreenY);
+
+		break;
+
+	case RISE:
+		RiseDraw();
+
+		player->Draw(player->playerScreenY);
+		break;
+
+	}
 }
 
+void Scene::ResultDraw() {
+	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+}
 
 void Scene::ChargeDraw() {
+	if (chargeTimer < propellerEndTime) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
+	}
+	else if (chargeTimer < maxChargeTime) {
+		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
+	}
 
-	Novice::DrawLine(0, int(checkPoint.checkPointY - scrollY), 1280, int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
+	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
-
-
 
 void Scene::RiseDraw() {
 
@@ -336,16 +347,8 @@ void Scene::RiseDraw() {
 			1280, 720,
 			0.0f, color
 		);
+
 	}
-}
-
-void Scene::LandingDraw() {
-
-	Novice::DrawLine(0, -int(checkPoint.checkPointY - scrollY), 1280, -int(checkPoint.checkPointY - scrollY), 0xFF0000FF);
 
 }
 
-
-void Scene::ResultDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
-}

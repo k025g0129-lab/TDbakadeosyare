@@ -37,6 +37,8 @@ Player::Player() {
 	leftPropellerPower = 0.0f;
 	rightPropellerPower = 0.0f;
 
+	maxPropellerPower = 0.0f;
+
 	speed = { 0.0f,0.0f }; // 速度
 	upValue = 0.0f; // プロペラパワー[ ? ]により上昇する量
 	boostGauge = 0.0f; // ブースト
@@ -270,41 +272,48 @@ void Player::Update_play() {
 			boostGauge -= 0.12f;
 
 			// 現在の燃料の割合 (1.0 ～ 0.0)
-			float fuelRatio = (leftPropellerPower + rightPropellerPower) / 100.0f;
+			float fuelRatio = 0.0f;
+			if (maxPropellerPower > 0.0f) {
+				fuelRatio = (leftPropellerPower + rightPropellerPower) / maxPropellerPower;
+			}
 
-			// --- コストの計算 ---
-			// 燃料が多いほど、追加で消費されるペナルティを大きくする
-			float penaltyCost = 0.082f * fuelRatio;
+			// 1. パワーの計算：fuelRatioを「掛ける」のではなく「少し足す」イメージにする
+			// // 残量が多いほど強いのは維持しつつ、最低限のパワー（1.5倍など）を保証する
+			float baseBoost = 1.5f;
+			boostPower = baseBoost + (2.0f * fuelRatio);
 
-			leftPropellerPower -= (0.025f + penaltyCost);
-			rightPropellerPower -= (0.025f + penaltyCost);
+			// 2. コストの計算：もう少しマイルドにする（今のままだと減りが早すぎるかも）
+			float penaltyCost = 0.04f * fuelRatio;
 
-			// --- パワーの計算（あなたの元のロジックを維持） ---
-			// 残量に比例するので、燃料が多いほどパワーは出る
-			boostPower = ((leftPropellerPower / 12.0f) + (rightPropellerPower / 12.0f)) * 0.9f;
+			leftPropellerPower -= (0.02f + penaltyCost);
+			rightPropellerPower -= (0.02f + penaltyCost);
 
-			if (boostGauge < 0.0f) {
+			Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
+			Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
+
+			
+			if (boostGauge <= 0.0f) {
 				boostGauge = 0.0f;
 			}
 
 		} else {
 			boostPower = 1.0f;
 		}
-	} else {
-		if (boostPower > 1.0f) {
-			boostPower = 1.0f;
-		}
+	}
+
+	if (boostGauge <= 0.0f) {
+		boostPower = 1.0f;
 	}
 
 #pragma endregion
 
 	// 上昇処理
 	if (boostPower >= 1.0f) {
-		speed.x = sinf(angle) * upValue * (boostPower/2.0f);
+		speed.x = sinf(angle) * upValue * (boostPower / 2.0f);
 		speed.y = -cosf(angle) * upValue * boostPower;
 	} else if (boostPower < 1.0f){
-		speed.x = sinf(angle) * upValue + (0.5f * boostPower);
-		speed.y = -cosf(angle) * upValue + (1.0f * boostPower);
+		speed.x = sinf(angle) * upValue + (4.0f * boostPower);
+		speed.y = -cosf(angle) * upValue + (4.0f * boostPower);
 	}
 
 	position.x += speed.x;
@@ -418,3 +427,15 @@ void Player::Draw(float finalY) {
 	Novice::ScreenPrintf(0, 240, "leftPropellerPower = %f", leftPropellerPower);
 	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);*/
 }
+
+// 着地リセット
+void Player::ResetForCharge() {
+	// 物理
+	velocity = { 0.0f, 0.0f };
+
+	// 上昇関連
+	upValue = 0.0f;
+	boostPower = 1.0f;
+
+}
+

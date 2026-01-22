@@ -16,7 +16,6 @@ public:
 	enum Phase {
 		CHARGE,
 		RISE,
-		LANDING,
 	};
 
 	enum Direction {
@@ -30,10 +29,10 @@ public:
 	};
 
 	struct CheckPoint {
-		float checkPointY; // 設置する高さ
+		float triggerProgressY; // 着地の高さ
 		int isPreparingForLanding; // 通過したかどうか
-		int lv;
-		float distance;
+		int lv;  // 何回目のチェックポイントか
+		float distance; // 1区間の長さ
 		float scrollSpeed;  // 世界のスクロール速度
 
 	};
@@ -48,20 +47,31 @@ public:
 
 	BackGround backGround[150];
 
+	// チャージ
 	int leftChargeAmount = 0;
 	int rightChargeAmount = 0;
-	int chargeTimer = 600;
 
+	// チャージ時間
+	int chargeTimer = 600;
+	int propellerEndTime = 700;
+	int maxChargeTime = 1200;
+
+	// 傾き
 	int tiltDegree = 0;
 
+	// スクロール
 	float scrollY = 0.0f;
 	int isScroll = false;
 	int isTouchCheckpoint = false;
 
-	CheckPoint checkPoint;
-
 
 	int whiteTextureHandle = 0;
+
+	// チェックポイント
+	CheckPoint checkPoint;
+
+	// 今の上昇量
+	float progressY = 0.0f;
 
 public:
 
@@ -96,19 +106,18 @@ public:
 	void RiseUpdate();
 	void RiseDraw();
 
-	void LandingUpdate();
-	void LandingDraw();
-
 
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
 
+
 private:
-	XINPUT_STATE padState{};
-	XINPUT_STATE prevPadState{};
+	// コントローラー
+	XINPUT_STATE padState{}; // 今のフレームの入力状態
+	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
 
 	Player* player;
-
+	float playerStartY;
 };
 
