@@ -29,10 +29,10 @@ public:
 	};
 
 	struct CheckPoint {
-		float triggerProgressY; // 設置する高さ
+		float triggerProgressY; // 着地の高さ
 		int isPreparingForLanding; // 通過したかどうか
-		int lv;
-		float distance;
+		int lv;  // 何回目のチェックポイントか
+		float distance; // 1区間の長さ
 		float scrollSpeed;  // 世界のスクロール速度
 
 	};
@@ -47,22 +47,28 @@ public:
 
 	BackGround backGround[150];
 
+	// チャージ
 	int leftChargeAmount = 0;
 	int rightChargeAmount = 0;
+
+	// チャージ時間
 	int chargeTimer = 600;
 
+	// 傾き
 	int tiltDegree = 0;
 
+	// スクロール
 	float scrollY = 0.0f;
 	int isScroll = false;
 	int isTouchCheckpoint = false;
 
-	CheckPoint checkPoint;
-
 
 	int whiteTextureHandle = 0;
 
-	// チェックポイント用
+	// チェックポイント
+	CheckPoint checkPoint;
+
+	// 今の上昇量
 	float progressY = 0.0f;
 
 public:
@@ -97,9 +103,6 @@ public:
 
 	void RiseUpdate();
 	void RiseDraw();
-
-	void LandingUpdate();
-	void LandingDraw();
 
 
 	// 入力
