@@ -159,10 +159,7 @@ void Scene::PhaseUpdate() {
 
 		break;
 
-	case LANDING:
-		LandingUpdate();
 
-		break;
 	}
 
 }
@@ -223,10 +220,6 @@ void Scene::MainGameDraw() {
 		player->Draw(player->playerScreenY);
 		break;
 
-	case LANDING:
-		LandingDraw();
-		
-		break;
 	}
 }
 
@@ -315,16 +308,29 @@ void Scene::RiseUpdate() {
 		player->playerScreenY = player->position.y + scrollY;
 	}
 
-	// --- ここから統合ロジック ---
-
 	// 5. 進捗（どれだけ上に進んだか）の計算
 	// playerStartY（前回の着地地点）から、現在のposition.yを引く
 	progressY = playerStartY - player->position.y;
 
 	// 6. チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
-		phase = LANDING;
+
+		// 着地：完全停止
+		player->velocity.y = 0.0f;
+
+		// 次のチェックポイント準備
+		checkPoint.lv++;
+		checkPoint.triggerProgressY =
+			float(checkPoint.lv) * checkPoint.distance;
+
+		// 次の上昇基準点をここにする
+		playerStartY = player->position.y;
+
+		// チャージへ戻る
+		chargeTimer = 0;
+		phase = CHARGE;
 	}
+
 }
 
 void Scene::RiseDraw() {
