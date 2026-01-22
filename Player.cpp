@@ -37,6 +37,8 @@ Player::Player() {
 	leftPropellerPower = 0.0f;
 	rightPropellerPower = 0.0f;
 
+	maxPropellerPower = 0.0f;
+
 	speed = { 0.0f,0.0f }; // 速度
 	upValue = 0.0f; // プロペラパワー[ ? ]により上昇する量
 	boostGauge = 0.0f; // ブースト
@@ -270,14 +272,17 @@ void Player::Update_play() {
 			boostGauge -= 0.12f;
 
 			// 現在の燃料の割合 (1.0 ～ 0.0)
-			float fuelRatio = (leftPropellerPower + rightPropellerPower) / 100.0f;
+			float fuelRatio = (leftPropellerPower + rightPropellerPower) / maxPropellerPower;
 
 			// --- コストの計算 ---
 			// 燃料が多いほど、追加で消費されるペナルティを大きくする
-			float penaltyCost = 0.03f * fuelRatio;
+			float penaltyCost = 0.055f * fuelRatio;
 
-			leftPropellerPower -= (0.025f + penaltyCost);
-			rightPropellerPower -= (0.025f + penaltyCost);
+			leftPropellerPower -= (0.05f + penaltyCost);
+			rightPropellerPower -= (0.05f + penaltyCost);
+
+			Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
+			Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
 
 			// --- パワーの計算（あなたの元のロジックを維持） ---
 			// 残量に比例するので、燃料が多いほどパワーは出る
@@ -291,11 +296,16 @@ void Player::Update_play() {
 			boostPower = 1.0f;
 		}
 	}
+
+	if (boostGauge <= 0.0f) {
+		boostPower = 1.0f;
+	}
+
 #pragma endregion
 
 	// 上昇処理
 	if (boostPower >= 1.0f) {
-		speed.x = sinf(angle) * upValue * (boostPower) / 2.0f;
+		speed.x = sinf(angle) * upValue * (boostPower / 2.0f);
 		speed.y = -cosf(angle) * upValue * boostPower;
 	} else if (boostPower < 1.0f){
 		speed.x = sinf(angle) * upValue + (1.0f * boostPower);

@@ -171,12 +171,14 @@ void Scene::ChargeUpdate() {
 		chargeTimer++;
 	}
 	else if (chargeTimer <= maxChargeTime) {
+		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 		phase = RISE;
 	}
 
 	if (chargeTimer < propellerEndTime) {
 		player->Update_charge_propeller();
 	}
+
 	else if (chargeTimer < maxChargeTime) {
 		player->Update_charge_boost();
 	}
