@@ -3,6 +3,7 @@
 #include <Xinput.h> 
 #include "Vector2.h"
 #include "Player.h"
+#include "Object.h"
 
 class Scene {
 public:
@@ -70,6 +71,8 @@ public:
 	// チェックポイント
 	CheckPoint checkPoint;
 
+	int isClear = false;
+
 	// 今の上昇量
 	float progressY = 0.0f;
 
@@ -119,5 +122,7 @@ private:
 
 	Player* player;
 	float playerStartY;
+	Object* bird;
+
 };
 
