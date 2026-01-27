@@ -19,7 +19,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="C:\KamataEngine\Adapter\Novice.cpp">
       <Filter>KamataEngine\Adapter</Filter>
     </ClCompile>
@@ -36,7 +35,10 @@
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
     <ClCompile Include="Easing.cpp">
-      <Filter>KamataEngine</Filter>
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>KamataEngine\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +138,8 @@
     <ClInclude Include="Vector2.h">
       <Filter>KamataEngine\h</Filter>
     </ClInclude>
-    <ClInclude Include="Easing.h" />
+    <ClInclude Include="Easing.h">
+      <Filter>KamataEngine\h</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

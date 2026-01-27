@@ -375,24 +375,23 @@ void Scene::RiseUpdate() {
 }
 
 void Scene::DifficultySelectUpdate() {
-
-	// EASY
-	if (IsTriggerB()) {
-		difficulty = EASY;
-		ApplyDifficulty();
-		gameScene = MAIN_GAME;
+	// スティックの左右、または十字キーの左右で選択
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
+		selectedDifficulty--;
+	}
+	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
+		selectedDifficulty++;
 	}
 
-	// NORMAL
-	if (IsTriggerB()) {
-		difficulty = NORMAL;
-		ApplyDifficulty();
-		gameScene = MAIN_GAME;
-	}
+	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
+	if (selectedDifficulty < 0) selectedDifficulty = 0;
+	if (selectedDifficulty > 2) selectedDifficulty = 2;
 
-	// HARD
+	// Bボタンで決定
 	if (IsTriggerB()) {
-		difficulty = HARD;
+		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
 		gameScene = MAIN_GAME;
 	}
@@ -518,10 +517,22 @@ void Scene::RiseDraw() {
 }
 
 void Scene::DifficultySelectDraw() {
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
 
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x202020FF, kFillModeSolid);
+	for (int i = 0; i < 3; i++) {
+		int x = 140 + (i * 360); // X座標を横にずらす
+		int y = 320;
+		unsigned int color = 0;
 
-	Novice::DrawBox(440, 200, 400, 80, 0.0f, 0x00AA00FF, kFillModeSolid); // EASY
-	Novice::DrawBox(440, 320, 400, 80, 0.0f, 0xAAAA00FF, kFillModeSolid); // NORMAL
-	Novice::DrawBox(440, 440, 400, 80, 0.0f, 0xAA0000FF, kFillModeSolid); // HARD
+		if (i == 0) color = 0x00AA00FF; // EASY
+		if (i == 1) color = 0xAAAA00FF; // NORMAL
+		if (i == 2) color = 0xAA0000FF; // HARD
+
+		// 選択中の項目を強調（白枠を出す）
+		if (selectedDifficulty == i) {
+			Novice::DrawBox(x - 5, y - 5, 290, 130, 0.0f, WHITE, kFillModeSolid);
+		}
+
+		Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
+	}
 }

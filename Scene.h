@@ -53,6 +53,8 @@ public:
 		HARD
 	};
 
+
+
 public:
 
 	GameScene gameScene = TITLE;
@@ -141,6 +143,9 @@ private:
 	// コントローラー
 	XINPUT_STATE padState{}; // 今のフレームの入力状態
 	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
+
+	// 難易度選択用
+	int selectedDifficulty = 1;
 
 	// プレイヤー
 	Player* player;
