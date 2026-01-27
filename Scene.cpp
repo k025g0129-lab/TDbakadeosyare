@@ -151,13 +151,17 @@ void Scene::TitleUpdate() {
 void Scene::TutorialUpdate() {
 	// Bボタンでメインゲームへ
 	if (IsTriggerB()) {
-		gameScene = MAIN_GAME;
+		gameScene = TITLE;
 	}
+
+
+
 }
 
 void Scene::MainGameUpdate() {
 
 	PhaseUpdate();
+
 }
 
 void Scene::PhaseUpdate() {
