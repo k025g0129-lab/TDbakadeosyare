@@ -8,7 +8,6 @@ Object::Object(Vector2 initialPosition) {
 	isActive = false;
 
 	bird.radius = 30.0f;
-
 	BirdInitialize();
 }
 
@@ -31,7 +30,6 @@ void Object::Draw() {
 }
 
 void Object::BirdInitialize() {
-
 	bird.leftOrRight = rand() % 2;
 
 	if (bird.leftOrRight == 0) {
@@ -60,20 +58,19 @@ void Object::BirdUpdate() {
 		if (bird.screenPos.x >= 1780.0f + bird.radius) {
 			bird.isActive = false;
 		}
-		
 
-		
 		if (bird.screenPos.x <= -500.0f - bird.radius) {
 			bird.isActive = false;
 		}
-		
-	} 
+
+	}
 
 
 	BirdDraw();
 }
 
 void Object::BirdDraw() {
+
 	if (bird.isActive) {
 		Novice::DrawEllipse(
 			static_cast<int>(bird.screenPos.x),
@@ -83,7 +80,6 @@ void Object::BirdDraw() {
 			0.0f, 0x0000FFFF,
 			kFillModeSolid
 		);
-
 
 		Novice::DrawSprite(
 			static_cast<int>(bird.screenPos.x - bird.radius),
@@ -95,5 +91,6 @@ void Object::BirdDraw() {
 		);
 
 	}
+
 
 }

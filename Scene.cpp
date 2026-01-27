@@ -178,13 +178,12 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
-
-
 	if (chargeTimer < maxChargeTime) {
 		chargeTimer++;
 	}
 	else if (chargeTimer <= maxChargeTime) {
 		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
+
 
 		//プロコン忘れたデバック用絶対消す
 		player->leftPropellerPower = 0.0f;
@@ -227,7 +226,6 @@ void Scene::RiseUpdate() {
 		bird[i]->BirdUpdate();
 	}
 
-
 	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
 	float currentScroll = screenYLimit - player->position.y;
@@ -250,13 +248,14 @@ void Scene::RiseUpdate() {
 		player->playerScreenY = player->position.y + scrollY;
 	}
 
+
 	// 進捗（どれだけ上に進んだか）の計算
 	progressY = playerStartY - player->position.y;
 
 
 	//鳥出現
 	for (int i = 0; i < birdOccurrences; i++) {
-		if (progressY >= (checkPoint.triggerProgressY*( float(i + 1) /float(birdOccurrences + 1)))) {
+		if (progressY >= (checkPoint.triggerProgressY * (float(i + 1) / float(birdOccurrences + 1)))) {
 			if (!bird[i]->bird.isAppearance) {
 				if (bird[i]->bird.isActive == false) {
 
@@ -268,7 +267,7 @@ void Scene::RiseUpdate() {
 			}
 		}
 	}
-	
+
 
 	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
 	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
@@ -286,9 +285,11 @@ void Scene::RiseUpdate() {
 	}
 
 
-	if (IsCollision({ bird[0]->bird.screenPos.x,bird[0]->bird.skyPos.y}, player->position, bird[0]->bird.radius, player->width)) {
+	if (IsCollision({ bird[0]->bird.screenPos.x,bird[0]->bird.skyPos.y }, player->position, bird[0]->bird.radius, player->width)) {
 		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
 	}
+
+
 
 	// チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
@@ -296,12 +297,9 @@ void Scene::RiseUpdate() {
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
 
-		// 次のチェックポイント準備
-
-
 		//前回のチェックポイント記録
 		preCheckPointPosY = checkPoint.triggerProgressY;
-
+		// 次のチェックポイント準備
 		checkPoint.lv++;
 		checkPoint.triggerProgressY =
 			float(checkPoint.lv) * checkPoint.distance;
@@ -329,12 +327,10 @@ void Scene::RiseUpdate() {
 
 	if (player->position.x >= 1280.0f || player->position.x <= 0.0f) {
 		gameScene = RESULT;
-		Novice::ScreenPrintf(500, 500, "untiburiburi");
 	}
 
 	if (player->playerScreenY >= 720.0f) {
 		gameScene = RESULT;
-		Novice::ScreenPrintf(500, 500, "unti");
 	}
 
 }

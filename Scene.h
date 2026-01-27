@@ -126,6 +126,5 @@ private:
 	float playerStartY;
 	static const int maxBird = 20;
 	Object* bird[maxBird];
-
 };
 
