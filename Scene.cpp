@@ -58,7 +58,34 @@ void Scene::Initialize() {
 	player = new Player();
 	playerStartY = player->position.y;
 
+	// 難易度設定
+	difficulty = NORMAL;
+	ApplyDifficulty();
+
 }
+
+void Scene::ApplyDifficulty() {
+	switch (difficulty) {
+	case EASY:
+		checkPoint.distance = 1200.0f;
+		maxChargeTime = 1400;
+		propellerEndTime = 800;
+		break;
+
+	case NORMAL:
+		checkPoint.distance = 1500.0f;
+		maxChargeTime = 1200;
+		propellerEndTime = 700;
+		break;
+
+	case HARD:
+		checkPoint.distance = 1800.0f;
+		maxChargeTime = 900;
+		propellerEndTime = 500;
+		break;
+	}
+}
+
 
 void Scene::Update() {
 
@@ -77,6 +104,12 @@ void Scene::Update() {
 		TutorialUpdate();
 
 		break;
+
+	case DIFFICULTY_SELECT:
+		DifficultySelectUpdate();
+		
+		break;
+
 
 	case MAIN_GAME:
 		MainGameUpdate();
@@ -103,6 +136,11 @@ void Scene::Draw() {
 	case TUTORIAL:
 		TutorialDraw();
 
+		break;
+
+	case DIFFICULTY_SELECT:
+		DifficultySelectDraw();
+		
 		break;
 
 	case MAIN_GAME:
@@ -137,7 +175,12 @@ bool Scene::IsTriggerB() const {
 --------------*/
 void Scene::TitleUpdate() {
 
-	// Bボタンでチュートリアルへ
+	// スタート → 難易度選択
+	if (IsTriggerB()) {
+		gameScene = DIFFICULTY_SELECT;
+	}
+
+	// チュートリアル
 	if (IsTriggerB()) {
 		gameScene = TUTORIAL;
 	}
@@ -331,6 +374,31 @@ void Scene::RiseUpdate() {
 
 }
 
+void Scene::DifficultySelectUpdate() {
+
+	// EASY
+	if (IsTriggerB()) {
+		difficulty = EASY;
+		ApplyDifficulty();
+		gameScene = MAIN_GAME;
+	}
+
+	// NORMAL
+	if (IsTriggerB()) {
+		difficulty = NORMAL;
+		ApplyDifficulty();
+		gameScene = MAIN_GAME;
+	}
+
+	// HARD
+	if (IsTriggerB()) {
+		difficulty = HARD;
+		ApplyDifficulty();
+		gameScene = MAIN_GAME;
+	}
+}
+
+
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
 	if (IsTriggerB()) {
@@ -449,3 +517,11 @@ void Scene::RiseDraw() {
 
 }
 
+void Scene::DifficultySelectDraw() {
+
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x202020FF, kFillModeSolid);
+
+	Novice::DrawBox(440, 200, 400, 80, 0.0f, 0x00AA00FF, kFillModeSolid); // EASY
+	Novice::DrawBox(440, 320, 400, 80, 0.0f, 0xAAAA00FF, kFillModeSolid); // NORMAL
+	Novice::DrawBox(440, 440, 400, 80, 0.0f, 0xAA0000FF, kFillModeSolid); // HARD
+}

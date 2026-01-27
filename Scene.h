@@ -10,6 +10,7 @@ public:
 	enum GameScene {
 		TITLE,
 		TUTORIAL,
+		DIFFICULTY_SELECT,
 		MAIN_GAME,
 		RESULT,
 	};
@@ -43,6 +44,13 @@ public:
 		PROPELLER_CHARGE,
 		SHOW_BOOST_TEXT,
 		BOOST_CHARGE,
+	};
+
+	// 難易度
+	enum Difficulty {
+		EASY,
+		NORMAL,
+		HARD
 	};
 
 public:
@@ -79,6 +87,10 @@ public:
 	// 今の上昇量
 	float progressY = 0.0f;
 
+	// 難易度
+	Difficulty difficulty;
+
+
 public:
 
 	Scene();
@@ -95,6 +107,9 @@ public:
 
 	void TutorialUpdate();
 	void TutorialDraw();
+
+	void DifficultySelectUpdate();
+	void DifficultySelectDraw();
 
 	void MainGameUpdate();
 	void MainGameDraw();
@@ -116,6 +131,10 @@ public:
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
+
+	//　難易度適用
+	void ApplyDifficulty();
+
 
 
 private:
