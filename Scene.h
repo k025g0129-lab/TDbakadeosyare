@@ -126,5 +126,14 @@ private:
 	float playerStartY;
 	static const int maxBird = 20;
 	Object* bird[maxBird];
+
+	//GH
+	int titleBGGH = 0;
+	int pressAGH = 0;
+	int playChoiceGH = 0;
+	int tutorialChoiceGH = 0;
+	int titleLogoGH = 0;
+	int PtitleLogoGH = 0;
+
 };
 

@@ -63,6 +63,15 @@ void Scene::Initialize() {
 	birdOccurrences = 1;
 	preCheckPointPosY = 0.0f;
 
+
+	//GH
+	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");;
+	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");;
+	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");;
+	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");;
+	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");;
+	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");;
+
 }
 
 void Scene::Update() {
@@ -353,6 +362,8 @@ void Scene::ResultUpdate() {
 --------------*/
 void Scene::TitleDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+
+
 }
 
 void Scene::TutorialDraw() {
