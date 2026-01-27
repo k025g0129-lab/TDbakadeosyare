@@ -169,6 +169,7 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
+// 入力処理
 bool Scene::IsPressA() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
 }
