@@ -4,7 +4,7 @@
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include<Xinput.h>
+#include <Xinput.h>
 
 
 Scene::Scene() {
@@ -67,20 +67,20 @@ void Scene::Initialize() {
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 1200.0f;
+		checkPoint.distance = 1000.0f;
 		maxChargeTime = 1400;
 		propellerEndTime = 800;
 		break;
 
 	case NORMAL:
 		checkPoint.distance = 1500.0f;
-		maxChargeTime = 1200;
+		maxChargeTime = 1000;
 		propellerEndTime = 700;
 		break;
 
 	case HARD:
 		checkPoint.distance = 1800.0f;
-		maxChargeTime = 900;
+		maxChargeTime = 700;
 		propellerEndTime = 500;
 		break;
 	}
