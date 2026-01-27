@@ -380,6 +380,7 @@ void Player::Update_play() {
 	}
 }
 
+
 void Player::Draw(float finalY) {
 
 	// 画面上の理想の位置(finalY) と 物理的な座標(position.y) の差を出す

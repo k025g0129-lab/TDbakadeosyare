@@ -71,7 +71,9 @@ public:
 	// チェックポイント
 	CheckPoint checkPoint;
 
+	int birdOccurrences;
 	int isClear = false;
+	float preCheckPointPosY = 0.0f;
 
 	// 今の上昇量
 	float progressY = 0.0f;
@@ -122,7 +124,8 @@ private:
 
 	Player* player;
 	float playerStartY;
-	Object* bird;
+	static const int maxBird = 20;
+	Object* bird[maxBird];
 
 };
 
