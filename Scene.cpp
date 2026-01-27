@@ -169,20 +169,39 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
+bool Scene::IsPressA() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+}
+
+// Aボタンが押された瞬間
+bool Scene::IsTriggerA() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_A);
+}
+
 
 /*------------
    更新処理
 --------------*/
 void Scene::TitleUpdate() {
-
-	// スタート → 難易度選択
-	if (IsTriggerB()) {
-		gameScene = DIFFICULTY_SELECT;
+	// 左右でメニューを選択
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
+		selectedTitleMenu = 0; // 左：START
+	}
+	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
+		selectedTitleMenu = 1; // 右：TUTORIAL
 	}
 
-	// チュートリアル
+	// Bボタンで決定
 	if (IsTriggerB()) {
-		gameScene = TUTORIAL;
+		if (selectedTitleMenu == 0) {
+			gameScene = DIFFICULTY_SELECT;
+		}
+		else {
+			gameScene = TUTORIAL;
+		}
 	}
 }
 
@@ -411,7 +430,26 @@ void Scene::ResultUpdate() {
    描画処理
 --------------*/
 void Scene::TitleDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	// 背景（暗めの紺色）
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x000022FF, kFillModeSolid);
+
+	// STARTボタン (左側)
+	int startX = 400;
+	int startY = 400;
+	if (selectedTitleMenu == 0) {
+		// 選択中は白い枠を表示
+		Novice::DrawBox(startX - 5, startY - 5, 210, 90, 0.0f, WHITE, kFillModeSolid);
+	}
+	Novice::DrawBox(startX, startY, 200, 80, 0.0f, 0x0055AAFF, kFillModeSolid);
+	
+	// TUTORIALボタン (右側)
+	int tutorialX = 680;
+	int tutorialY = 400;
+	if (selectedTitleMenu == 1) {
+		// 選択中は白い枠を表示
+		Novice::DrawBox(tutorialX - 5, tutorialY - 5, 210, 90, 0.0f, WHITE, kFillModeSolid);
+	}
+	Novice::DrawBox(tutorialX, tutorialY, 200, 80, 0.0f, 0xAA5500FF, kFillModeSolid);
 }
 
 void Scene::TutorialDraw() {

@@ -133,6 +133,9 @@ public:
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
+	
+	bool IsPressA() const;
+	bool IsTriggerA() const;
 
 	//　難易度適用
 	void ApplyDifficulty();
@@ -146,6 +149,9 @@ private:
 
 	// 難易度選択用
 	int selectedDifficulty = 1;
+
+	// タイトル用
+	int selectedTitleMenu = 0;
 
 	// プレイヤー
 	Player* player;
