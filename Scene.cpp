@@ -37,7 +37,6 @@ void Scene::Initialize() {
 	isTouchCheckpoint = false;
 
 	// チェックポイント
-	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -61,7 +60,7 @@ void Scene::Initialize() {
 	// 難易度設定
 	difficulty = NORMAL;
 	ApplyDifficulty();
-
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 }
 
 void Scene::ApplyDifficulty() {
@@ -69,19 +68,19 @@ void Scene::ApplyDifficulty() {
 	case EASY:
 		checkPoint.distance = 1000.0f;
 		maxChargeTime = 1400;
-		propellerEndTime = 800;
+		propellerEndTime = 700;
 		break;
 
 	case NORMAL:
 		checkPoint.distance = 1500.0f;
 		maxChargeTime = 1000;
-		propellerEndTime = 700;
+		propellerEndTime = 500;
 		break;
 
 	case HARD:
-		checkPoint.distance = 1800.0f;
-		maxChargeTime = 700;
-		propellerEndTime = 500;
+		checkPoint.distance = 2000.0f;
+		maxChargeTime = 900;
+		propellerEndTime = 450;
 		break;
 	}
 }
@@ -366,15 +365,23 @@ void Scene::RiseUpdate() {
 		playerStartY = player->position.y;
 
 		// チャージ時間を半分にする
+		// チャージ時間の短縮（Lv2になった瞬間＝最初の着地時のみ実行）
 		if (checkPoint.lv == 2) {
-			maxChargeTime = 600;       // 直接 600 を代入
-			propellerEndTime = 350;    // プロペラも半分（700の半分）にする
-		}
+			float reductionRate = 0.5f; // デフォルト（NORMAL）は半分
 
-		// チャージ時間の制限
-		if (maxChargeTime < 60) {
-			maxChargeTime = 60;
-			propellerEndTime = 30;
+			if (difficulty == EASY)   reductionRate = 0.8f;
+			if (difficulty == NORMAL) reductionRate = 0.5f;
+			if (difficulty == HARD)   reductionRate = 0.5f;
+
+			// 初回の着地時のみ、この倍率で時間を固定する
+			maxChargeTime = static_cast<int>(maxChargeTime * reductionRate);
+			propellerEndTime = static_cast<int>(propellerEndTime * reductionRate);
+
+			// 下限チェック
+			if (maxChargeTime < 60) {
+				maxChargeTime = 60;
+				propellerEndTime = 30;
+			}
 		}
 
 		// チャージへ戻る
