@@ -39,7 +39,7 @@ void Scene::Initialize() {
 	isTouchCheckpoint = false;
 
 	// チェックポイント
-	checkPoint.distance = 3000.0f;
+	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -52,15 +52,44 @@ void Scene::Initialize() {
 	maxChargeTime = 1200; 
 	propellerEndTime = 700;
 
+	// チャージ演出初期化
+	chargeSubPhase = SHOW_PROPELLER_TEXT;
+	chargeTimer = 0;
+	chargeTextT = 0.0f;
+	chargeTextPos = { 0.0f, TEXT_START_Y };
+
 	// プレイヤー生成
 	player = new Player();
 	playerStartY = player->position.y;
 
-	Vector2 a = { 0.0f,0.0f };
-	bird = new Object(a);
-
+	// 難易度設定
+	difficulty = NORMAL;
+	ApplyDifficulty();
 
 }
+
+void Scene::ApplyDifficulty() {
+	switch (difficulty) {
+	case EASY:
+		checkPoint.distance = 1200.0f;
+		maxChargeTime = 1400;
+		propellerEndTime = 800;
+		break;
+
+	case NORMAL:
+		checkPoint.distance = 1500.0f;
+		maxChargeTime = 1200;
+		propellerEndTime = 700;
+		break;
+
+	case HARD:
+		checkPoint.distance = 1800.0f;
+		maxChargeTime = 900;
+		propellerEndTime = 500;
+		break;
+	}
+}
+
 
 void Scene::Update() {
 
@@ -79,6 +108,12 @@ void Scene::Update() {
 		TutorialUpdate();
 
 		break;
+
+	case DIFFICULTY_SELECT:
+		DifficultySelectUpdate();
+		
+		break;
+
 
 	case MAIN_GAME:
 		MainGameUpdate();
@@ -107,6 +142,11 @@ void Scene::Draw() {
 
 		break;
 
+	case DIFFICULTY_SELECT:
+		DifficultySelectDraw();
+		
+		break;
+
 	case MAIN_GAME:
 		MainGameDraw();
 
@@ -133,15 +173,39 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
+bool Scene::IsPressA() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+}
+
+// Aボタンが押された瞬間
+bool Scene::IsTriggerA() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_A);
+}
+
 
 /*------------
    更新処理
 --------------*/
 void Scene::TitleUpdate() {
+	// 左右でメニューを選択
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
+		selectedTitleMenu = 0; // 左：START
+	}
+	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
+		selectedTitleMenu = 1; // 右：TUTORIAL
+	}
 
-	// Bボタンでチュートリアルへ
+	// Bボタンで決定
 	if (IsTriggerB()) {
-		gameScene = TUTORIAL;
+		if (selectedTitleMenu == 0) {
+			gameScene = DIFFICULTY_SELECT;
+		}
+		else {
+			gameScene = TUTORIAL;
+		}
 	}
 }
 
@@ -175,22 +239,90 @@ void Scene::PhaseUpdate() {
 
 void Scene::ChargeUpdate() {
 
-	if (chargeTimer < maxChargeTime) {
+	switch (chargeSubPhase) {
+
+	// プロペラ案内表示
+	case SHOW_PROPELLER_TEXT:
+	{
+		chargeTextT += 0.01f; // 進行
+		float t = chargeTextT;
+
+		// t を 0→2 に拡張
+		if (t < 1.0f) {
+			// 下 → 真ん中
+			chargeTextPos.y = EaseOutBack(t, TEXT_START_Y, TEXT_END_Y);
+		}
+		else if (t < 2.0f) {
+			// 真ん中 → 下
+			float t2 = t - 1.0f; // 0〜1
+			chargeTextPos.y = EaseInBack(t2, TEXT_END_Y, TEXT_START_Y);
+		}
+		else {
+			// 完全に終了
+			chargeTextT = 0.0f;
+			chargeTimer = 0;
+			chargeSubPhase = PROPELLER_CHARGE;
+			chargeTextPos.y = TEXT_START_Y;
+		}
+	}
+	return;
+
+	// プロペラチャージ
+	case PROPELLER_CHARGE:
 		chargeTimer++;
-	}
-	else if (chargeTimer <= maxChargeTime) {
-		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
-		phase = RISE;
-	}
 
-	if (chargeTimer < propellerEndTime) {
 		player->Update_charge_propeller();
-	}
 
-	else if (chargeTimer < maxChargeTime) {
+		if (chargeTimer >= propellerEndTime) {
+			chargeTextT = 0.0f;
+
+			if (checkPoint.lv >= 2) {
+				chargeSubPhase = BOOST_CHARGE;
+			}
+			else {
+				chargeSubPhase = SHOW_BOOST_TEXT;
+			}
+		}
+
+		return;
+
+	// ブースト案内表示
+	case SHOW_BOOST_TEXT:
+	{
+		chargeTextT += 0.01f; // 進行
+		float t = chargeTextT;
+
+		// t を 0→2 に拡張
+		if (t < 1.0f) {
+			// 下 → 真ん中
+			chargeTextPos.y = EaseOutBack(t, TEXT_START_Y, TEXT_END_Y);
+		}
+		else if (t < 2.0f) {
+			// 真ん中 → 下
+			float t2 = t - 1.0f; // 0〜1
+			chargeTextPos.y = EaseInBack(t2, TEXT_END_Y, TEXT_START_Y);
+		}
+		else {
+			// 完全に終了
+			chargeTextT = 0.0f;
+			chargeSubPhase = BOOST_CHARGE;
+			chargeTextPos.y = TEXT_START_Y;
+		}
+	}
+	return;
+
+	// ブーストチャージ
+	case BOOST_CHARGE:
+		chargeTimer++;
+
 		player->Update_charge_boost();
-	}
 
+		if (chargeTimer >= maxChargeTime) {
+			phase = RISE;
+		}
+
+		return;
+	}
 }
 
 
@@ -265,19 +397,44 @@ void Scene::RiseUpdate() {
 
 		// チャージへ戻る
 		chargeTimer = 0;
+		chargeTextT = 0.0f;
 		player->ResetForCharge();
 		phase = CHARGE;
-	}
 
-	if (player->position.x >= 1280.0f || player->position.x <= 0.0f) {
-		gameScene = RESULT;
-	}
-
-	if (player->playerScreenY >= 720.0f) {
-		gameScene = RESULT;
+		// Lv2以降（1回着地した後）は演出を飛ばす
+		if (checkPoint.lv >= 2) {
+			chargeSubPhase = PROPELLER_CHARGE;
+		}
+		else {
+			chargeSubPhase = SHOW_PROPELLER_TEXT;
+		}
 	}
 
 }
+
+void Scene::DifficultySelectUpdate() {
+	// スティックの左右、または十字キーの左右で選択
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
+		selectedDifficulty--;
+	}
+	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
+		selectedDifficulty++;
+	}
+
+	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
+	if (selectedDifficulty < 0) selectedDifficulty = 0;
+	if (selectedDifficulty > 2) selectedDifficulty = 2;
+
+	// Bボタンで決定
+	if (IsTriggerB()) {
+		difficulty = static_cast<Difficulty>(selectedDifficulty);
+		ApplyDifficulty();
+		gameScene = MAIN_GAME;
+	}
+}
+
 
 void Scene::ResultUpdate() {
 	// Bボタンでタイトルへ
@@ -292,7 +449,26 @@ void Scene::ResultUpdate() {
    描画処理
 --------------*/
 void Scene::TitleDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	// 背景（暗めの紺色）
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x000022FF, kFillModeSolid);
+
+	// STARTボタン (左側)
+	int startX = 400;
+	int startY = 400;
+	if (selectedTitleMenu == 0) {
+		// 選択中は白い枠を表示
+		Novice::DrawBox(startX - 5, startY - 5, 210, 90, 0.0f, WHITE, kFillModeSolid);
+	}
+	Novice::DrawBox(startX, startY, 200, 80, 0.0f, 0x0055AAFF, kFillModeSolid);
+	
+	// TUTORIALボタン (右側)
+	int tutorialX = 680;
+	int tutorialY = 400;
+	if (selectedTitleMenu == 1) {
+		// 選択中は白い枠を表示
+		Novice::DrawBox(tutorialX - 5, tutorialY - 5, 210, 90, 0.0f, WHITE, kFillModeSolid);
+	}
+	Novice::DrawBox(tutorialX, tutorialY, 200, 80, 0.0f, 0xAA5500FF, kFillModeSolid);
 }
 
 void Scene::TutorialDraw() {
@@ -351,15 +527,29 @@ void Scene::ResultDraw() {
 }
 
 void Scene::ChargeDraw() {
+	// 1. まず背景色を決定して画面全体を塗りつぶす
 	if (chargeTimer < propellerEndTime) {
+		// プロペラの色（暗い青系）
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
 	}
-	else if (chargeTimer < maxChargeTime) {
+	else {
+		// ブーストの色（紫系）
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
 	}
 
+	// 2. その上に演出の案内（箱）を重ねる
+	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
+		Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0xFAFAD2FF, kFillModeSolid);
+	}
+
+	if (chargeSubPhase == SHOW_BOOST_TEXT) {
+		Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0x006400FF, kFillModeSolid);
+	}
+
+	// 3. デバッグ情報の表示
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 }
+
 
 void Scene::RiseDraw() {
 
@@ -389,3 +579,23 @@ void Scene::RiseDraw() {
 
 }
 
+void Scene::DifficultySelectDraw() {
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
+
+	for (int i = 0; i < 3; i++) {
+		int x = 140 + (i * 360); // X座標を横にずらす
+		int y = 320;
+		unsigned int color = 0;
+
+		if (i == 0) color = 0x00AA00FF; // EASY
+		if (i == 1) color = 0xAAAA00FF; // NORMAL
+		if (i == 2) color = 0xAA0000FF; // HARD
+
+		// 選択中の項目を強調（白枠を出す）
+		if (selectedDifficulty == i) {
+			Novice::DrawBox(x - 5, y - 5, 290, 130, 0.0f, WHITE, kFillModeSolid);
+		}
+
+		Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
+	}
+}

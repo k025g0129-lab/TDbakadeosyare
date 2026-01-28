@@ -3,6 +3,7 @@
 #include <Xinput.h> 
 #include "Vector2.h"
 #include "Player.h"
+#include "Easing.h"
 #include "Object.h"
 
 class Scene {
@@ -10,6 +11,7 @@ public:
 	enum GameScene {
 		TITLE,
 		TUTORIAL,
+		DIFFICULTY_SELECT,
 		MAIN_GAME,
 		RESULT,
 	};
@@ -38,7 +40,21 @@ public:
 
 	};
 
-	
+	enum ChargeSubPhase {
+		SHOW_PROPELLER_TEXT,
+		PROPELLER_CHARGE,
+		SHOW_BOOST_TEXT,
+		BOOST_CHARGE,
+	};
+
+	// 難易度
+	enum Difficulty {
+		EASY,
+		NORMAL,
+		HARD
+	};
+
+
 
 public:
 
@@ -76,6 +92,10 @@ public:
 	// 今の上昇量
 	float progressY = 0.0f;
 
+	// 難易度
+	Difficulty difficulty;
+
+
 public:
 
 	Scene();
@@ -92,6 +112,9 @@ public:
 
 	void TutorialUpdate();
 	void TutorialDraw();
+
+	void DifficultySelectUpdate();
+	void DifficultySelectDraw();
 
 	void MainGameUpdate();
 	void MainGameDraw();
@@ -113,6 +136,13 @@ public:
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
+	
+	bool IsPressA() const;
+	bool IsTriggerA() const;
+
+	//　難易度適用
+	void ApplyDifficulty();
+
 
 
 private:
@@ -120,9 +150,14 @@ private:
 	XINPUT_STATE padState{}; // 今のフレームの入力状態
 	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
 
+	// 難易度選択用
+	int selectedDifficulty = 1;
+
+	// タイトル用
+	int selectedTitleMenu = 0;
+
+	// プレイヤー
 	Player* player;
 	float playerStartY;
-	Object* bird;
-
 };
 
