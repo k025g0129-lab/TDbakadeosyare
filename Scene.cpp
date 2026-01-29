@@ -65,13 +65,15 @@ void Scene::Initialize() {
 	difficulty = NORMAL;
 	ApplyDifficulty();
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
-}
+
 	Vector2 a = { 0.0f,0.0f };
 	for (int i = 0; i < maxBird; i++) {
 		bird[i] = new Object(a);
 	}
 	birdOccurrences = 1;
 	preCheckPointPosY = 0.0f;
+}
+
 
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
