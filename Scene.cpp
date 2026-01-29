@@ -132,8 +132,8 @@ void Scene::ApplyDifficulty() {
 
 	case HARD:
 		checkPoint.distance = 3000.0f;
-		maxChargeTime = 800;
-		propellerEndTime = 400;
+		maxChargeTime = 900;
+		propellerEndTime = 450;
 		break;
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
