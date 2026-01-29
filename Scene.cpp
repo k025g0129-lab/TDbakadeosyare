@@ -66,6 +66,12 @@ void Scene::Initialize() {
 	ApplyDifficulty();
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 }
+	Vector2 a = { 0.0f,0.0f };
+	for (int i = 0; i < maxBird; i++) {
+		bird[i] = new Object(a);
+	}
+	birdOccurrences = 1;
+	preCheckPointPosY = 0.0f;
 
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
@@ -286,6 +292,35 @@ void Scene::ChargeUpdate() {
 				chargeSubPhase = SHOW_BOOST_TEXT;
 			}
 		}
+	if (chargeTimer < maxChargeTime) {
+		chargeTimer++;
+	}
+	else if (chargeTimer <= maxChargeTime) {
+		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
+
+
+		//プロコン忘れたデバック用絶対消す
+		player->leftPropellerPower = 0.0f;
+		player->rightPropellerPower = 0.0f;
+
+		//何体鳥を配置するか
+		birdOccurrences = checkPoint.lv;
+
+		if (birdOccurrences <= 0) {
+			birdOccurrences = 1;
+		}
+
+		if (birdOccurrences > 10) {
+			birdOccurrences = 10;
+		}
+
+		for (int i = 0; i < birdOccurrences; i++) {
+			bird[i]->BirdInitialize();
+			bird[i]->bird.isActive = false;
+		}
+
+		phase = RISE;
+	}
 
 		return;
 
@@ -332,7 +367,9 @@ void Scene::ChargeUpdate() {
 void Scene::RiseUpdate() {
 	// プレイヤーの移動更新
 	player->Update_play();
-	bird->BirdUpdate();
+	for (int i = 0; i < maxBird; i++) {
+		bird[i]->BirdUpdate();
+	}
 
 	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
@@ -342,13 +379,6 @@ void Scene::RiseUpdate() {
 		scrollY = currentScroll;
 	}
 
-	if (scrollY >= 400.0f) {
-		if (bird->bird.isActive == false) {
-			bird->bird.isActive = true;
-			bird->bird.skyPos.y = player->position.y - 500.0f;
-		}
-
-	}
 
 	// 背景の更新
 	for (int i = 0; i < 150; i++) {
@@ -363,14 +393,48 @@ void Scene::RiseUpdate() {
 		player->playerScreenY = player->position.y + scrollY;
 	}
 
-	bird->bird.screenPos.y = bird->bird.skyPos.y + scrollY;
 
 	// 進捗（どれだけ上に進んだか）の計算
 	progressY = playerStartY - player->position.y;
 
-	if (IsCollision({ bird->bird.screenPos.x,bird->bird.skyPos.y }, player->position, bird->bird.radius, player->width)) {
+
+	//鳥出現
+	for (int i = 0; i < birdOccurrences; i++) {
+		if (progressY >= (checkPoint.triggerProgressY * (float(i + 1) / float(birdOccurrences + 1)))) {
+			if (!bird[i]->bird.isAppearance) {
+				if (bird[i]->bird.isActive == false) {
+
+					bird[i]->bird.isActive = true;
+					bird[i]->bird.isAppearance = true;
+
+					bird[i]->bird.skyPos.y = player->position.y - 500.0f;
+				}
+			}
+		}
+	}
+
+
+	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
+	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
+	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
+	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
+	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
+	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
+	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
+	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
+	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
+	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+
+	for (int i = 0; i < maxBird; i++) {
+		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
+	}
+
+
+	if (IsCollision({ bird[0]->bird.screenPos.x,bird[0]->bird.skyPos.y }, player->position, bird[0]->bird.radius, player->width)) {
 		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
 	}
+
+
 
 	// チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
@@ -378,6 +442,8 @@ void Scene::RiseUpdate() {
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
 
+		//前回のチェックポイント記録
+		preCheckPointPosY = checkPoint.triggerProgressY;
 		// 次のチェックポイント準備
 		checkPoint.lv++;
 		checkPoint.triggerProgressY =

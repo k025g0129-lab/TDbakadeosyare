@@ -16,6 +16,7 @@ public:
 		float moveSpeedX;
 		int isActive;
 		int leftOrRight;
+		int isAppearance;
 	};
 
 	Bird bird;

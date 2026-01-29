@@ -87,7 +87,9 @@ public:
 	// チェックポイント
 	CheckPoint checkPoint;
 
+	int birdOccurrences;
 	int isClear = false;
+	float preCheckPointPosY = 0.0f;
 
 	// 今の上昇量
 	float progressY = 0.0f;
@@ -169,5 +171,7 @@ private:
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
+	static const int maxBird = 20;
+	Object* bird[maxBird];
 };
 
