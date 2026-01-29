@@ -106,7 +106,6 @@ public:
 	// 難易度
 	Difficulty difficulty;
 
-	Object* bird = nullptr;
 
 public:
 
