@@ -282,24 +282,25 @@ void Scene::TitleUpdate() {
 	if (IsTriggerB()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		if (selectedTitleMenu == 0) {
-		switch (titleButton) {
+			switch (titleButton) {
 
-		case Scene::GAME_PLAY_BUTTON:
-			gameScene = DIFFICULTY_SELECT;
-			break;
+			case Scene::GAME_PLAY_BUTTON:
+				gameScene = DIFFICULTY_SELECT;
+				break;
 
-		case Scene::TUTORIAL_BUTTON:
-			gameScene = TUTORIAL;
-			break;
+			case Scene::TUTORIAL_BUTTON:
+				gameScene = TUTORIAL;
+				break;
+			}
+
+
+			/*if (selectedTitleMenu == 0) {
+				gameScene = DIFFICULTY_SELECT;
+			}
+			else {
+				gameScene = TUTORIAL;
+			}*/
 		}
-
-
-		/*if (selectedTitleMenu == 0) {
-			gameScene = DIFFICULTY_SELECT;
-		}
-		else {
-			gameScene = TUTORIAL;
-		}*/
 	}
 }
 
@@ -389,41 +390,31 @@ void Scene::ChargeUpdate() {
 	else if (chargeTimer <= maxChargeTime) {
 		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 
-		player->Update_charge_propeller();
 
-		if (chargeTimer >= propellerEndTime) {
-			chargeTextT = 0.0f;
-			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
+		//プロコン忘れたデバック用絶対消す
+		player->leftPropellerPower = 0.0f;
+		player->rightPropellerPower = 0.0f;
 
-			
+		//何体鳥を配置するか
+		birdOccurrences = checkPoint.lv;
 
-
-			if (checkPoint.lv >= 2) {
-				chargeSubPhase = BOOST_CHARGE;
-			}
-			else {
-				chargeSubPhase = SHOW_BOOST_TEXT;
-			}
+		if (birdOccurrences <= 0) {
+			birdOccurrences = 1;
 		}
-	
 
-	return;
+		if (birdOccurrences > 10) {
+			birdOccurrences = 10;
+		}
+
+		for (int i = 0; i < birdOccurrences; i++) {
+			bird[i]->BirdInitialize();
+			bird[i]->bird.isActive = false;
+		}
+
 		phase = RISE;
 	}
 
-		return;
-			else {
-				chargeSubPhase = SHOW_BOOST_TEXT;
-			}
-		}
-
-		return;
-			else {
-				chargeSubPhase = SHOW_BOOST_TEXT;
-			}
-		}
-
-		return;
+	return;
 
 	// ブースト案内表示
 	case SHOW_BOOST_TEXT:

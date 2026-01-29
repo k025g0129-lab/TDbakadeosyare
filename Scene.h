@@ -203,9 +203,7 @@ private:
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
-	static const int maxBird = 20;
-	Object* bird[maxBird];
-
+	
 	// サウンド
 	int soundHandleSelect; // カーソル移動音
 	int soundHandleDecide; // 決定音
