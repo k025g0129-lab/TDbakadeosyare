@@ -66,21 +66,21 @@ void Scene::Initialize() {
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 1000.0f;
-		maxChargeTime = 1400;
-		propellerEndTime = 700;
-		break;
-
-	case NORMAL:
 		checkPoint.distance = 1500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
 		break;
 
-	case HARD:
+	case NORMAL:
 		checkPoint.distance = 2000.0f;
-		maxChargeTime = 900;
-		propellerEndTime = 450;
+		maxChargeTime = 1000;
+		propellerEndTime = 500;
+		break;
+
+	case HARD:
+		checkPoint.distance = 3000.0f;
+		maxChargeTime = 800;
+		propellerEndTime = 400;
 		break;
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -270,8 +270,10 @@ void Scene::ChargeUpdate() {
 
 		player->Update_charge_propeller();
 
+
 		if (chargeTimer >= propellerEndTime) {
 			chargeTextT = 0.0f;
+			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 
 			if (checkPoint.lv >= 2) {
 				chargeSubPhase = BOOST_CHARGE;
