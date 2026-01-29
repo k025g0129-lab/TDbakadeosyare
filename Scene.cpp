@@ -102,8 +102,8 @@ void Scene::ApplyDifficulty() {
 
 	case HARD:
 		checkPoint.distance = 3000.0f;
-		maxChargeTime = 800;
-		propellerEndTime = 400;
+		maxChargeTime = 900;
+		propellerEndTime = 450;
 		break;
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -493,17 +493,6 @@ void Scene::RiseUpdate() {
 	}
 
 
-	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
-	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
-	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
-	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
-	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
-	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
-	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
-	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
-	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
-	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
-
 	for (int i = 0; i < maxBird; i++) {
 		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
 	}
@@ -513,7 +502,27 @@ void Scene::RiseUpdate() {
 		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
 	}
 
+	// 画面外判定
+	bool isOut = false;
 
+	// 1. 左右の画面外
+	// プレイヤーの幅（player->width）を考慮して、完全に消えたらアウト
+	if (player->position.x + (player->width / 2.0f) < 0.0f ||
+		player->position.x - (player->width / 2.0f) > 1280.0f) {
+		isOut = true;
+	}
+
+	// 2. 下側の画面外（落下死）
+	// player->playerScreenY は描画用の座標なので、これが 720 を超えたらアウト
+	if (player->playerScreenY - (player->height / 2.0f) > 720.0f) {
+		isOut = true;
+	}
+
+	if (isOut) {
+		isClear = false;      // クリアフラグを折る
+		gameScene = RESULT;   // リザルト画面へ
+		return;               // 以降の処理をスキップ
+	}
 
 	// チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
@@ -714,6 +723,19 @@ void Scene::RiseDraw() {
 		);
 
 	}
+
+
+	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
+	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
+	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
+	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
+	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
+	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
+	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
+	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
+	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
+	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+
 
 }
 
