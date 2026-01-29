@@ -51,6 +51,9 @@ void Scene::Initialize() {
 	maxChargeTime = 1200; 
 	propellerEndTime = 700;
 
+	// 目標距離
+	goalDistance = 7000;
+
 	// チャージ演出初期化
 	chargeSubPhase = SHOW_PROPELLER_TEXT;
 	chargeTimer = 0;
@@ -60,6 +63,7 @@ void Scene::Initialize() {
 	// プレイヤー生成
 	player = new Player();
 	playerStartY = player->position.y;
+	gameStartPlayerY = player->position.y;
 
 	// 難易度設定
 	difficulty = NORMAL;
@@ -92,18 +96,21 @@ void Scene::ApplyDifficulty() {
 		checkPoint.distance = 1500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
+		goalDistance = 7000.0f;
 		break;
 
 	case NORMAL:
 		checkPoint.distance = 2000.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
+		goalDistance = 7000.0f;
 		break;
 
 	case HARD:
 		checkPoint.distance = 3000.0f;
 		maxChargeTime = 900;
 		propellerEndTime = 450;
+		goalDistance = 9000.0f;
 		break;
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -474,8 +481,7 @@ void Scene::RiseUpdate() {
 
 
 	// 進捗（どれだけ上に進んだか）の計算
-	progressY = playerStartY - player->position.y;
-
+	progressY = gameStartPlayerY - player->position.y;
 
 	//鳥出現
 	for (int i = 0; i < birdOccurrences; i++) {
@@ -502,6 +508,13 @@ void Scene::RiseUpdate() {
 		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
 	}
 
+	//目標に到達したか
+	if (progressY >= goalDistance) {
+		isClear = true;       // クリア
+		gameScene = RESULT;   // リザルト画面へ
+		return;
+	}
+
 	// 画面外判定
 	bool isOut = false;
 
@@ -525,17 +538,17 @@ void Scene::RiseUpdate() {
 	}
 
 	// チェックポイント（着地判定）
-	if (progressY >= checkPoint.triggerProgressY) {
+	if (progressY >= float(checkPoint.lv) * checkPoint.distance) {
 
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
 
 		//前回のチェックポイント記録
-		preCheckPointPosY = checkPoint.triggerProgressY;
+		preCheckPointPosY = float(checkPoint.lv) * checkPoint.distance;
+
 		// 次のチェックポイント準備
 		checkPoint.lv++;
-		checkPoint.triggerProgressY =
-			float(checkPoint.lv) * checkPoint.distance;
+		checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 
 		// 次の上昇基準点をここにする
 		playerStartY = player->position.y;
@@ -586,7 +599,7 @@ void Scene::ResultUpdate() {
 	// Aボタンでタイトルへ
 	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		gameScene = TITLE;
+		Initialize(); // 全てをリセットしてタイトルへ
 	}
 
 }
@@ -724,6 +737,8 @@ void Scene::RiseDraw() {
 
 	}
 
+	// 目標距離
+	Novice::ScreenPrintf(300, 160, "CURRENT: %f / GOAL: %f", progressY, goalDistance);
 
 	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
 	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
