@@ -182,6 +182,7 @@ private:
 
 	// チャージ演出用
 	ChargeSubPhase chargeSubPhase = SHOW_PROPELLER_TEXT;
+
 	// 文字演出用
 	float chargeTextT = 0.0f;
 	Vector2 chargeTextPos;
