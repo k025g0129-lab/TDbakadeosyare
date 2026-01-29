@@ -100,6 +100,10 @@ void Scene::Initialize() {
 	LeftArrowGH = Novice::LoadTexture("./Resources/images/LeftArrow.png");
 	RightArrowGH = Novice::LoadTexture("./Resources/images/RightArrow.png");
 	asobikataGH = Novice::LoadTexture("./Resources/images/asobikata.png");
+
+	// サウンド
+	soundHandleSelect = Novice::LoadAudio("./Resources/sound/select.mp3");
+	soundHandleDecide = Novice::LoadAudio("./Resources/sound/decide.mp3");
 }
 
 
@@ -229,7 +233,7 @@ bool Scene::IsTriggerA() const {
 --------------*/
 void Scene::TitleUpdate() {
 	// 左右でメニューを選択
-	/*if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedTitleMenu = 0; // 左：START
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
@@ -237,7 +241,8 @@ void Scene::TitleUpdate() {
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedTitleMenu = 1; // 右：TUTORIAL
-	}*/
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	}
 
 	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
 	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
@@ -250,6 +255,7 @@ void Scene::TitleUpdate() {
 	/*if (titleT > 1.0f) {
 		titleT = 0.0f;
 	}*/
+
 	Novice::ScreenPrintf(900, 100, "%f", player->currentLeftStickPos.x);
 	Novice::ScreenPrintf(900, 120, "%f", player->oldLeftStickPos.x);
 	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
