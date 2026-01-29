@@ -223,14 +223,14 @@ bool Scene::IsTriggerA() const {
 --------------*/
 void Scene::TitleUpdate() {
 	// 左右でメニューを選択
-	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+	/*if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedTitleMenu = 0; // 左：START
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedTitleMenu = 1; // 右：TUTORIAL
-	}
+	}*/
 
 	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
 	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
@@ -273,12 +273,24 @@ void Scene::TitleUpdate() {
 
 	// Bボタンで進む
 	if (IsTriggerB()) {
-		if (selectedTitleMenu == 0) {
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			gameScene = DIFFICULTY_SELECT;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			gameScene = TUTORIAL;
+			break;
+		}
+
+
+		/*if (selectedTitleMenu == 0) {
 			gameScene = DIFFICULTY_SELECT;
 		}
 		else {
 			gameScene = TUTORIAL;
-		}
+		}*/
 	}
 }
 
@@ -353,6 +365,9 @@ void Scene::ChargeUpdate() {
 		if (chargeTimer >= propellerEndTime) {
 			chargeTextT = 0.0f;
 
+			
+
+
 			if (checkPoint.lv >= 2) {
 				chargeSubPhase = BOOST_CHARGE;
 			}
@@ -396,6 +411,24 @@ void Scene::ChargeUpdate() {
 		player->Update_charge_boost();
 
 		if (chargeTimer >= maxChargeTime) {
+
+			//何体鳥を配置するか
+			birdOccurrences = checkPoint.lv;
+
+			if (birdOccurrences <= 0) {
+				birdOccurrences = 1;
+			}
+
+			if (birdOccurrences > 10) {
+				birdOccurrences = 10;
+			}
+
+			for (int i = 0; i < birdOccurrences; i++) {
+				bird[i]->BirdInitialize();
+				bird[i]->bird.isActive = false;
+			}
+
+			//上昇へ
 			phase = RISE;
 		}
 
@@ -469,9 +502,16 @@ void Scene::RiseUpdate() {
 		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
 	}
 
-
-	if (IsCollision({ bird[0]->bird.screenPos.x,bird[0]->bird.skyPos.y }, player->position, bird[0]->bird.radius, player->width)) {
-		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
+	for (int i = 0; i < maxBird; i++) {
+		if (IsCollision({ bird[i]->bird.screenPos.x,bird[i]->bird.skyPos.y }, player->position, bird[i]->bird.radius, player->width)) {
+			if (bird[i]->bird.isActive) {
+				bird[i]->bird.isActive = false;
+				bird[i]->bird.screenPos.x += 1000.0f;
+				bird[i]->bird.screenPos.y += 1000.0f;
+				player->leftPropellerPower /= 2.0f;
+				player->rightPropellerPower /= 2.0f;
+			}
+		}
 	}
 
 

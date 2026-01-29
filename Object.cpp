@@ -49,6 +49,7 @@ void Object::BirdInitialize() {
 
 	bird.isActive = false;
 	bird.isAppearance = false;
+	
 }
 
 void Object::BirdUpdate() {
