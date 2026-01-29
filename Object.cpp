@@ -8,27 +8,12 @@ Object::Object(Vector2 initialPosition) {
 	isActive = false;
 
 	bird.radius = 30.0f;
-
-	bird.leftOrRight = rand() % 2;
-
-	if (bird.leftOrRight == 0) {
-		bird.skyPos = { 0.0f - bird.radius ,0.0f };
-		bird.screenPos = { 0.0f - bird.radius ,0.0f };
-		bird.moveSpeedX = float(rand() % 5 + 5);
-
-	}
-
-	if (bird.leftOrRight == 1) {
-		bird.skyPos = { 1280.0f + bird.radius,0.0f };
-		bird.screenPos = { 1280.0f + bird.radius,0.0f };
-		bird.moveSpeedX = -float(rand() % 5 + 5);
-	}
-
-	birdGH = Novice::LoadTexture("./Resources/images/bird.png");;
-	bird.isActive = false;
+	BirdInitialize();
 }
 
-Object::~Object() {};
+Object::~Object() {
+
+};
 
 void Object::Draw() {
 	// 画面内なら描画
@@ -45,26 +30,40 @@ void Object::Draw() {
 }
 
 void Object::BirdInitialize() {
+	bird.leftOrRight = rand() % 2;
 
+	if (bird.leftOrRight == 0) {
+		bird.skyPos = { 0.0f - bird.radius ,0.0f };
+		bird.screenPos = { 0.0f - bird.radius ,0.0f };
+		bird.moveSpeedX = float(rand() % 5 + 5);
+
+		birdGH = Novice::LoadTexture("./Resources/images/birdRight.png");
+	}
+
+	if (bird.leftOrRight == 1) {
+		bird.skyPos = { 1280.0f + bird.radius,0.0f };
+		bird.screenPos = { 1280.0f + bird.radius ,0.0f };
+		bird.moveSpeedX = -float(rand() % 5 + 5);
+		birdGH = Novice::LoadTexture("./Resources/images/birdLeft.png");
+	}
+
+	bird.isActive = false;
+	bird.isAppearance = false;
+	
 }
 
 void Object::BirdUpdate() {
 	if (bird.isActive) {
 		bird.screenPos.x += bird.moveSpeedX;
 
-		if (bird.leftOrRight == 0) {
-			if (bird.screenPos.x >= 1280.0f + bird.radius) {
-				bird.isActive = false;
-
-			}
+		if (bird.screenPos.x >= 1780.0f + bird.radius) {
+			bird.isActive = false;
 		}
 
-		if (bird.leftOrRight == 1) {
-			if (bird.screenPos.x <= 0.0f - bird.radius) {
-				bird.isActive = false;
-
-			}
+		if (bird.screenPos.x <= -500.0f - bird.radius) {
+			bird.isActive = false;
 		}
+
 	}
 
 
@@ -73,23 +72,26 @@ void Object::BirdUpdate() {
 
 void Object::BirdDraw() {
 
-	Novice::DrawEllipse(
-		static_cast<int>(bird.screenPos.x),
-		static_cast<int>(bird.screenPos.y),
-		static_cast<int>(bird.radius),
-		static_cast<int>(bird.radius),
-		0.0f, 0x0000FFFF,
-		kFillModeSolid
+	if (bird.isActive) {
+		Novice::DrawEllipse(
+			static_cast<int>(bird.screenPos.x),
+			static_cast<int>(bird.screenPos.y),
+			static_cast<int>(bird.radius),
+			static_cast<int>(bird.radius),
+			0.0f, 0x0000FFFF,
+			kFillModeSolid
+		);
 
-	);
+		Novice::DrawSprite(
+			static_cast<int>(bird.screenPos.x - bird.radius),
+			static_cast<int>(bird.screenPos.y - bird.radius),
+			birdGH,
+			1.0f, 1.0f,
+			0.0f,
+			0xFFFFFFFF
+		);
 
-	Novice::DrawSprite(
-		static_cast<int>(bird.screenPos.x - bird.radius),
-		static_cast<int>(bird.screenPos.y - bird.radius),
-		birdGH,
-		1.0f, 1.0f,
-		0.0f,
-		0xFFFFFFFF
-	);
+	}
+
 
 }

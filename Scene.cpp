@@ -2,11 +2,14 @@
 #include "Vector2.h"
 #include "Object.h"
 #include "Function.h"
+#include"Easing.h"
 
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include<Xinput.h>
+
+
 
 
 Scene::Scene() {
@@ -49,7 +52,7 @@ void Scene::Initialize() {
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 
 	// チャージ時間
-	maxChargeTime = 1200; 
+	maxChargeTime = 1200;
 	propellerEndTime = 700;
 
 	// チャージ演出初期化
@@ -62,14 +65,41 @@ void Scene::Initialize() {
 	player = new Player();
 	playerStartY = player->position.y;
 
+	Vector2 a = { 0.0f,0.0f };
+	for (int i = 0; i < maxBird; i++) {
+		bird[i] = new Object(a);
+	}
+	birdOccurrences = 1;
+	preCheckPointPosY = 0.0f;
 	// 難易度設定
 	difficulty = NORMAL;
 	ApplyDifficulty();
 
-	bird = new Object({0.0f,0.0f});
+	PtitlePos = { 0.0f,0.0f };
+	titleButton = GAME_PLAY_BUTTON;
+	//titleT = 0.0f;
 
+	amplitude = 100.0f;
+	theta = 0.0f;
 
+	//GH
+	//タイトル
+	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
+	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");
+	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");
+	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");
+	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");
+	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");
+
+	//チュートリアル
+	pressAexitGH = Novice::LoadTexture("./Resources/images/pressAexit.png");
+	LeftArrowGH = Novice::LoadTexture("./Resources/images/LeftArrow.png");
+	RightArrowGH = Novice::LoadTexture("./Resources/images/RightArrow.png");
+	asobikataGH = Novice::LoadTexture("./Resources/images/asobikata.png");
 }
+
+
+
 
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
@@ -92,6 +122,7 @@ void Scene::ApplyDifficulty() {
 		break;
 	}
 }
+
 
 
 void Scene::Update() {
@@ -188,40 +219,95 @@ bool Scene::IsTriggerA() const {
 
 
 /*------------
-   更新処理
+   更新処理ee
 --------------*/
 void Scene::TitleUpdate() {
 	// 左右でメニューを選択
-	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+	/*if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedTitleMenu = 0; // 左：START
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedTitleMenu = 1; // 右：TUTORIAL
+	}*/
+
+	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
+	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
+	theta += float(M_PI) / 120.0f;
+	PtitlePos.y = sinf(theta) * amplitude;
+
+
+	//titleT += 0.005f;
+
+	/*if (titleT > 1.0f) {
+		titleT = 0.0f;
+	}*/
+	Novice::ScreenPrintf(900, 100, "%f", player->currentLeftStickPos.x);
+	Novice::ScreenPrintf(900, 120, "%f", player->oldLeftStickPos.x);
+	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			titleButton = TUTORIAL_BUTTON;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			titleButton = GAME_PLAY_BUTTON;
+			break;
+		}
 	}
 
-	// Bボタンで決定
+	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			titleButton = TUTORIAL_BUTTON;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			titleButton = GAME_PLAY_BUTTON;
+			break;
+		}
+	}
+
+	// Bボタンで進む
 	if (IsTriggerB()) {
-		if (selectedTitleMenu == 0) {
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			gameScene = DIFFICULTY_SELECT;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			gameScene = TUTORIAL;
+			break;
+		}
+
+
+		/*if (selectedTitleMenu == 0) {
 			gameScene = DIFFICULTY_SELECT;
 		}
 		else {
 			gameScene = TUTORIAL;
-		}
+		}*/
 	}
 }
 
 void Scene::TutorialUpdate() {
 	// Bボタンでメインゲームへ
 	if (IsTriggerB()) {
-		gameScene = MAIN_GAME;
+		gameScene = TITLE;
 	}
+
+
+
 }
 
 void Scene::MainGameUpdate() {
 
 	PhaseUpdate();
+
 }
 
 void Scene::PhaseUpdate() {
@@ -280,6 +366,9 @@ void Scene::ChargeUpdate() {
 			chargeTextT = 0.0f;
 			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 
+			
+
+
 			if (checkPoint.lv >= 2) {
 				chargeSubPhase = BOOST_CHARGE;
 			}
@@ -287,8 +376,9 @@ void Scene::ChargeUpdate() {
 				chargeSubPhase = SHOW_BOOST_TEXT;
 			}
 		}
+	
 
-		return;
+	return;
 
 	// ブースト案内表示
 	case SHOW_BOOST_TEXT:
@@ -322,6 +412,24 @@ void Scene::ChargeUpdate() {
 		player->Update_charge_boost();
 
 		if (chargeTimer >= maxChargeTime) {
+
+			//何体鳥を配置するか
+			birdOccurrences = checkPoint.lv;
+
+			if (birdOccurrences <= 0) {
+				birdOccurrences = 1;
+			}
+
+			if (birdOccurrences > 10) {
+				birdOccurrences = 10;
+			}
+
+			for (int i = 0; i < birdOccurrences; i++) {
+				bird[i]->BirdInitialize();
+				bird[i]->bird.isActive = false;
+			}
+
+			//上昇へ
 			phase = RISE;
 		}
 
@@ -333,7 +441,9 @@ void Scene::ChargeUpdate() {
 void Scene::RiseUpdate() {
 	// プレイヤーの移動更新
 	player->Update_play();
-	bird->BirdUpdate();
+	for (int i = 0; i < maxBird; i++) {
+		bird[i]->BirdUpdate();
+	}
 
 	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
@@ -343,13 +453,6 @@ void Scene::RiseUpdate() {
 		scrollY = currentScroll;
 	}
 
-	if (scrollY >= 400.0f) {
-		if (bird->bird.isActive == false) {
-			bird->bird.isActive = true;
-			bird->bird.skyPos.y = player->position.y - 500.0f;
-		}
-
-	}
 
 	// 背景の更新
 	for (int i = 0; i < 150; i++) {
@@ -364,20 +467,64 @@ void Scene::RiseUpdate() {
 		player->playerScreenY = player->position.y + scrollY;
 	}
 
-	bird->bird.screenPos.y = bird->bird.skyPos.y + scrollY;
 
 	// 進捗（どれだけ上に進んだか）の計算
 	progressY = playerStartY - player->position.y;
 
-	if (IsCollision({ bird->bird.screenPos.x,bird->bird.skyPos.y }, player->position, bird->bird.radius, player->width)) {
-		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
+
+	//鳥出現
+	for (int i = 0; i < birdOccurrences; i++) {
+		if (progressY >= (checkPoint.triggerProgressY * (float(i + 1) / float(birdOccurrences + 1)))) {
+			if (!bird[i]->bird.isAppearance) {
+				if (bird[i]->bird.isActive == false) {
+
+					bird[i]->bird.isActive = true;
+					bird[i]->bird.isAppearance = true;
+
+					bird[i]->bird.skyPos.y = player->position.y - 500.0f;
+				}
+			}
+		}
 	}
+
+
+	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
+	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
+	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
+	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
+	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
+	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
+	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
+	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
+	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
+	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+
+	for (int i = 0; i < maxBird; i++) {
+		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
+	}
+
+	for (int i = 0; i < maxBird; i++) {
+		if (IsCollision({ bird[i]->bird.screenPos.x,bird[i]->bird.skyPos.y }, player->position, bird[i]->bird.radius, player->width)) {
+			if (bird[i]->bird.isActive) {
+				bird[i]->bird.isActive = false;
+				bird[i]->bird.screenPos.x += 1000.0f;
+				bird[i]->bird.screenPos.y += 1000.0f;
+				player->leftPropellerPower /= 2.0f;
+				player->rightPropellerPower /= 2.0f;
+			}
+		}
+	}
+
+
 
 	// チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
 
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
+
+		//前回のチェックポイント記録
+		preCheckPointPosY = checkPoint.triggerProgressY;
 
 		// 次のチェックポイント準備
 		checkPoint.lv++;
@@ -453,30 +600,40 @@ void Scene::ResultUpdate() {
    描画処理
 --------------*/
 void Scene::TitleDraw() {
-	// 背景（暗めの紺色）
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x000022FF, kFillModeSolid);
 
-	// STARTボタン (左側)
-	int startX = 400;
-	int startY = 400;
-	if (selectedTitleMenu == 0) {
-		// 選択中は白い枠を表示
-		Novice::DrawBox(startX - 5, startY - 5, 210, 90, 0.0f, WHITE, kFillModeSolid);
+	Novice::DrawSprite(0, 0, titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
+	Novice::DrawSprite(0, 0, pressAGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	Novice::DrawSprite(0, 0, titleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	//PtitlePos.y = EaseInOutBack(titleT,0.0f,-720.0f,1.70158f);
+	//underPtitlePos.y = EaseInOutBack(titleT,720.0f,0.0f,1.70158f);
+
+	Novice::DrawSprite(static_cast<int>(PtitlePos.x), static_cast<int>(PtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	//Novice::DrawSprite(static_cast<int>(underPtitlePos.x), static_cast<int>(underPtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	switch (titleButton) {
+
+	case GAME_PLAY_BUTTON:
+		Novice::DrawSprite(0, 0, playChoiceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		break;
+
+	case TUTORIAL_BUTTON:
+		Novice::DrawSprite(0, 0, tutorialChoiceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		break;
+
 	}
-	Novice::DrawBox(startX, startY, 200, 80, 0.0f, 0x0055AAFF, kFillModeSolid);
-	
-	// TUTORIALボタン (右側)
-	int tutorialX = 680;
-	int tutorialY = 400;
-	if (selectedTitleMenu == 1) {
-		// 選択中は白い枠を表示
-		Novice::DrawBox(tutorialX - 5, tutorialY - 5, 210, 90, 0.0f, WHITE, kFillModeSolid);
-	}
-	Novice::DrawBox(tutorialX, tutorialY, 200, 80, 0.0f, 0xAA5500FF, kFillModeSolid);
+
+
 }
 
 void Scene::TutorialDraw() {
+
 	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
+	Novice::DrawSprite(0, 0, titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+
 }
 
 void Scene::MainGameDraw() {
