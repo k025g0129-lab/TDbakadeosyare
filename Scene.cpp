@@ -397,6 +397,7 @@ void Scene::ChargeUpdate() {
 
 		if (chargeTimer >= propellerEndTime) {
 			chargeTextT = 0.0f;
+			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 
 			
 
