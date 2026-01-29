@@ -106,7 +106,6 @@ public:
 	// 難易度
 	Difficulty difficulty;
 
-	Object* bird = nullptr;
 
 public:
 
@@ -133,8 +132,8 @@ public:
 
 	void ResultUpdate();
 	void ResultDraw();
-	
-	
+
+
 	// フェーズ用
 	void PhaseUpdate();
 
@@ -148,7 +147,7 @@ public:
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
-	
+
 	bool IsPressA() const;
 	bool IsTriggerA() const;
 
@@ -172,7 +171,7 @@ private:
 	static const int maxBird = 20;
 	Object* bird[maxBird];
 
-	Vector2 PtitlePos = {0.0f,0.0f};
+	Vector2 PtitlePos = { 0.0f,0.0f };
 	//Vector2 underPtitlePos = {0.0f,720.0f};
 	TitleButton titleButton = GAME_PLAY_BUTTON;
 
@@ -205,4 +204,3 @@ private:
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
 };
-
