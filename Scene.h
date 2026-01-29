@@ -82,6 +82,12 @@ public:
 	int propellerEndTime = 700;
 	int maxChargeTime = 1200;
 
+	// 目標距離
+	float goalDistance;
+
+	// ゲーム開始時の初期位置
+	float gameStartPlayerY;
+
 	// 傾き
 	int tiltDegree = 0;
 

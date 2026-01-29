@@ -54,6 +54,9 @@ void Scene::Initialize() {
 	maxChargeTime = 1200;
 	propellerEndTime = 700;
 
+	// 目標距離
+	goalDistance = 7000;
+
 	// チャージ演出初期化
 	chargeSubPhase = SHOW_PROPELLER_TEXT;
 	chargeTimer = 0;
@@ -63,6 +66,7 @@ void Scene::Initialize() {
 	// プレイヤー生成
 	player = new Player();
 	playerStartY = player->position.y;
+	gameStartPlayerY = player->position.y;
 
 	// 難易度設定
 	difficulty = NORMAL;
@@ -122,18 +126,21 @@ void Scene::ApplyDifficulty() {
 		checkPoint.distance = 1500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
+		goalDistance = 7000.0f;
 		break;
 
 	case NORMAL:
 		checkPoint.distance = 2000.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
+		goalDistance = 7000.0f;
 		break;
 
 	case HARD:
 		checkPoint.distance = 3000.0f;
 		maxChargeTime = 900;
 		propellerEndTime = 450;
+		goalDistance = 9000.0f;
 		break;
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -251,7 +258,7 @@ bool Scene::IsTriggerX() const {
 void Scene::TitleUpdate() {
 	// タイトルBGM
 	if (voiceHandleTitleBGM == -1 || !Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
-		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.4f); // ループ再生
+		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.5f); // ループ再生
 	}
 
 	if (voiceHandleMainBGM != -1) {
@@ -388,7 +395,7 @@ void Scene::MainGameUpdate() {
 	}
 
 	if (voiceHandleMainBGM == -1 || !Novice::IsPlayingAudio(voiceHandleMainBGM)) {
-		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 1.0f);
+		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 0.6f);
 	}
 
 	PhaseUpdate();
@@ -573,8 +580,7 @@ void Scene::RiseUpdate() {
 
 
 	// 進捗（どれだけ上に進んだか）の計算
-	progressY = playerStartY - player->position.y;
-
+	progressY = gameStartPlayerY - player->position.y;
 
 	//鳥出現
 	for (int i = 0; i < birdOccurrences; i++) {
@@ -592,17 +598,6 @@ void Scene::RiseUpdate() {
 	}
 
 
-	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
-	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
-	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
-	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
-	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
-	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
-	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
-	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
-	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
-	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
-
 	for (int i = 0; i < maxBird; i++) {
 		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
 	}
@@ -619,21 +614,47 @@ void Scene::RiseUpdate() {
 		}
 	}
 
+	//目標に到達したか
+	if (progressY >= goalDistance) {
+		isClear = true;       // クリア
+		gameScene = RESULT;   // リザルト画面へ
+		return;
+	}
 
+	// 画面外判定
+	bool isOut = false;
+
+	// 1. 左右の画面外
+	// プレイヤーの幅（player->width）を考慮して、完全に消えたらアウト
+	if (player->position.x + (player->width / 2.0f) < 0.0f ||
+		player->position.x - (player->width / 2.0f) > 1280.0f) {
+		isOut = true;
+	}
+
+	// 2. 下側の画面外（落下死）
+	// player->playerScreenY は描画用の座標なので、これが 720 を超えたらアウト
+	if (player->playerScreenY - (player->height / 2.0f) > 720.0f) {
+		isOut = true;
+	}
+
+	if (isOut) {
+		isClear = false;      // クリアフラグを折る
+		gameScene = RESULT;   // リザルト画面へ
+		return;               // 以降の処理をスキップ
+	}
 
 	// チェックポイント（着地判定）
-	if (progressY >= checkPoint.triggerProgressY) {
+	if (progressY >= float(checkPoint.lv) * checkPoint.distance) {
 
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
 
 		//前回のチェックポイント記録
-		preCheckPointPosY = checkPoint.triggerProgressY;
+		preCheckPointPosY = float(checkPoint.lv) * checkPoint.distance;
 
 		// 次のチェックポイント準備
 		checkPoint.lv++;
-		checkPoint.triggerProgressY =
-			float(checkPoint.lv) * checkPoint.distance;
+		checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 
 		// 次の上昇基準点をここにする
 		playerStartY = player->position.y;
@@ -684,7 +705,7 @@ void Scene::ResultUpdate() {
 	// Aボタンでタイトルへ
 	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		gameScene = TITLE;
+		Initialize(); // 全てをリセットしてタイトルへ
 	}
 
 }
@@ -833,6 +854,21 @@ void Scene::RiseDraw() {
 		);
 
 	}
+
+	// 目標距離
+	Novice::ScreenPrintf(300, 160, "CURRENT: %f / GOAL: %f", progressY, goalDistance);
+
+	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
+	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
+	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
+	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
+	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
+	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
+	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
+	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
+	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
+	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+
 
 }
 
