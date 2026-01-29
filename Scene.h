@@ -137,10 +137,12 @@ private:
 	Vector2 PtitlePos = {0.0f,0.0f};
 	//Vector2 underPtitlePos = {0.0f,720.0f};
 	TitleButton titleButton = GAME_PLAY_BUTTON;
+
 	//float titleT = 0.0f;
 
 	float amplitude = 100.0f;
 	float theta = 0.0f;
+
 
 	//GH
 	int titleBGGH = 0;
