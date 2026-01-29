@@ -4,6 +4,7 @@
 #include "Vector2.h"
 #include "Player.h"
 #include "Easing.h"
+#include "Object.h"
 
 class Scene {
 public:
@@ -86,6 +87,8 @@ public:
 	// チェックポイント
 	CheckPoint checkPoint;
 
+	int isClear = false;
+
 	// 今の上昇量
 	float progressY = 0.0f;
 
@@ -140,8 +143,6 @@ public:
 	//　難易度適用
 	void ApplyDifficulty();
 
-
-
 private:
 	// コントローラー
 	XINPUT_STATE padState{}; // 今のフレームの入力状態
@@ -157,6 +158,7 @@ private:
 	Player* player;
 	float playerStartY;
 
+
 	// チャージ演出用
 	ChargeSubPhase chargeSubPhase = SHOW_PROPELLER_TEXT;
 
@@ -167,6 +169,5 @@ private:
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
-
 };
 

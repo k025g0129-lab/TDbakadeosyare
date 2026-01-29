@@ -1,5 +1,7 @@
 ﻿#include "Scene.h"
 #include "Vector2.h"
+#include "Object.h"
+#include "Function.h"
 
 #include <Novice.h>
 #define _USE_MATH_DEFINES
@@ -40,6 +42,8 @@ void Scene::Initialize() {
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
+
+	isClear = false;
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 
@@ -328,6 +332,7 @@ void Scene::ChargeUpdate() {
 void Scene::RiseUpdate() {
 	// プレイヤーの移動更新
 	player->Update_play();
+	bird->BirdUpdate();
 
 	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
@@ -335,6 +340,14 @@ void Scene::RiseUpdate() {
 
 	if (currentScroll > scrollY) {
 		scrollY = currentScroll;
+	}
+
+	if (scrollY >= 400.0f) {
+		if (bird->bird.isActive == false) {
+			bird->bird.isActive = true;
+			bird->bird.skyPos.y = player->position.y - 500.0f;
+		}
+
 	}
 
 	// 背景の更新
@@ -350,8 +363,14 @@ void Scene::RiseUpdate() {
 		player->playerScreenY = player->position.y + scrollY;
 	}
 
+	bird->bird.screenPos.y = bird->bird.skyPos.y + scrollY;
+
 	// 進捗（どれだけ上に進んだか）の計算
 	progressY = playerStartY - player->position.y;
+
+	if (IsCollision({ bird->bird.screenPos.x,bird->bird.skyPos.y }, player->position, bird->bird.radius, player->width)) {
+		Novice::DrawBox(400, 400, 100, 100, 0.0f, 0x777777FF, kFillModeSolid);
+	}
 
 	// チェックポイント（着地判定）
 	if (progressY >= checkPoint.triggerProgressY) {
@@ -510,6 +529,12 @@ void Scene::MainGameDraw() {
 
 void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	if (isClear) {
+		Novice::ScreenPrintf(300, 0, "kuria");
+	} else {
+		Novice::ScreenPrintf(300, 0, "gemuoba");
+	}
+
 }
 
 void Scene::ChargeDraw() {

@@ -168,9 +168,9 @@ void Player::Update_charge_propeller() {
 			}
 
 			// 4. 1周判定
-			if (totalRightRotation >= 1.2f) {
+			if (totalRightRotation >= 1.0f) {
 				rightPropellerPower += 1.0f;
-				totalRightRotation -= 1.2f;
+				totalRightRotation -= 1.0f;
 			}
 
 			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
