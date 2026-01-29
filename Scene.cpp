@@ -66,6 +66,9 @@ void Scene::Initialize() {
 	difficulty = NORMAL;
 	ApplyDifficulty();
 
+	bird = new Object({0.0f,0.0f});
+
+
 }
 
 void Scene::ApplyDifficulty() {
