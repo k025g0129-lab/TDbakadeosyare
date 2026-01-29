@@ -173,5 +173,9 @@ private:
 	const float TEXT_END_Y = 360.0f;
 	static const int maxBird = 20;
 	Object* bird[maxBird];
+
+	// サウンド
+	int soundHandleSelect; // カーソル移動音
+	int soundHandleDecide; // 決定音
 };
 

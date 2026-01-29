@@ -72,6 +72,10 @@ void Scene::Initialize() {
 	}
 	birdOccurrences = 1;
 	preCheckPointPosY = 0.0f;
+
+	// サウンド読み込み
+	soundHandleSelect = Novice::LoadAudio("./Resources/sound/select.mp3");
+	soundHandleDecide = Novice::LoadAudio("./Resources/sound/decide.mp3");
 }
 
 
@@ -201,14 +205,17 @@ void Scene::TitleUpdate() {
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedTitleMenu = 0; // 左：START
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedTitleMenu = 1; // 右：TUTORIAL
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
 	// Bボタンで決定
 	if (IsTriggerB()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		if (selectedTitleMenu == 0) {
 			gameScene = DIFFICULTY_SELECT;
 		}
@@ -496,10 +503,12 @@ void Scene::DifficultySelectUpdate() {
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedDifficulty--;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedDifficulty++;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
 	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
@@ -508,6 +517,7 @@ void Scene::DifficultySelectUpdate() {
 
 	// Bボタンで決定
 	if (IsTriggerB()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
 		gameScene = MAIN_GAME;
