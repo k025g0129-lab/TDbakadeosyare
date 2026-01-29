@@ -83,6 +83,7 @@ void Scene::ApplyDifficulty() {
 		propellerEndTime = 450;
 		break;
 	}
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 }
 
 
