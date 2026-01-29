@@ -177,5 +177,8 @@ private:
 	// サウンド
 	int soundHandleSelect; // カーソル移動音
 	int soundHandleDecide; // 決定音
+
+	int soundHandleTitleBGM; // 音源データ
+	int voiceHandleTitleBGM; // 再生中の管理用ID
 };
 
