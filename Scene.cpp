@@ -220,7 +220,7 @@ bool Scene::IsTriggerX() const {
 void Scene::TitleUpdate() {
 	// タイトルBGM
 	if (voiceHandleTitleBGM == -1 || !Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
-		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.4f); // ループ再生
+		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.5f); // ループ再生
 	}
 
 	if (voiceHandleMainBGM != -1) {
@@ -308,7 +308,7 @@ void Scene::MainGameUpdate() {
 	}
 
 	if (voiceHandleMainBGM == -1 || !Novice::IsPlayingAudio(voiceHandleMainBGM)) {
-		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 1.0f);
+		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 0.6f);
 	}
 
 	PhaseUpdate();
