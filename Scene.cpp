@@ -79,6 +79,10 @@ void Scene::Initialize() {
 
 	soundHandleTitleBGM = Novice::LoadAudio("./Resources/sound/titleBGM.mp3");
 	voiceHandleTitleBGM = -1; // 再生していないときは-1
+
+	soundHandleMainBGM = Novice::LoadAudio("./Resources/sound/mainBGM.mp3");
+	voiceHandleMainBGM = -1;
+
 }
 
 
@@ -199,6 +203,16 @@ bool Scene::IsTriggerA() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_A);
 }
 
+// 入力処理
+bool Scene::IsPressX() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0;
+}
+
+// Xボタンが押された瞬間
+bool Scene::IsTriggerX() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_X) &&
+		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_X);
+}
 
 /*------------
    更新処理
@@ -208,6 +222,12 @@ void Scene::TitleUpdate() {
 	if (voiceHandleTitleBGM == -1 || !Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
 		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.4f); // ループ再生
 	}
+
+	if (voiceHandleMainBGM != -1) {
+		Novice::StopAudio(voiceHandleMainBGM);
+		voiceHandleMainBGM = -1;
+	}
+
 
 	// 左右でメニューを選択
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
@@ -221,8 +241,8 @@ void Scene::TitleUpdate() {
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
-	// Bボタンで決定
-	if (IsTriggerB()) {
+	// Aボタンで決定
+	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		
 		if (selectedTitleMenu == 0) {
@@ -235,14 +255,14 @@ void Scene::TitleUpdate() {
 }
 
 void Scene::TutorialUpdate() {
-	// Aボタンでタイトルへ戻る
-	if (IsTriggerA()) {
+	// Xボタンでタイトルへ戻る
+	if (IsTriggerX()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		gameScene = TITLE;
 	}
 
-	// Bボタンでメインゲームへ
-	if (IsTriggerB()) {
+	// Aボタンでメインゲームへ
+	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		gameScene = MAIN_GAME;
 	}
@@ -266,14 +286,14 @@ void Scene::DifficultySelectUpdate() {
 	if (selectedDifficulty < 0) selectedDifficulty = 0;
 	if (selectedDifficulty > 2) selectedDifficulty = 2;
 
-	// Aボタンでタイトルへ戻る
-	if (IsTriggerA()) {
+	// Xボタンでタイトルへ戻る
+	if (IsTriggerX()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		gameScene = TITLE;
 	}
 
-	// Bボタンで決定
-	if (IsTriggerB()) {
+	// Aボタンで決定
+	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
@@ -282,14 +302,20 @@ void Scene::DifficultySelectUpdate() {
 }
 
 void Scene::MainGameUpdate() {
-	Novice::StopAudio(voiceHandleTitleBGM);
-	voiceHandleTitleBGM = -1;
+	if (voiceHandleTitleBGM != -1) {
+		Novice::StopAudio(voiceHandleTitleBGM);
+		voiceHandleTitleBGM = -1;
+	}
 
+	if (voiceHandleMainBGM == -1 || !Novice::IsPlayingAudio(voiceHandleMainBGM)) {
+		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 1.0f);
+	}
 
 	PhaseUpdate();
 }
 
 void Scene::PhaseUpdate() {
+
 	switch (phase) {
 	case CHARGE:
 		ChargeUpdate();
@@ -543,8 +569,13 @@ void Scene::RiseUpdate() {
 }
 
 void Scene::ResultUpdate() {
-	// Bボタンでタイトルへ
-	if (IsTriggerB()) {
+	if (voiceHandleMainBGM != -1) {
+		Novice::StopAudio(voiceHandleMainBGM);
+		voiceHandleMainBGM = -1;
+	}
+
+	// Aボタンでタイトルへ
+	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		gameScene = TITLE;
 	}

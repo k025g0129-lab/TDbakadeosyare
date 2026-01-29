@@ -142,6 +142,9 @@ public:
 	bool IsPressA() const;
 	bool IsTriggerA() const;
 
+	bool IsPressX() const;
+	bool IsTriggerX() const;
+
 	//　難易度適用
 	void ApplyDifficulty();
 
@@ -180,5 +183,9 @@ private:
 
 	int soundHandleTitleBGM; // 音源データ
 	int voiceHandleTitleBGM; // 再生中の管理用ID
+
+	int soundHandleMainBGM;
+	int voiceHandleMainBGM;
+
 };
 
