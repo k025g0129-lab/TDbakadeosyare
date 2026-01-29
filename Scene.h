@@ -186,9 +186,14 @@ private:
 	// 文字演出用
 	float chargeTextT = 0.0f;
 	Vector2 chargeTextPos;
+	float pressAT = 0.0f;
+	float pressATSpeed = 1.0f / 120.0f;
+
+	Vector2 titleBGPos[2];
 
 	//GH
 	int titleBGGH = 0;
+	int titleBG2GH = 0;
 	int pressAGH = 0;
 	int playChoiceGH = 0;
 	int tutorialChoiceGH = 0;

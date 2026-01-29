@@ -81,10 +81,16 @@ void Scene::Initialize() {
 
 	amplitude = 100.0f;
 	theta = 0.0f;
+	pressAT = 0.0f;
+	pressATSpeed = 1.0f / 120.0f;
+
+	titleBGPos[0] = {0.0f,0.0f};
+	titleBGPos[1] = {1280.0f,0.0f};
 
 	//GH
 	//タイトル
 	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
+	titleBG2GH = Novice::LoadTexture("./Resources/images/skyBG2.png");
 	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");
 	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");
 	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");
@@ -222,6 +228,7 @@ bool Scene::IsTriggerA() const {
    更新処理ee
 --------------*/
 void Scene::TitleUpdate() {
+
 	// 左右でメニューを選択
 	/*if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
@@ -232,8 +239,11 @@ void Scene::TitleUpdate() {
 		selectedTitleMenu = 1; // 右：TUTORIAL
 	}*/
 
+	//コントローラー情報取得
 	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
 	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
+	
+	//タイトルP上下用
 	theta += float(M_PI) / 120.0f;
 	PtitlePos.y = sinf(theta) * amplitude;
 
@@ -243,8 +253,8 @@ void Scene::TitleUpdate() {
 	/*if (titleT > 1.0f) {
 		titleT = 0.0f;
 	}*/
-	Novice::ScreenPrintf(900, 100, "%f", player->currentLeftStickPos.x);
-	Novice::ScreenPrintf(900, 120, "%f", player->oldLeftStickPos.x);
+
+	//ボタン選択
 	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
 		switch (titleButton) {
 
@@ -256,6 +266,7 @@ void Scene::TitleUpdate() {
 			titleButton = GAME_PLAY_BUTTON;
 			break;
 		}
+
 	}
 
 	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
@@ -291,7 +302,29 @@ void Scene::TitleUpdate() {
 		else {
 			gameScene = TUTORIAL;
 		}*/
+
 	}
+		pressAT += pressATSpeed;
+		
+		if (pressAT >= 1.0f) {
+			pressAT = 1.0f;
+			pressATSpeed *= -1.0f;
+		}
+
+		if (pressAT < 0.0f) {
+			pressAT = 0.0f;
+			pressATSpeed *= -1.0f;
+		}
+
+		for (int i = 0; i < 2; i++) {
+			titleBGPos[i].x -= 1.0f;
+
+
+			if (titleBGPos[i].x <= -1280.0f) {
+				titleBGPos[i].x = 1280.0f;
+			}
+		}
+
 }
 
 void Scene::TutorialUpdate() {
@@ -600,9 +633,10 @@ void Scene::ResultUpdate() {
 --------------*/
 void Scene::TitleDraw() {
 
-	Novice::DrawSprite(0, 0, titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
-	Novice::DrawSprite(0, 0, pressAGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(0, 0, pressAGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
 
 	Novice::DrawSprite(0, 0, titleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
@@ -623,6 +657,7 @@ void Scene::TitleDraw() {
 		break;
 
 	}
+	Novice::ScreenPrintf(300, 300, "%f", pressAT);
 
 
 }
