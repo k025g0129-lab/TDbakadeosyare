@@ -52,7 +52,7 @@ void Scene::Initialize() {
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 
 	// チャージ時間
-	maxChargeTime = 1200; 
+	maxChargeTime = 1200;
 	propellerEndTime = 700;
 
 	// チャージ演出初期化
@@ -75,9 +75,31 @@ void Scene::Initialize() {
 	difficulty = NORMAL;
 	ApplyDifficulty();
 
-	PtitlePos = {0.0f,0.0f};
+	PtitlePos = { 0.0f,0.0f };
 	titleButton = GAME_PLAY_BUTTON;
 	//titleT = 0.0f;
+
+	amplitude = 100.0f;
+	theta = 0.0f;
+
+	//GH
+	//タイトル
+	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
+	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");
+	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");
+	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");
+	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");
+	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");
+
+	//チュートリアル
+	pressAexitGH = Novice::LoadTexture("./Resources/images/pressAexit.png");
+	LeftArrowGH = Novice::LoadTexture("./Resources/images/LeftArrow.png");
+	RightArrowGH = Novice::LoadTexture("./Resources/images/RightArrow.png");
+	asobikataGH = Novice::LoadTexture("./Resources/images/asobikata.png");
+}
+
+
+
 
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
@@ -100,24 +122,7 @@ void Scene::ApplyDifficulty() {
 		break;
 	}
 }
-	amplitude = 100.0f;
-	theta = 0.0f;
 
-	//GH
-	//タイトル
-	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
-	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");
-	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");
-	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");
-	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");
-	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");
-
-	//チュートリアル
-	pressAexitGH = Novice::LoadTexture("./Resources/images/pressAexit.png");
-	LeftArrowGH = Novice::LoadTexture("./Resources/images/LeftArrow.png");
-	RightArrowGH = Novice::LoadTexture("./Resources/images/RightArrow.png");
-	asobikataGH = Novice::LoadTexture("./Resources/images/asobikata.png");
-}
 
 
 void Scene::Update() {
@@ -355,35 +360,9 @@ void Scene::ChargeUpdate() {
 				chargeSubPhase = SHOW_BOOST_TEXT;
 			}
 		}
-	}
-	else if (chargeTimer <= maxChargeTime) {
-		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
+	
 
-
-		//プロコン忘れたデバック用絶対消す
-		player->leftPropellerPower = 0.0f;
-		player->rightPropellerPower = 0.0f;
-
-		//何体鳥を配置するか
-		birdOccurrences = checkPoint.lv;
-
-		if (birdOccurrences <= 0) {
-			birdOccurrences = 1;
-		}
-
-		if (birdOccurrences > 10) {
-			birdOccurrences = 10;
-		}
-
-		for (int i = 0; i < birdOccurrences; i++) {
-			bird[i]->BirdInitialize();
-			bird[i]->bird.isActive = false;
-		}
-
-		phase = RISE;
-	}
-
-		return;
+	return;
 
 	// ブースト案内表示
 	case SHOW_BOOST_TEXT:
@@ -505,6 +484,7 @@ void Scene::RiseUpdate() {
 
 		//前回のチェックポイント記録
 		preCheckPointPosY = checkPoint.triggerProgressY;
+
 		// 次のチェックポイント準備
 		checkPoint.lv++;
 		checkPoint.triggerProgressY =

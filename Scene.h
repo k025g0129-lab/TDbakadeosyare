@@ -26,6 +26,8 @@ public:
 		LEFT,
 	};
 
+
+
 	enum TitleButton {
 		GAME_PLAY_BUTTON,
 		TUTORIAL_BUTTON,
@@ -178,6 +180,11 @@ private:
 	float amplitude = 100.0f;
 	float theta = 0.0f;
 
+	// チャージ演出用
+	ChargeSubPhase chargeSubPhase = SHOW_PROPELLER_TEXT;
+	// 文字演出用
+	float chargeTextT = 0.0f;
+	Vector2 chargeTextPos;
 
 	//GH
 	int titleBGGH = 0;
