@@ -260,18 +260,17 @@ void Scene::TitleUpdate() {
 	}
 
 
-	// 左右でメニューを選択
+	// カーソル音を再生
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
-		selectedTitleMenu = 0; // 左：START
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
-		selectedTitleMenu = 1; // 右：TUTORIAL
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
+	// title　Pの上下
 	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
 	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
 	theta += float(M_PI) / 120.0f;
@@ -286,28 +285,36 @@ void Scene::TitleUpdate() {
 
 	Novice::ScreenPrintf(900, 100, "%f", player->currentLeftStickPos.x);
 	Novice::ScreenPrintf(900, 120, "%f", player->oldLeftStickPos.x);
+
+	// スティック操作
+	// 左
 	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
 		switch (titleButton) {
 
 		case Scene::GAME_PLAY_BUTTON:
 			titleButton = TUTORIAL_BUTTON;
+			selectedTitleMenu = 1;
 			break;
 
 		case Scene::TUTORIAL_BUTTON:
 			titleButton = GAME_PLAY_BUTTON;
+			selectedTitleMenu = 0;
 			break;
 		}
 	}
 
+	// 右
 	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
 		switch (titleButton) {
 
 		case Scene::GAME_PLAY_BUTTON:
 			titleButton = TUTORIAL_BUTTON;
+			selectedTitleMenu = 1;
 			break;
 
 		case Scene::TUTORIAL_BUTTON:
 			titleButton = GAME_PLAY_BUTTON;
+			selectedTitleMenu = 0;
 			break;
 		}
 	}
@@ -317,24 +324,9 @@ void Scene::TitleUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		
 		if (selectedTitleMenu == 0) {
-			switch (titleButton) {
-
-			case Scene::GAME_PLAY_BUTTON:
-				gameScene = DIFFICULTY_SELECT;
-				break;
-
-			case Scene::TUTORIAL_BUTTON:
-				gameScene = TUTORIAL;
-				break;
-			}
-
-
-			/*if (selectedTitleMenu == 0) {
-				gameScene = DIFFICULTY_SELECT;
-			}
-			else {
-				gameScene = TUTORIAL;
-			}*/
+			gameScene = DIFFICULTY_SELECT;
+		} else {
+			gameScene = TUTORIAL;
 		}
 	}
 }
