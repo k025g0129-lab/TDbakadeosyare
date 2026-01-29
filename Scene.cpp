@@ -762,6 +762,8 @@ void Scene::ChargeDraw() {
 
 	// 3. デバッグ情報の表示
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
+
+	Novice::DrawBox(900, 20, 360, 120, 0.0f, 0xffffffff, kFillModeSolid);
 }
 
 
