@@ -7,7 +7,7 @@
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include<Xinput.h>
+#include <Xinput.h>
 
 
 
@@ -42,7 +42,6 @@ void Scene::Initialize() {
 	isTouchCheckpoint = false;
 
 	// チェックポイント
-	checkPoint.distance = 1500.0f;
 	checkPoint.lv = 1;
 	checkPoint.isPreparingForLanding = false;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -64,6 +63,11 @@ void Scene::Initialize() {
 	// プレイヤー生成
 	player = new Player();
 	playerStartY = player->position.y;
+
+	// 難易度設定
+	difficulty = NORMAL;
+	ApplyDifficulty();
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 
 	Vector2 a = { 0.0f,0.0f };
 	for (int i = 0; i < maxBird; i++) {
@@ -104,23 +108,24 @@ void Scene::Initialize() {
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 1200.0f;
-		maxChargeTime = 1400;
-		propellerEndTime = 800;
+		checkPoint.distance = 1500.0f;
+		maxChargeTime = 1000;
+		propellerEndTime = 500;
 		break;
 
 	case NORMAL:
-		checkPoint.distance = 1500.0f;
-		maxChargeTime = 1200;
-		propellerEndTime = 700;
+		checkPoint.distance = 2000.0f;
+		maxChargeTime = 1000;
+		propellerEndTime = 500;
 		break;
 
 	case HARD:
-		checkPoint.distance = 1800.0f;
-		maxChargeTime = 900;
-		propellerEndTime = 500;
+		checkPoint.distance = 3000.0f;
+		maxChargeTime = 800;
+		propellerEndTime = 400;
 		break;
 	}
+	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 }
 
 
@@ -207,6 +212,7 @@ bool Scene::IsTriggerB() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_B);
 }
 
+// 入力処理
 bool Scene::IsPressA() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
 }
@@ -226,6 +232,7 @@ void Scene::TitleUpdate() {
 	/*if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedTitleMenu = 0; // 左：START
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
@@ -273,6 +280,8 @@ void Scene::TitleUpdate() {
 
 	// Bボタンで進む
 	if (IsTriggerB()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		if (selectedTitleMenu == 0) {
 		switch (titleButton) {
 
 		case Scene::GAME_PLAY_BUTTON:
@@ -362,6 +371,26 @@ void Scene::ChargeUpdate() {
 
 		player->Update_charge_propeller();
 
+
+		if (chargeTimer >= propellerEndTime) {
+			chargeTextT = 0.0f;
+			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
+
+			if (checkPoint.lv >= 2) {
+				chargeSubPhase = BOOST_CHARGE;
+			}
+			else {
+				chargeSubPhase = SHOW_BOOST_TEXT;
+			}
+		}
+	if (chargeTimer < maxChargeTime) {
+		chargeTimer++;
+	}
+	else if (chargeTimer <= maxChargeTime) {
+		player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
+
+		player->Update_charge_propeller();
+
 		if (chargeTimer >= propellerEndTime) {
 			chargeTextT = 0.0f;
 			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
@@ -379,6 +408,22 @@ void Scene::ChargeUpdate() {
 	
 
 	return;
+		phase = RISE;
+	}
+
+		return;
+			else {
+				chargeSubPhase = SHOW_BOOST_TEXT;
+			}
+		}
+
+		return;
+			else {
+				chargeSubPhase = SHOW_BOOST_TEXT;
+			}
+		}
+
+		return;
 
 	// ブースト案内表示
 	case SHOW_BOOST_TEXT:
@@ -535,15 +580,23 @@ void Scene::RiseUpdate() {
 		playerStartY = player->position.y;
 
 		// チャージ時間を半分にする
+		// チャージ時間の短縮（Lv2になった瞬間＝最初の着地時のみ実行）
 		if (checkPoint.lv == 2) {
-			maxChargeTime = 600;       // 直接 600 を代入
-			propellerEndTime = 350;    // プロペラも半分（700の半分）にする
-		}
+			float reductionRate = 0.5f; // デフォルト（NORMAL）は半分
 
-		// チャージ時間の制限
-		if (maxChargeTime < 60) {
-			maxChargeTime = 60;
-			propellerEndTime = 30;
+			if (difficulty == EASY)   reductionRate = 0.8f;
+			if (difficulty == NORMAL) reductionRate = 0.5f;
+			if (difficulty == HARD)   reductionRate = 0.5f;
+
+			// 初回の着地時のみ、この倍率で時間を固定する
+			maxChargeTime = static_cast<int>(maxChargeTime * reductionRate);
+			propellerEndTime = static_cast<int>(propellerEndTime * reductionRate);
+
+			// 下限チェック
+			if (maxChargeTime < 60) {
+				maxChargeTime = 60;
+				propellerEndTime = 30;
+			}
 		}
 
 		// チャージへ戻る
@@ -568,10 +621,12 @@ void Scene::DifficultySelectUpdate() {
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedDifficulty--;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedDifficulty++;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
 	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
@@ -580,6 +635,7 @@ void Scene::DifficultySelectUpdate() {
 
 	// Bボタンで決定
 	if (IsTriggerB()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
 		gameScene = MAIN_GAME;
