@@ -2,11 +2,14 @@
 #include "Vector2.h"
 #include "Object.h"
 #include "Function.h"
+#include"Easing.h"
 
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include<Xinput.h>
+
+
 
 
 Scene::Scene() {
@@ -63,15 +66,27 @@ void Scene::Initialize() {
 	birdOccurrences = 1;
 	preCheckPointPosY = 0.0f;
 
+	PtitlePos = {0.0f,0.0f};
+	titleButton = GAME_PLAY_BUTTON;
+	//titleT = 0.0f;
+
+	amplitude = 100.0f;
+	theta = 0.0f;
 
 	//GH
-	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");;
-	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");;
-	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");;
-	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");;
-	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");;
-	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");;
+	//タイトル
+	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
+	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");
+	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");
+	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");
+	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");
+	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");
 
+	//チュートリアル
+	pressAexitGH = Novice::LoadTexture("./Resources/images/pressAexit.png");
+	LeftArrowGH = Novice::LoadTexture("./Resources/images/LeftArrow.png");
+	RightArrowGH = Novice::LoadTexture("./Resources/images/RightArrow.png");
+	asobikataGH = Novice::LoadTexture("./Resources/images/asobikata.png");
 }
 
 void Scene::Update() {
@@ -147,13 +162,62 @@ bool Scene::IsTriggerB() const {
 
 
 /*------------
-   更新処理
+   更新処理ee
 --------------*/
 void Scene::TitleUpdate() {
 
-	// Bボタンでチュートリアルへ
+	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
+	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
+	theta += float(M_PI) / 120.0f;
+	PtitlePos.y = sinf(theta) * amplitude;
+
+
+	//titleT += 0.005f;
+
+	/*if (titleT > 1.0f) {
+		titleT = 0.0f;
+	}*/
+	Novice::ScreenPrintf(900, 100, "%f", player->currentLeftStickPos.x);
+	Novice::ScreenPrintf(900, 120, "%f", player->oldLeftStickPos.x);
+	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			titleButton = TUTORIAL_BUTTON;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			titleButton = GAME_PLAY_BUTTON;
+			break;
+		}
+	}
+
+	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			titleButton = TUTORIAL_BUTTON;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			titleButton = GAME_PLAY_BUTTON;
+			break;
+		}
+	}
+
+	// Bボタンで進む
 	if (IsTriggerB()) {
-		gameScene = TUTORIAL;
+		switch (titleButton) {
+
+		case Scene::GAME_PLAY_BUTTON:
+			gameScene = MAIN_GAME;
+			break;
+
+		case Scene::TUTORIAL_BUTTON:
+			gameScene = TUTORIAL;
+			break;
+		}
+
 	}
 }
 
@@ -361,13 +425,40 @@ void Scene::ResultUpdate() {
    描画処理
 --------------*/
 void Scene::TitleDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+
+	Novice::DrawSprite(0, 0, titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
+	Novice::DrawSprite(0, 0, pressAGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	Novice::DrawSprite(0, 0, titleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	//PtitlePos.y = EaseInOutBack(titleT,0.0f,-720.0f,1.70158f);
+	//underPtitlePos.y = EaseInOutBack(titleT,720.0f,0.0f,1.70158f);
+
+	Novice::DrawSprite(static_cast<int>(PtitlePos.x), static_cast<int>(PtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	//Novice::DrawSprite(static_cast<int>(underPtitlePos.x), static_cast<int>(underPtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	switch (titleButton) {
+
+	case GAME_PLAY_BUTTON:
+		Novice::DrawSprite(0, 0, playChoiceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		break;
+
+	case TUTORIAL_BUTTON:
+		Novice::DrawSprite(0, 0, tutorialChoiceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		break;
+
+	}
 
 
 }
 
 void Scene::TutorialDraw() {
+
 	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
+	Novice::DrawSprite(0, 0, titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+
 }
 
 void Scene::MainGameDraw() {

@@ -24,6 +24,11 @@ public:
 		LEFT,
 	};
 
+	enum TitleButton {
+		GAME_PLAY_BUTTON,
+		TUTORIAL_BUTTON,
+	};
+
 	struct BackGround {
 		Vector2 skyOriginalPos;
 		Vector2 skyPos;
@@ -39,6 +44,8 @@ public:
 	};
 
 	
+
+
 
 public:
 
@@ -127,6 +134,14 @@ private:
 	static const int maxBird = 20;
 	Object* bird[maxBird];
 
+	Vector2 PtitlePos = {0.0f,0.0f};
+	//Vector2 underPtitlePos = {0.0f,720.0f};
+	TitleButton titleButton = GAME_PLAY_BUTTON;
+	//float titleT = 0.0f;
+
+	float amplitude = 100.0f;
+	float theta = 0.0f;
+
 	//GH
 	int titleBGGH = 0;
 	int pressAGH = 0;
@@ -134,6 +149,11 @@ private:
 	int tutorialChoiceGH = 0;
 	int titleLogoGH = 0;
 	int PtitleLogoGH = 0;
+	int pressAexitGH = 0;
+	int LeftArrowGH = 0;
+	int RightArrowGH = 0;
+	int asobikataGH = 0;
+
 
 };
 
