@@ -203,5 +203,8 @@ private:
 	int soundHandleMainBGM;
 	int voiceHandleMainBGM;
 
+	int soundHandleClear;
+	int soundHandleGameOver;
+	int voiceHandleResult;
 };
 

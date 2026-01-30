@@ -19,6 +19,24 @@ Scene::~Scene() {
 }
 
 void Scene::Initialize() {
+	// BGM停止
+	if (Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
+		Novice::StopAudio(voiceHandleTitleBGM);
+	}
+	
+	if (Novice::IsPlayingAudio(voiceHandleMainBGM)) {
+		Novice::StopAudio(voiceHandleMainBGM);
+	}
+
+	if (Novice::IsPlayingAudio(voiceHandleResult)) {
+		Novice::StopAudio(voiceHandleResult);
+	}
+
+	// 変数をリセット
+	voiceHandleTitleBGM = -1;
+	voiceHandleMainBGM = -1;
+	voiceHandleResult = -1;
+
 	gameScene = TITLE;
 	phase = CHARGE;
 	direction = LEFT;
@@ -82,11 +100,11 @@ void Scene::Initialize() {
 	soundHandleDecide = Novice::LoadAudio("./Resources/sound/decide.mp3");
 
 	soundHandleTitleBGM = Novice::LoadAudio("./Resources/sound/titleBGM.mp3");
-	voiceHandleTitleBGM = -1; // 再生していないときは-1
 
 	soundHandleMainBGM = Novice::LoadAudio("./Resources/sound/mainBGM.mp3");
-	voiceHandleMainBGM = -1;
 
+	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
+	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
 }
 
 
@@ -252,7 +270,7 @@ void Scene::TitleUpdate() {
 		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.5f); // ループ再生
 	}
 
-	if (voiceHandleMainBGM != -1) {
+	if (voiceHandleMainBGM != -1 && Novice::IsPlayingAudio(voiceHandleMainBGM)) {
 		Novice::StopAudio(voiceHandleMainBGM);
 		voiceHandleMainBGM = -1;
 	}
@@ -299,6 +317,16 @@ void Scene::TutorialUpdate() {
 
 
 void Scene::DifficultySelectUpdate() {
+	if (voiceHandleTitleBGM == -1 || !Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
+		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.5f);
+	}
+
+	// メインBGMが鳴っていたら止める（念のため）
+	if (voiceHandleMainBGM != -1 && Novice::IsPlayingAudio(voiceHandleMainBGM)) {
+		Novice::StopAudio(voiceHandleMainBGM);
+		voiceHandleMainBGM = -1;
+	}
+
 	// スティックの左右、または十字キーの左右で選択
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
@@ -318,6 +346,8 @@ void Scene::DifficultySelectUpdate() {
 	// Xボタンでタイトルへ戻る
 	if (IsTriggerX()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		
+		Initialize();
 		gameScene = TITLE;
 	}
 
@@ -326,6 +356,8 @@ void Scene::DifficultySelectUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
+
+		Initialize();
 		gameScene = MAIN_GAME;
 	}
 }
@@ -337,8 +369,8 @@ void Scene::MainGameUpdate() {
 		gameScene = PAUSE;
 		return; // ポーズに入ったらこのフレームのゲーム処理はしない
 	}
-
-	if (voiceHandleTitleBGM != -1) {
+	
+	if (voiceHandleTitleBGM != -1 && Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
 		Novice::StopAudio(voiceHandleTitleBGM);
 		voiceHandleTitleBGM = -1;
 	}
@@ -623,12 +655,16 @@ void Scene::RiseUpdate() {
 }
 
 void Scene::PauseUpdate() {
-	// 上下でメニュー選択
-	if ((padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP))) {
+	// 上入力
+	if ((padState.Gamepad.sThumbLY > 10000 && prevPadState.Gamepad.sThumbLY <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP))) {
 		selectedPauseMenu--;
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
-	if ((padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN))) {
+
+	// 下入力
+	if ((padState.Gamepad.sThumbLY < -10000 && prevPadState.Gamepad.sThumbLY >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN))) {
 		selectedPauseMenu++;
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
@@ -641,18 +677,20 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
-			gameScene = MAIN_GAME; // ゲームに戻る
+			gameScene = MAIN_GAME;
 		}
 		else if (selectedPauseMenu == 1) {
-			Initialize(); // 全リセットして最初から（リスタート）
+			Initialize();
 			gameScene = MAIN_GAME;
 		}
 		else if (selectedPauseMenu == 2) {
-			Initialize(); // 全リセットして難易度選択へ
+			// ★ポイント：一度InitializeでメインBGMを止める
+			Initialize();
+			// Initialize() 内で gameScene = TITLE になっているので、
+			// 難易度選択画面にしたい場合はここで上書きする
 			gameScene = DIFFICULTY_SELECT;
 		}
 	}
-
 	// Yボタンでゲームに戻る
 	if (IsTriggerY()) {
 		gameScene = MAIN_GAME;
@@ -665,9 +703,25 @@ void Scene::ResultUpdate() {
 		voiceHandleMainBGM = -1;
 	}
 
+	if (voiceHandleResult == -1 || !Novice::IsPlayingAudio(voiceHandleResult)) {
+		if (isClear) {
+			// クリア時（ループさせる場合は true、1回なら false）
+			voiceHandleResult = Novice::PlayAudio(soundHandleClear, false, 0.5f);
+		}
+		else {
+			// ゲームオーバー時
+			voiceHandleResult = Novice::PlayAudio(soundHandleGameOver, false, 0.5f);
+		}
+	}
+
 	// Aボタンでタイトルへ
 	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		
+		if (Novice::IsPlayingAudio(voiceHandleResult)) {
+			Novice::StopAudio(voiceHandleResult);
+		}
+		
 		Initialize(); // 全てをリセットしてタイトルへ
 	}
 
