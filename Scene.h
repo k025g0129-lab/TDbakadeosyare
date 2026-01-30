@@ -14,6 +14,7 @@ public:
 		DIFFICULTY_SELECT,
 		MAIN_GAME,
 		RESULT,
+		PAUSE
 	};
 
 	enum Phase {
@@ -130,6 +131,9 @@ public:
 	void ResultUpdate();
 	void ResultDraw();
 	
+	void PauseUpdate();
+	void PauseDraw();
+
 	
 	// フェーズ用
 	void PhaseUpdate();
@@ -151,6 +155,9 @@ public:
 	bool IsPressX() const;
 	bool IsTriggerX() const;
 
+	bool IsPressY() const;
+	bool IsTriggerY() const;
+
 	//　難易度適用
 	void ApplyDifficulty();
 
@@ -158,6 +165,9 @@ private:
 	// コントローラー
 	XINPUT_STATE padState{}; // 今のフレームの入力状態
 	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
+
+	// ポーズ用
+	int selectedPauseMenu = 0;
 
 	// 難易度選択用
 	int selectedDifficulty = 1;
