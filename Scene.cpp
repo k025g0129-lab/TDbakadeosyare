@@ -22,6 +22,24 @@ Scene::~Scene() {
 }
 
 void Scene::Initialize() {
+	// BGM停止
+	if (Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
+		Novice::StopAudio(voiceHandleTitleBGM);
+	}
+	
+	if (Novice::IsPlayingAudio(voiceHandleMainBGM)) {
+		Novice::StopAudio(voiceHandleMainBGM);
+	}
+
+	if (Novice::IsPlayingAudio(voiceHandleResult)) {
+		Novice::StopAudio(voiceHandleResult);
+	}
+
+	// 変数をリセット
+	voiceHandleTitleBGM = -1;
+	voiceHandleMainBGM = -1;
+	voiceHandleResult = -1;
+
 	gameScene = TITLE;
 	phase = CHARGE;
 	direction = LEFT;
@@ -134,11 +152,11 @@ void Scene::Initialize() {
 	soundHandleDecide = Novice::LoadAudio("./Resources/sound/decide.mp3");
 
 	soundHandleTitleBGM = Novice::LoadAudio("./Resources/sound/titleBGM.mp3");
-	voiceHandleTitleBGM = -1; // 再生していないときは-1
 
 	soundHandleMainBGM = Novice::LoadAudio("./Resources/sound/mainBGM.mp3");
-	voiceHandleMainBGM = -1;
 
+	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
+	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
 }
 
 
@@ -205,6 +223,11 @@ void Scene::Update() {
 		ResultUpdate();
 
 		break;
+
+	case PAUSE:
+		PauseUpdate();
+
+		break;
 	}
 
 }
@@ -235,6 +258,12 @@ void Scene::Draw() {
 
 	case RESULT:
 		ResultDraw();
+
+		break;
+
+	case PAUSE:
+		MainGameDraw();
+		PauseDraw();
 
 		break;
 	}
@@ -276,6 +305,17 @@ bool Scene::IsTriggerX() const {
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_X);
 }
 
+// 入力処理
+bool Scene::IsPressY() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0;
+}
+
+// Xボタンが押された瞬間
+bool Scene::IsTriggerY() const {
+	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_Y) &&
+		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_Y);
+}
+
 /*------------
    更新処理ee
 --------------*/
@@ -285,7 +325,7 @@ void Scene::TitleUpdate() {
 		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.5f); // ループ再生
 	}
 
-	if (voiceHandleMainBGM != -1) {
+	if (voiceHandleMainBGM != -1 && Novice::IsPlayingAudio(voiceHandleMainBGM)) {
 		Novice::StopAudio(voiceHandleMainBGM);
 		voiceHandleMainBGM = -1;
 	}
@@ -444,6 +484,16 @@ void Scene::TutorialUpdate() {
 
 
 void Scene::DifficultySelectUpdate() {
+	if (voiceHandleTitleBGM == -1 || !Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
+		voiceHandleTitleBGM = Novice::PlayAudio(soundHandleTitleBGM, true, 0.5f);
+	}
+
+	// メインBGMが鳴っていたら止める（念のため）
+	if (voiceHandleMainBGM != -1 && Novice::IsPlayingAudio(voiceHandleMainBGM)) {
+		Novice::StopAudio(voiceHandleMainBGM);
+		voiceHandleMainBGM = -1;
+	}
+
 	// スティックの左右、または十字キーの左右で選択
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
@@ -466,6 +516,12 @@ void Scene::DifficultySelectUpdate() {
 	if (pressAT >= 1.0f) {
 		pressAT = 1.0f;
 		pressATSpeed *= -1.0f;
+	// Xボタンでタイトルへ戻る
+	if (IsTriggerX()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		
+		Initialize();
+		gameScene = TITLE;
 	}
 
 	if (pressAT < 0.0f) {
@@ -487,6 +543,8 @@ void Scene::DifficultySelectUpdate() {
 	if (IsTriggerB()) {
 		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
+
+		Initialize();
 		gameScene = MAIN_GAME;
 		// Aボタンでメインゲームへ
 		if (IsTriggerA()) {
@@ -498,7 +556,14 @@ void Scene::DifficultySelectUpdate() {
 
 
 void Scene::MainGameUpdate() {
-	if (voiceHandleTitleBGM != -1) {
+	// ポーズ
+	if (IsTriggerY()) {
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+		gameScene = PAUSE;
+		return; // ポーズに入ったらこのフレームのゲーム処理はしない
+	}
+	
+	if (voiceHandleTitleBGM != -1 && Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
 		Novice::StopAudio(voiceHandleTitleBGM);
 		voiceHandleTitleBGM = -1;
 	}
@@ -506,6 +571,7 @@ void Scene::MainGameUpdate() {
 	if (voiceHandleMainBGM == -1 || !Novice::IsPlayingAudio(voiceHandleMainBGM)) {
 		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 0.6f);
 	}
+
 
 	PhaseUpdate();
 
@@ -755,13 +821,15 @@ void Scene::RiseUpdate() {
 	}
 
 	// チェックポイント（着地判定）
-	if (progressY >= float(checkPoint.lv) * checkPoint.distance) {
+	float nextCheckPointDistance = float(checkPoint.lv) * checkPoint.distance;
+
+	if (progressY >= nextCheckPointDistance) {
 
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
 
 		//前回のチェックポイント記録
-		preCheckPointPosY = float(checkPoint.lv) * checkPoint.distance;
+		player->position.y = gameStartPlayerY - nextCheckPointDistance;
 
 		// 次のチェックポイント準備
 		checkPoint.lv++;
@@ -807,15 +875,74 @@ void Scene::RiseUpdate() {
 
 }
 
+void Scene::PauseUpdate() {
+	// 上入力
+	if ((padState.Gamepad.sThumbLY > 10000 && prevPadState.Gamepad.sThumbLY <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP))) {
+		selectedPauseMenu--;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	}
+
+	// 下入力
+	if ((padState.Gamepad.sThumbLY < -10000 && prevPadState.Gamepad.sThumbLY >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN))) {
+		selectedPauseMenu++;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	}
+
+	if (selectedPauseMenu < 0) selectedPauseMenu = 2;
+	if (selectedPauseMenu > 2) selectedPauseMenu = 0;
+
+	// Aボタンで決定
+	if (IsTriggerA()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+
+		if (selectedPauseMenu == 0) {
+			gameScene = MAIN_GAME;
+		}
+		else if (selectedPauseMenu == 1) {
+			Initialize();
+			gameScene = MAIN_GAME;
+		}
+		else if (selectedPauseMenu == 2) {
+			// ★ポイント：一度InitializeでメインBGMを止める
+			Initialize();
+			// Initialize() 内で gameScene = TITLE になっているので、
+			// 難易度選択画面にしたい場合はここで上書きする
+			gameScene = DIFFICULTY_SELECT;
+		}
+	}
+	// Yボタンでゲームに戻る
+	if (IsTriggerY()) {
+		gameScene = MAIN_GAME;
+	}
+}
+
 void Scene::ResultUpdate() {
 	if (voiceHandleMainBGM != -1) {
 		Novice::StopAudio(voiceHandleMainBGM);
 		voiceHandleMainBGM = -1;
 	}
 
+	if (voiceHandleResult == -1 || !Novice::IsPlayingAudio(voiceHandleResult)) {
+		if (isClear) {
+			// クリア時（ループさせる場合は true、1回なら false）
+			voiceHandleResult = Novice::PlayAudio(soundHandleClear, false, 0.5f);
+		}
+		else {
+			// ゲームオーバー時
+			voiceHandleResult = Novice::PlayAudio(soundHandleGameOver, false, 0.5f);
+		}
+	}
+
 	// Aボタンでタイトルへ
 	if (IsTriggerA()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		
+		if (Novice::IsPlayingAudio(voiceHandleResult)) {
+			Novice::StopAudio(voiceHandleResult);
+		}
+		
 		Initialize(); // 全てをリセットしてタイトルへ
 	}
 
@@ -880,6 +1007,29 @@ void Scene::TutorialDraw() {
 	}
 
 }
+
+
+void Scene::DifficultySelectDraw() {
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
+
+	for (int i = 0; i < 3; i++) {
+		int x = 140 + (i * 360); // X座標を横にずらす
+		int y = 320;
+		unsigned int color = 0;
+
+		if (i == 0) color = 0x00AA00FF; // EASY
+		if (i == 1) color = 0xAAAA00FF; // NORMAL
+		if (i == 2) color = 0xAA0000FF; // HARD
+
+		// 選択中の項目を強調（白枠を出す）
+		if (selectedDifficulty == i) {
+			Novice::DrawBox(x - 5, y - 5, 290, 130, 0.0f, WHITE, kFillModeSolid);
+		}
+
+		Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
+	}
+}
+
 
 void Scene::MainGameDraw() {
 
@@ -1019,11 +1169,19 @@ void Scene::DifficultySelectDraw() {
 
 	Novice::DrawSprite(0, 0, pressAstartGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
 	Novice::DrawSprite(0, 0, pressAbackGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+void Scene::PauseDraw() {
+	// 画面を暗くする半透明のフィルター
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000088, kFillModeSolid);
 
+	Novice::ScreenPrintf(600, 200, "PAUSE");
+
+	// メニュー項目
+	const char* menuTexts[] = { "RESUME", "RESTART", "DIFFICULTY SELECT" };
 	for (int i = 0; i < 3; i++) {
 		/*int x = 140 + (i * 360); // X座標を横にずらす
 		int y = 320;h
 		unsigned int color = 0;
+		Novice::ScreenPrintf(550, 300 + (i * 40), menuTexts[i]);
 
 		if (i == 0) color = 0x00AA00FF; // EASY
 		if (i == 1) color = 0xAAAA00FF; // NORMAL
@@ -1032,9 +1190,9 @@ void Scene::DifficultySelectDraw() {
 		// 選択中の項目を強調（白枠を出す）
 		if (selectedDifficulty == i) {
 			Novice::DrawSprite(0, 0, difficultyGH[i], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		if (selectedPauseMenu == i) {
+			Novice::DrawBox(530, 300 + (i * 40), 10, 10, 0.0f, WHITE, kFillModeSolid);
 		}
-
-		//Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
 	}
 
 }
