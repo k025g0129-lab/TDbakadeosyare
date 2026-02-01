@@ -71,9 +71,15 @@ void Scene::Initialize() {
 	}
 	birdOccurrences = 1;
 	preCheckPointPosY = 0.0f;
+
+	//チュートリアル
+	asobikataPaper = 0;
+	maxAsobikataPaper = 4;
+
 	// 難易度設定
 	difficulty = NORMAL;
 	ApplyDifficulty();
+	selectedDifficulty = 1;
 
 	PtitlePos = { 0.0f,0.0f };
 	titleButton = GAME_PLAY_BUTTON;
@@ -87,21 +93,33 @@ void Scene::Initialize() {
 	titleBGPos[0] = {0.0f,0.0f};
 	titleBGPos[1] = {1280.0f,0.0f};
 
+	altitude = 0.0f;
+
 	//GH
 	//タイトル
 	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
 	titleBG2GH = Novice::LoadTexture("./Resources/images/skyBG2.png");
 	pressAGH = Novice::LoadTexture("./Resources/images/pressA.png");
+
 	playChoiceGH = Novice::LoadTexture("./Resources/images/play_choice.png");
 	tutorialChoiceGH = Novice::LoadTexture("./Resources/images/tutorial_choice.png");
 	titleLogoGH = Novice::LoadTexture("./Resources/images/titleLogo.png");
 	PtitleLogoGH = Novice::LoadTexture("./Resources/images/P.png");
 
 	//チュートリアル
-	pressAexitGH = Novice::LoadTexture("./Resources/images/pressAexit.png");
+	pressAbackGH = Novice::LoadTexture("./Resources/images/pressAback.png");
 	LeftArrowGH = Novice::LoadTexture("./Resources/images/LeftArrow.png");
 	RightArrowGH = Novice::LoadTexture("./Resources/images/RightArrow.png");
 	asobikataGH = Novice::LoadTexture("./Resources/images/asobikata.png");
+
+	//難易度
+	difficultyGH[0] = Novice::LoadTexture("./Resources/images/easy_active.png");
+	difficultyGH[1] = Novice::LoadTexture("./Resources/images/normal_active.png");
+	difficultyGH[2] = Novice::LoadTexture("./Resources/images/expert_active.png");
+	pressAstartGH = Novice::LoadTexture("./Resources/images/pressAstart.png");
+
+	//数字
+	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
 }
 
 
@@ -230,14 +248,14 @@ bool Scene::IsTriggerA() const {
 void Scene::TitleUpdate() {
 
 	// 左右でメニューを選択
-	/*if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedTitleMenu = 0; // 左：START
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedTitleMenu = 1; // 右：TUTORIAL
-	}*/
+	}
 
 	//コントローラー情報取得
 	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
@@ -287,6 +305,8 @@ void Scene::TitleUpdate() {
 		switch (titleButton) {
 
 		case Scene::GAME_PLAY_BUTTON:
+			pressAT = 1.0f;
+
 			gameScene = DIFFICULTY_SELECT;
 			break;
 
@@ -327,14 +347,91 @@ void Scene::TitleUpdate() {
 
 }
 
+
+void Scene::DifficultySelectUpdate() {
+	// スティックの左右、または十字キーの左右で選択
+	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
+		selectedDifficulty--;
+	}
+	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
+		selectedDifficulty++;
+	}
+
+	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
+	if (selectedDifficulty < 0) selectedDifficulty = 0;
+	if (selectedDifficulty > 2) selectedDifficulty = 2;
+
+	//文字を透明に
+	pressAT += pressATSpeed;
+
+	if (pressAT >= 1.0f) {
+		pressAT = 1.0f;
+		pressATSpeed *= -1.0f;
+	}
+
+	if (pressAT < 0.0f) {
+		pressAT = 0.0f;
+		pressATSpeed *= -1.0f;
+	}
+
+	//背景雲移動
+	for (int i = 0; i < 2; i++) {
+		titleBGPos[i].x -= 1.0f;
+
+
+		if (titleBGPos[i].x <= -1280.0f) {
+			titleBGPos[i].x = 1280.0f;
+		}
+	}
+
+	// Bボタンで決定
+	if (IsTriggerB()) {
+		difficulty = static_cast<Difficulty>(selectedDifficulty);
+		ApplyDifficulty();
+		gameScene = MAIN_GAME;
+	}
+}
+
 void Scene::TutorialUpdate() {
+
+	//コントローラー情報取得
+	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
+	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
+
+	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
+		asobikataPaper++;
+	}
+
+	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
+		asobikataPaper--;
+	}
+
+	if (asobikataPaper > maxAsobikataPaper - 1) {
+		asobikataPaper = maxAsobikataPaper - 1;
+	}
+
+	if (asobikataPaper < 0) {
+		asobikataPaper = 0;
+	}
+
+
+	//雲背景
+
+	for (int i = 0; i < 2; i++) {
+		titleBGPos[i].x -= 1.0f;
+
+
+		if (titleBGPos[i].x <= -1280.0f) {
+			titleBGPos[i].x = 1280.0f;
+		}
+	}
+
 	// Bボタンでメインゲームへ
 	if (IsTriggerB()) {
 		gameScene = TITLE;
 	}
-
-
-
 }
 
 void Scene::MainGameUpdate() {
@@ -478,6 +575,8 @@ void Scene::RiseUpdate() {
 		bird[i]->BirdUpdate();
 	}
 
+	altitude = -(player->position.y - 600.0f);
+
 	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
 	float currentScroll = screenYLimit - player->position.y;
@@ -596,28 +695,6 @@ void Scene::RiseUpdate() {
 
 }
 
-void Scene::DifficultySelectUpdate() {
-	// スティックの左右、または十字キーの左右で選択
-	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
-		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
-		selectedDifficulty--;
-	}
-	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
-		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
-		selectedDifficulty++;
-	}
-
-	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
-	if (selectedDifficulty < 0) selectedDifficulty = 0;
-	if (selectedDifficulty > 2) selectedDifficulty = 2;
-
-	// Bボタンで決定
-	if (IsTriggerB()) {
-		difficulty = static_cast<Difficulty>(selectedDifficulty);
-		ApplyDifficulty();
-		gameScene = MAIN_GAME;
-	}
-}
 
 
 void Scene::ResultUpdate() {
@@ -636,7 +713,7 @@ void Scene::TitleDraw() {
 
 	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
+
 	Novice::DrawSprite(0, 0, pressAGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
 
 	Novice::DrawSprite(0, 0, titleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
@@ -666,8 +743,25 @@ void Scene::TitleDraw() {
 void Scene::TutorialDraw() {
 
 	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
-	Novice::DrawSprite(0, 0, titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
+	Novice::DrawSprite(0, 0, pressAbackGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(0, 0, asobikataGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	if (asobikataPaper != 0) {
+		Novice::DrawSprite(0, 0, LeftArrowGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	}
+
+	if (asobikataPaper != maxAsobikataPaper-1) {
+		Novice::DrawSprite(0, 0, RightArrowGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	}
+
+
+
+	for (int i = 0; i < maxAsobikataPaper; i++) {
+		Novice::DrawSprite( 200 +(i * 1055) - (asobikataPaper * 1055 ), 150, whiteTextureHandle, 880, 420, 0.0f, 0xFFFFFFFF);
+	}
 
 }
 
@@ -773,25 +867,40 @@ void Scene::RiseDraw() {
 
 	}
 
+	for (int i = 0; i < 5; i++) {
+		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[0], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	}
+
+	Novice::DrawSprite(270 + 10, 20, suuziGH[0], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+
 }
 
 void Scene::DifficultySelectDraw() {
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
+	//Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
+
+	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
+
+	Novice::DrawSprite(0, 0, pressAstartGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
+	Novice::DrawSprite(0, 0, pressAbackGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	for (int i = 0; i < 3; i++) {
-		int x = 140 + (i * 360); // X座標を横にずらす
-		int y = 320;
+		/*int x = 140 + (i * 360); // X座標を横にずらす
+		int y = 320;h
 		unsigned int color = 0;
 
 		if (i == 0) color = 0x00AA00FF; // EASY
 		if (i == 1) color = 0xAAAA00FF; // NORMAL
-		if (i == 2) color = 0xAA0000FF; // HARD
+		if (i == 2) color = 0xAA0000FF; // HARD*/
 
 		// 選択中の項目を強調（白枠を出す）
 		if (selectedDifficulty == i) {
-			Novice::DrawBox(x - 5, y - 5, 290, 130, 0.0f, WHITE, kFillModeSolid);
+			Novice::DrawSprite(0, 0, difficultyGH[i], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 		}
 
-		Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
+		//Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
 	}
+
 }

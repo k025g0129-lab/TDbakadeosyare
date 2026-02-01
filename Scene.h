@@ -165,6 +165,10 @@ private:
 	// タイトル用
 	int selectedTitleMenu = 0;
 
+	//チュートリアル
+	int asobikataPaper = 0;
+	int maxAsobikataPaper = 4;
+
 	// プレイヤー
 	Player* player;
 	float playerStartY;
@@ -191,18 +195,26 @@ private:
 
 	Vector2 titleBGPos[2];
 
+	//高度
+	float altitude = 0.0f;
+
+
 	//GH
 	int titleBGGH = 0;
 	int titleBG2GH = 0;
 	int pressAGH = 0;
+	int pressAstartGH = 0;
 	int playChoiceGH = 0;
 	int tutorialChoiceGH = 0;
 	int titleLogoGH = 0;
 	int PtitleLogoGH = 0;
-	int pressAexitGH = 0;
+	int pressAbackGH = 0;
 	int LeftArrowGH = 0;
 	int RightArrowGH = 0;
 	int asobikataGH = 0;
+	int difficultyGH[3];
+
+	int suuziGH[10];
 
 
 	// 定数
