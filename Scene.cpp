@@ -367,8 +367,6 @@ void Scene::TitleUpdate() {
 		titleT = 0.0f;
 	}*/
 
-	Novice::ScreenPrintf(900, 100, "%f", player->currentLeftStickPos.x);
-	Novice::ScreenPrintf(900, 120, "%f", player->oldLeftStickPos.x);
 
 	// スティック操作
 	// 左
@@ -1014,7 +1012,6 @@ void Scene::TitleDraw() {
 		break;
 
 	}
-	Novice::ScreenPrintf(300, 300, "%f", pressAT);
 
 
 }
