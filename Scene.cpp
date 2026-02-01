@@ -378,7 +378,7 @@ void Scene::TutorialUpdate() {
 			gameScene = TUTORIAL;
 		}*/
 
-	}
+	
 		pressAT += pressATSpeed;
 		
 		if (pressAT >= 1.0f) {
@@ -400,6 +400,46 @@ void Scene::TutorialUpdate() {
 			}
 		}
 
+	//コントローラー情報取得
+	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
+	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
+
+	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
+		asobikataPaper++;
+	}
+
+	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
+		asobikataPaper--;
+	}
+
+	if (asobikataPaper > maxAsobikataPaper - 1) {
+		asobikataPaper = maxAsobikataPaper - 1;
+	}
+
+	if (asobikataPaper < 0) {
+		asobikataPaper = 0;
+	}
+
+
+	//雲背景
+
+	for (int i = 0; i < 2; i++) {
+		titleBGPos[i].x -= 1.0f;
+
+
+		if (titleBGPos[i].x <= -1280.0f) {
+			titleBGPos[i].x = 1280.0f;
+		}
+	}
+
+	// Aボタンで決定
+	if (IsTriggerA()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		difficulty = static_cast<Difficulty>(selectedDifficulty);
+		ApplyDifficulty();
+		gameScene = MAIN_GAME;
+	}
+
 }
 
 
@@ -408,10 +448,12 @@ void Scene::DifficultySelectUpdate() {
 	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
 		selectedDifficulty--;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
 		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
 		selectedDifficulty++;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
 	// ループさせるか、端で止めるかはお好みで（今回は端で止める）
@@ -446,77 +488,14 @@ void Scene::DifficultySelectUpdate() {
 		difficulty = static_cast<Difficulty>(selectedDifficulty);
 		ApplyDifficulty();
 		gameScene = MAIN_GAME;
-	// Aボタンでメインゲームへ
-	if (IsTriggerA()) {
-		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		gameScene = MAIN_GAME;
-	}
-}
-
-
-void Scene::DifficultySelectUpdate() {
-	// スティックの左右、または十字キーの左右で選択
-	if ((padState.Gamepad.sThumbLX < -10000 && prevPadState.Gamepad.sThumbLX >= -10000) ||
-		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT))) {
-		selectedDifficulty--;
-		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
-	}
-	if ((padState.Gamepad.sThumbLX > 10000 && prevPadState.Gamepad.sThumbLX <= 10000) ||
-		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT))) {
-		selectedDifficulty++;
-		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
-	}
-
-void Scene::TutorialUpdate() {
-
-	//コントローラー情報取得
-	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
-	Novice::GetAnalogInputLeft(0, &player->currentLeftStickPos.x, &player->currentLeftStickPos.y);
-
-	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
-		asobikataPaper++;
-	}
-
-	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
-		asobikataPaper--;
-	}
-
-	if (asobikataPaper > maxAsobikataPaper - 1) {
-		asobikataPaper = maxAsobikataPaper - 1;
-	}
-
-	if (asobikataPaper < 0) {
-		asobikataPaper = 0;
-	}
-
-
-	//雲背景
-
-	for (int i = 0; i < 2; i++) {
-		titleBGPos[i].x -= 1.0f;
-
-
-		if (titleBGPos[i].x <= -1280.0f) {
-			titleBGPos[i].x = 1280.0f;
+		// Aボタンでメインゲームへ
+		if (IsTriggerA()) {
+			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+			gameScene = MAIN_GAME;
 		}
 	}
-
-	// Bボタンでメインゲームへ
-	if (IsTriggerB()) {
-		gameScene = TITLE;
-	}
-
-	// Aボタンで決定
-	if (IsTriggerA()) {
-		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		difficulty = static_cast<Difficulty>(selectedDifficulty);
-		ApplyDifficulty();
-		gameScene = MAIN_GAME;
-	}
-
-
-
 }
+
 
 void Scene::MainGameUpdate() {
 	if (voiceHandleTitleBGM != -1) {
@@ -1021,7 +1000,7 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
 
 
-}
+
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[0], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
