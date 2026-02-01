@@ -232,8 +232,17 @@ private:
 	int RightArrowGH = 0;
 	int asobikataGH = 0;
 	int difficultyGH[3];
+	int selectLevelGH = 0;
+	int checkPointGH[2];
+	int clearGH = 0;
+	int failedGH = 0;
+	int boostGuidanceGH = 0;
+	int propGuidanceGH = 0;
+	int mawaseGH = 0;
+	int oseGH = 0;
 
 	int suuziGH[10];
+	int dotGH;
 
 
 	// 定数
