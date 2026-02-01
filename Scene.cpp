@@ -516,40 +516,41 @@ void Scene::DifficultySelectUpdate() {
 	if (pressAT >= 1.0f) {
 		pressAT = 1.0f;
 		pressATSpeed *= -1.0f;
-	// Xボタンでタイトルへ戻る
-	if (IsTriggerX()) {
-		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		
-		Initialize();
-		gameScene = TITLE;
-	}
-
-	if (pressAT < 0.0f) {
-		pressAT = 0.0f;
-		pressATSpeed *= -1.0f;
-	}
-
-	//背景雲移動
-	for (int i = 0; i < 2; i++) {
-		titleBGPos[i].x -= 1.0f;
-
-
-		if (titleBGPos[i].x <= -1280.0f) {
-			titleBGPos[i].x = 1280.0f;
-		}
-	}
-
-	// Bボタンで決定
-	if (IsTriggerB()) {
-		difficulty = static_cast<Difficulty>(selectedDifficulty);
-		ApplyDifficulty();
-
-		Initialize();
-		gameScene = MAIN_GAME;
-		// Aボタンでメインゲームへ
-		if (IsTriggerA()) {
+		// Xボタンでタイトルへ戻る
+		if (IsTriggerX()) {
 			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+
+			Initialize();
+			gameScene = TITLE;
+		}
+
+		if (pressAT < 0.0f) {
+			pressAT = 0.0f;
+			pressATSpeed *= -1.0f;
+		}
+
+		//背景雲移動
+		for (int i = 0; i < 2; i++) {
+			titleBGPos[i].x -= 1.0f;
+
+
+			if (titleBGPos[i].x <= -1280.0f) {
+				titleBGPos[i].x = 1280.0f;
+			}
+		}
+
+		// Bボタンで決定
+		if (IsTriggerB()) {
+			difficulty = static_cast<Difficulty>(selectedDifficulty);
+			ApplyDifficulty();
+
+			Initialize();
 			gameScene = MAIN_GAME;
+			// Aボタンでメインゲームへ
+			if (IsTriggerA()) {
+				Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+				gameScene = MAIN_GAME;
+			}
 		}
 	}
 }
@@ -1009,28 +1010,6 @@ void Scene::TutorialDraw() {
 }
 
 
-void Scene::DifficultySelectDraw() {
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
-
-	for (int i = 0; i < 3; i++) {
-		int x = 140 + (i * 360); // X座標を横にずらす
-		int y = 320;
-		unsigned int color = 0;
-
-		if (i == 0) color = 0x00AA00FF; // EASY
-		if (i == 1) color = 0xAAAA00FF; // NORMAL
-		if (i == 2) color = 0xAA0000FF; // HARD
-
-		// 選択中の項目を強調（白枠を出す）
-		if (selectedDifficulty == i) {
-			Novice::DrawBox(x - 5, y - 5, 290, 130, 0.0f, WHITE, kFillModeSolid);
-		}
-
-		Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
-	}
-}
-
-
 void Scene::MainGameDraw() {
 
 	for (int i = 0; i < 150; i++) {
@@ -1169,6 +1148,26 @@ void Scene::DifficultySelectDraw() {
 
 	Novice::DrawSprite(0, 0, pressAstartGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
 	Novice::DrawSprite(0, 0, pressAbackGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	//Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
+
+	for (int i = 0; i < 3; i++) {
+		int x = 140 + (i * 360); // X座標を横にずらす
+		int y = 320;
+		unsigned int color = 0;
+
+		if (i == 0) color = 0x00AA00FF; // EASY
+		if (i == 1) color = 0xAAAA00FF; // NORMAL
+		if (i == 2) color = 0xAA0000FF; // HARD
+
+		// 選択中の項目を強調（白枠を出す）
+		if (selectedDifficulty == i) {
+			Novice::DrawBox(x - 5, y - 5, 290, 130, 0.0f, WHITE, kFillModeSolid);
+		}
+
+		Novice::DrawBox(x, y, 280, 120, 0.0f, color, kFillModeSolid);
+	}
+}
+
 void Scene::PauseDraw() {
 	// 画面を暗くする半透明のフィルター
 	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000088, kFillModeSolid);
@@ -1178,21 +1177,14 @@ void Scene::PauseDraw() {
 	// メニュー項目
 	const char* menuTexts[] = { "RESUME", "RESTART", "DIFFICULTY SELECT" };
 	for (int i = 0; i < 3; i++) {
-		/*int x = 140 + (i * 360); // X座標を横にずらす
-		int y = 320;h
-		unsigned int color = 0;
-		Novice::ScreenPrintf(550, 300 + (i * 40), menuTexts[i]);
-
-		if (i == 0) color = 0x00AA00FF; // EASY
-		if (i == 1) color = 0xAAAA00FF; // NORMAL
-		if (i == 2) color = 0xAA0000FF; // HARD*/
-
+	
 		// 選択中の項目を強調（白枠を出す）
 		if (selectedDifficulty == i) {
 			Novice::DrawSprite(0, 0, difficultyGH[i], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-		if (selectedPauseMenu == i) {
-			Novice::DrawBox(530, 300 + (i * 40), 10, 10, 0.0f, WHITE, kFillModeSolid);
+			if (selectedPauseMenu == i) {
+				Novice::DrawBox(530, 300 + (i * 40), 10, 10, 0.0f, WHITE, kFillModeSolid);
+			}
 		}
-	}
 
+	}
 }
