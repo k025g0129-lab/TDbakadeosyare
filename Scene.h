@@ -14,6 +14,7 @@ public:
 		DIFFICULTY_SELECT,
 		MAIN_GAME,
 		RESULT,
+		PAUSE
 	};
 
 	enum Phase {
@@ -82,6 +83,12 @@ public:
 	int propellerEndTime = 700;
 	int maxChargeTime = 1200;
 
+	// 目標距離
+	float goalDistance;
+
+	// ゲーム開始時の初期位置
+	float gameStartPlayerY;
+
 	// 傾き
 	int tiltDegree = 0;
 
@@ -133,6 +140,9 @@ public:
 	void ResultUpdate();
 	void ResultDraw();
 	
+	void PauseUpdate();
+	void PauseDraw();
+
 	
 	// フェーズ用
 	void PhaseUpdate();
@@ -147,9 +157,15 @@ public:
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
-	
+
 	bool IsPressA() const;
 	bool IsTriggerA() const;
+
+	bool IsPressX() const;
+	bool IsTriggerX() const;
+
+	bool IsPressY() const;
+	bool IsTriggerY() const;
 
 	//　難易度適用
 	void ApplyDifficulty();
@@ -158,6 +174,9 @@ private:
 	// コントローラー
 	XINPUT_STATE padState{}; // 今のフレームの入力状態
 	XINPUT_STATE prevPadState{};  // 1フレーム前の入力状態
+
+	// ポーズ用
+	int selectedPauseMenu = 0;
 
 	// 難易度選択用
 	int selectedDifficulty = 1;
@@ -175,7 +194,7 @@ private:
 	static const int maxBird = 20;
 	Object* bird[maxBird];
 
-	Vector2 PtitlePos = {0.0f,0.0f};
+	Vector2 PtitlePos = { 0.0f,0.0f };
 	//Vector2 underPtitlePos = {0.0f,720.0f};
 	TitleButton titleButton = GAME_PLAY_BUTTON;
 
@@ -213,12 +232,34 @@ private:
 	int RightArrowGH = 0;
 	int asobikataGH = 0;
 	int difficultyGH[3];
+	int selectLevelGH = 0;
+	int checkPointGH[2];
+	int clearGH = 0;
+	int failedGH = 0;
+	int boostGuidanceGH = 0;
+	int propGuidanceGH = 0;
+	int mawaseGH = 0;
+	int oseGH = 0;
 
 	int suuziGH[10];
+	int dotGH;
 
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
-};
+	
+	// サウンド
+	int soundHandleSelect; // カーソル移動音
+	int soundHandleDecide; // 決定音
 
+	int soundHandleTitleBGM; // 音源データ
+	int voiceHandleTitleBGM; // 再生中の管理用ID
+
+	int soundHandleMainBGM;
+	int voiceHandleMainBGM;
+
+	int soundHandleClear;
+	int soundHandleGameOver;
+	int voiceHandleResult;
+};
