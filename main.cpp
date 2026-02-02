@@ -20,7 +20,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	Scene scene;
 
-	scene.gameScene = scene.MAIN_GAME;
+	scene.gameScene = scene.TITLE;
 	scene.phase = scene.CHARGE;
 
 	// ウィンドウの×ボタンが押されるまでループ
