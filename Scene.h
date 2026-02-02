@@ -27,6 +27,13 @@ public:
 		LEFT,
 	};
 
+
+
+	enum TitleButton {
+		GAME_PLAY_BUTTON,
+		TUTORIAL_BUTTON,
+	};
+
 	struct BackGround {
 		Vector2 skyOriginalPos;
 		Vector2 skyPos;
@@ -54,6 +61,8 @@ public:
 		NORMAL,
 		HARD
 	};
+
+
 
 
 
@@ -148,7 +157,7 @@ public:
 	// 入力
 	bool IsPressB() const;
 	bool IsTriggerB() const;
-	
+
 	bool IsPressA() const;
 	bool IsTriggerA() const;
 
@@ -175,10 +184,24 @@ private:
 	// タイトル用
 	int selectedTitleMenu = 0;
 
+	//チュートリアル
+	int asobikataPaper = 0;
+	int maxAsobikataPaper = 4;
+
 	// プレイヤー
 	Player* player;
 	float playerStartY;
+	static const int maxBird = 20;
+	Object* bird[maxBird];
 
+	Vector2 PtitlePos = { 0.0f,0.0f };
+	//Vector2 underPtitlePos = {0.0f,720.0f};
+	TitleButton titleButton = GAME_PLAY_BUTTON;
+
+	//float titleT = 0.0f;
+
+	float amplitude = 100.0f;
+	float theta = 0.0f;
 
 	// チャージ演出用
 	ChargeSubPhase chargeSubPhase = SHOW_PROPELLER_TEXT;
@@ -186,13 +209,48 @@ private:
 	// 文字演出用
 	float chargeTextT = 0.0f;
 	Vector2 chargeTextPos;
+	float pressAT = 0.0f;
+	float pressATSpeed = 1.0f / 120.0f;
+
+	Vector2 titleBGPos[2];
+
+	//高度
+	int altitude = 0;
+
+	int keta[6];
+
+
+	//GH
+	int titleBGGH = 0;
+	int titleBG2GH = 0;
+	int pressAGH = 0;
+	int pressAstartGH = 0;
+	int playChoiceGH = 0;
+	int tutorialChoiceGH = 0;
+	int titleLogoGH = 0;
+	int PtitleLogoGH = 0;
+	int pressAbackGH = 0;
+	int LeftArrowGH = 0;
+	int RightArrowGH = 0;
+	int asobikataGH = 0;
+	int difficultyGH[3];
+	int selectLevelGH = 0;
+	int checkPointGH[2];
+	int clearGH = 0;
+	int failedGH = 0;
+	int boostGuidanceGH = 0;
+	int propGuidanceGH = 0;
+	int mawaseGH = 0;
+	int oseGH = 0;
+
+	int suuziGH[10];
+	int dotGH;
+
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
-	static const int maxBird = 20;
-	Object* bird[maxBird];
-
+	
 	// サウンド
 	int soundHandleSelect; // カーソル移動音
 	int soundHandleDecide; // 決定音
@@ -207,4 +265,3 @@ private:
 	int soundHandleGameOver;
 	int voiceHandleResult;
 };
-
