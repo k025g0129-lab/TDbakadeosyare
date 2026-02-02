@@ -185,9 +185,12 @@ void Scene::Initialize() {
 
 	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
 	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
+
+	// 上昇カーテン初期化
+	curtainUpPos = { 0.0f, 0.0f };
+	curtainT = 1.0f; // 最初はハケた状態にしておく
+	isCurtainActive = false;
 }
-
-
 
 
 void Scene::ApplyDifficulty() {
@@ -196,14 +199,14 @@ void Scene::ApplyDifficulty() {
 		checkPoint.distance = 2000.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
-		goalDistance = 7000.0f;
+		goalDistance = 9000.0f;
 		break;
 
 	case NORMAL:
 		checkPoint.distance = 2500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
-		goalDistance = 7000.0f;
+		goalDistance = 9000.0f;
 		break;
 
 	case HARD:
@@ -215,7 +218,6 @@ void Scene::ApplyDifficulty() {
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 }
-
 
 
 void Scene::Update() {
@@ -345,7 +347,7 @@ bool Scene::IsTriggerY() const {
 }
 
 /*------------
-   更新処理ee
+   更新処理
 --------------*/
 void Scene::TitleUpdate() {
 	// タイトルBGM
@@ -375,14 +377,6 @@ void Scene::TitleUpdate() {
 	//タイトルP上下用
 	theta += float(M_PI) / 120.0f;
 	PtitlePos.y = sinf(theta) * amplitude;
-
-
-	//titleT += 0.005f;
-
-	/*if (titleT > 1.0f) {
-		titleT = 0.0f;
-	}*/
-
 
 	// スティック操作
 	// 左
@@ -436,14 +430,6 @@ void Scene::TutorialUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		gameScene = TITLE;
 	}
-
-		/*if (selectedTitleMenu == 0) {
-			gameScene = DIFFICULTY_SELECT;
-		}
-		else {
-			gameScene = TUTORIAL;
-		}*/
-
 	
 		pressAT += pressATSpeed;
 		
@@ -488,10 +474,8 @@ void Scene::TutorialUpdate() {
 
 
 	//雲背景
-
 	for (int i = 0; i < 2; i++) {
 		titleBGPos[i].x -= 1.0f;
-
 
 		if (titleBGPos[i].x <= -1280.0f) {
 			titleBGPos[i].x = 1280.0f;
@@ -550,31 +534,30 @@ void Scene::DifficultySelectUpdate() {
 	}
 
 	
-		//背景雲移動
-		for (int i = 0; i < 2; i++) {
-			titleBGPos[i].x -= 1.0f;
+	//背景雲移動
+	for (int i = 0; i < 2; i++) {
+		titleBGPos[i].x -= 1.0f;
 
-
-			if (titleBGPos[i].x <= -1280.0f) {
-				titleBGPos[i].x = 1280.0f;
-			}
+		if (titleBGPos[i].x <= -1280.0f) {
+			titleBGPos[i].x = 1280.0f;
 		}
+	}
 
-		// Xボタンでタイトルへ戻る
-		if (IsTriggerX()) {
-			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-			Initialize();
-			gameScene = TITLE;
-		}
+	// Xボタンでタイトルへ戻る
+	if (IsTriggerX()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		Initialize();
+		gameScene = TITLE;
+	}
 
 		// Bボタンで決定
-		if (IsTriggerA()) {
-			difficulty = static_cast<Difficulty>(selectedDifficulty);
-			ApplyDifficulty();
-			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-			gameScene = MAIN_GAME;
+	if (IsTriggerA()) {
+		difficulty = static_cast<Difficulty>(selectedDifficulty);
+		ApplyDifficulty();
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		gameScene = MAIN_GAME;
 			
-		}
+	}
 	
 }
 
@@ -768,6 +751,12 @@ void Scene::ChargeUpdate() {
 
 			//上昇へ
 			phase = RISE;
+			curtainT = 0.0f;      // タイマーリセット
+			curtainUpPos.y = 0.0f; // 画面を覆った状態からスタート
+			isCurtainActive = true;
+
+			player->velocity.y = 0.0f;
+			player->playerScreenY = player->position.y + scrollY;
 		}
 
 		return;
@@ -776,6 +765,21 @@ void Scene::ChargeUpdate() {
 
 
 void Scene::RiseUpdate() {
+	if (isCurtainActive) {
+		curtainT += 1.0f / 60.0f; // 約1秒で完了
+		if (curtainT > 1.0f) {
+			curtainT = 1.0f;
+			isCurtainActive = false; // 演出終了
+		}
+		
+		// 下から上へ (0.0f から -720.0f へ)
+		curtainUpPos.y = EaseInOutCirc(curtainT, 0.0f, -720.0f);
+	
+		player->playerScreenY = player->position.y + scrollY;
+
+		return;
+	}
+
 	// プレイヤーの移動更新
 	player->Update_play();
 	for (int i = 0; i < maxBird; i++) {
@@ -1099,8 +1103,8 @@ void Scene::MainGameDraw() {
 			1280, 720,
 			0.0f, color
 		);
-	}
 
+	}
 
 	switch (phase) {
 	case CHARGE:
@@ -1115,6 +1119,18 @@ void Scene::MainGameDraw() {
 		player->Draw(player->playerScreenY);
 		break;
 
+	}
+
+	// 3. 上昇カーテン（幕）を最後に描くことで、全てを覆い隠せます
+	if (isCurtainActive || (phase == RISE && curtainT < 1.0f)) {
+		Novice::DrawBox(
+			0, static_cast<int>(curtainUpPos.y),
+			1280, 720,
+			0.0f, 0x101010FF, kFillModeSolid
+		);
+
+		// もし専用の「幕」の画像があるならこちら
+		// Novice::DrawSprite(0, (int)curtainUpPos.y, curtainGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 }
 
