@@ -246,6 +246,9 @@ private:
 	int suuziGH[10];
 	int dotGH;
 
+	//　ポーズ
+	int pauseGH[3];
+
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;

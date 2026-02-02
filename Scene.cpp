@@ -157,6 +157,11 @@ void Scene::Initialize() {
 	clearGH = Novice::LoadTexture("./Resources/images/clear.png");
 	failedGH = Novice::LoadTexture("./Resources/images/failed.png");
 
+	// ポーズ
+	pauseGH[0] = Novice::LoadTexture("./Resources/images/restart_active.png");
+	pauseGH[1] = Novice::LoadTexture("./Resources/images/returnLevelSelect_active.png");
+	pauseGH[2] = Novice::LoadTexture("./Resources/images/returnPlay_active.png");
+
 	//数字
 	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
 	suuziGH[1] = Novice::LoadTexture("./Resources/images/1.png");
@@ -1242,22 +1247,17 @@ void Scene::DifficultySelectDraw() {
 }
 
 void Scene::PauseDraw() {
-	// 画面を暗くする半透明のフィルター
+	// 画面全体を暗くするフィルター
 	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000088, kFillModeSolid);
 
-	Novice::ScreenPrintf(600, 200, "PAUSE");
-
-	// メニュー項目
-	const char* menuTexts[] = { "RESUME", "RESTART", "DIFFICULTY SELECT" };
-	for (int i = 0; i < 3; i++) {
-	
-		// 選択中の項目を強調（白枠を出す）
-		if (selectedDifficulty == i) {
-			Novice::DrawSprite(0, 0, difficultyGH[i], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-			if (selectedPauseMenu == i) {
-				Novice::DrawBox(530, 300 + (i * 40), 10, 10, 0.0f, WHITE, kFillModeSolid);
-			}
-		}
-
+	int currentGH = 0;
+	switch (selectedPauseMenu) {
+	case 0: currentGH = pauseGH[0]; break; // returnPlay_active
+	case 1: currentGH = pauseGH[1]; break; // restart_active
+	case 2: currentGH = pauseGH[2]; break; // returnLevelSelect_active
 	}
+
+	// 画像の描画
+	Novice::DrawSprite(0, 0, currentGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 }
+
