@@ -157,6 +157,12 @@ void Scene::Initialize() {
 	clearGH = Novice::LoadTexture("./Resources/images/clear.png");
 	failedGH = Novice::LoadTexture("./Resources/images/failed.png");
 
+	// ポーズ
+	pauseGH[0] = Novice::LoadTexture("./Resources/images/restart_active.png");
+	pauseGH[1] = Novice::LoadTexture("./Resources/images/returnLevelSelect_active.png");
+	pauseGH[2] = Novice::LoadTexture("./Resources/images/returnPlay_active.png");
+	pauseFilterGH = Novice::LoadTexture("./Resources/images/pause_filter.png");
+
 	//数字
 	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
 	suuziGH[1] = Novice::LoadTexture("./Resources/images/1.png");
@@ -179,25 +185,28 @@ void Scene::Initialize() {
 
 	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
 	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
+
+	// 上昇カーテン初期化
+	curtainUpPos = { 0.0f, 0.0f };
+	curtainT = 1.0f; // 最初はハケた状態にしておく
+	isCurtainActive = false;
 }
-
-
 
 
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 1500.0f;
-		maxChargeTime = 1000;
-		propellerEndTime = 500;
-		goalDistance = 7000.0f;
-		break;
-
-	case NORMAL:
 		checkPoint.distance = 2000.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
-		goalDistance = 7000.0f;
+		goalDistance = 9000.0f;
+		break;
+
+	case NORMAL:
+		checkPoint.distance = 2500.0f;
+		maxChargeTime = 1000;
+		propellerEndTime = 500;
+		goalDistance = 9000.0f;
 		break;
 
 	case HARD:
@@ -209,7 +218,6 @@ void Scene::ApplyDifficulty() {
 	}
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 }
-
 
 
 void Scene::Update() {
@@ -339,7 +347,7 @@ bool Scene::IsTriggerY() const {
 }
 
 /*------------
-   更新処理ee
+   更新処理
 --------------*/
 void Scene::TitleUpdate() {
 	// タイトルBGM
@@ -369,14 +377,6 @@ void Scene::TitleUpdate() {
 	//タイトルP上下用
 	theta += float(M_PI) / 120.0f;
 	PtitlePos.y = sinf(theta) * amplitude;
-
-
-	//titleT += 0.005f;
-
-	/*if (titleT > 1.0f) {
-		titleT = 0.0f;
-	}*/
-
 
 	// スティック操作
 	// 左
@@ -430,14 +430,6 @@ void Scene::TutorialUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 		gameScene = TITLE;
 	}
-
-		/*if (selectedTitleMenu == 0) {
-			gameScene = DIFFICULTY_SELECT;
-		}
-		else {
-			gameScene = TUTORIAL;
-		}*/
-
 	
 		pressAT += pressATSpeed;
 		
@@ -482,10 +474,8 @@ void Scene::TutorialUpdate() {
 
 
 	//雲背景
-
 	for (int i = 0; i < 2; i++) {
 		titleBGPos[i].x -= 1.0f;
-
 
 		if (titleBGPos[i].x <= -1280.0f) {
 			titleBGPos[i].x = 1280.0f;
@@ -544,31 +534,30 @@ void Scene::DifficultySelectUpdate() {
 	}
 
 	
-		//背景雲移動
-		for (int i = 0; i < 2; i++) {
-			titleBGPos[i].x -= 1.0f;
+	//背景雲移動
+	for (int i = 0; i < 2; i++) {
+		titleBGPos[i].x -= 1.0f;
 
-
-			if (titleBGPos[i].x <= -1280.0f) {
-				titleBGPos[i].x = 1280.0f;
-			}
+		if (titleBGPos[i].x <= -1280.0f) {
+			titleBGPos[i].x = 1280.0f;
 		}
+	}
 
-		// Xボタンでタイトルへ戻る
-		if (IsTriggerX()) {
-			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-			Initialize();
-			gameScene = TITLE;
-		}
+	// Xボタンでタイトルへ戻る
+	if (IsTriggerX()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		Initialize();
+		gameScene = TITLE;
+	}
 
 		// Bボタンで決定
-		if (IsTriggerB()) {
-			difficulty = static_cast<Difficulty>(selectedDifficulty);
-			ApplyDifficulty();
-			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-			gameScene = MAIN_GAME;
+	if (IsTriggerA()) {
+		difficulty = static_cast<Difficulty>(selectedDifficulty);
+		ApplyDifficulty();
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+		gameScene = MAIN_GAME;
 			
-		}
+	}
 	
 }
 
@@ -762,6 +751,12 @@ void Scene::ChargeUpdate() {
 
 			//上昇へ
 			phase = RISE;
+			curtainT = 0.0f;      // タイマーリセット
+			curtainUpPos.y = 0.0f; // 画面を覆った状態からスタート
+			isCurtainActive = true;
+
+			player->velocity.y = 0.0f;
+			player->playerScreenY = player->position.y + scrollY;
 		}
 
 		return;
@@ -770,6 +765,21 @@ void Scene::ChargeUpdate() {
 
 
 void Scene::RiseUpdate() {
+	if (isCurtainActive) {
+		curtainT += 1.0f / 60.0f; // 約1秒で完了
+		if (curtainT > 1.0f) {
+			curtainT = 1.0f;
+			isCurtainActive = false; // 演出終了
+		}
+		
+		// 下から上へ (0.0f から -720.0f へ)
+		curtainUpPos.y = EaseInOutCirc(curtainT, 0.0f, -720.0f);
+	
+		player->playerScreenY = player->position.y + scrollY;
+
+		return;
+	}
+
 	// プレイヤーの移動更新
 	player->Update_play();
 	for (int i = 0; i < maxBird; i++) {
@@ -969,18 +979,15 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
+			Initialize();
 			gameScene = MAIN_GAME;
 		}
 		else if (selectedPauseMenu == 1) {
 			Initialize();
-			gameScene = MAIN_GAME;
+			gameScene = DIFFICULTY_SELECT;
 		}
 		else if (selectedPauseMenu == 2) {
-			// ★ポイント：一度InitializeでメインBGMを止める
-			Initialize();
-			// Initialize() 内で gameScene = TITLE になっているので、
-			// 難易度選択画面にしたい場合はここで上書きする
-			gameScene = DIFFICULTY_SELECT;
+			gameScene = MAIN_GAME;
 		}
 	}
 	// Yボタンでゲームに戻る
@@ -1032,11 +1039,7 @@ void Scene::TitleDraw() {
 
 	Novice::DrawSprite(0, 0, titleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
-	//PtitlePos.y = EaseInOutBack(titleT,0.0f,-720.0f,1.70158f);
-	//underPtitlePos.y = EaseInOutBack(titleT,720.0f,0.0f,1.70158f);
-
 	Novice::DrawSprite(static_cast<int>(PtitlePos.x), static_cast<int>(PtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-	//Novice::DrawSprite(static_cast<int>(underPtitlePos.x), static_cast<int>(underPtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	switch (titleButton) {
 
@@ -1050,12 +1053,10 @@ void Scene::TitleDraw() {
 
 	}
 
-
 }
 
 void Scene::TutorialDraw() {
 
-	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
@@ -1069,8 +1070,6 @@ void Scene::TutorialDraw() {
 	if (asobikataPaper != maxAsobikataPaper-1) {
 		Novice::DrawSprite(0, 0, RightArrowGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
-
-
 
 	for (int i = 0; i < maxAsobikataPaper; i++) {
 		Novice::DrawSprite( 200 +(i * 1055) - (asobikataPaper * 1055 ), 150, whiteTextureHandle, 880, 420, 0.0f, 0xFFFFFFFF);
@@ -1101,8 +1100,8 @@ void Scene::MainGameDraw() {
 			1280, 720,
 			0.0f, color
 		);
-	}
 
+	}
 
 	switch (phase) {
 	case CHARGE:
@@ -1117,6 +1116,18 @@ void Scene::MainGameDraw() {
 		player->Draw(player->playerScreenY);
 		break;
 
+	}
+
+	// 3. 上昇カーテン（幕）を最後に描くことで、全てを覆い隠せます
+	if (isCurtainActive || (phase == RISE && curtainT < 1.0f)) {
+		Novice::DrawBox(
+			0, static_cast<int>(curtainUpPos.y),
+			1280, 720,
+			0.0f, 0x101010FF, kFillModeSolid
+		);
+
+		// もし専用の「幕」の画像があるならこちら
+		// Novice::DrawSprite(0, (int)curtainUpPos.y, curtainGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 }
 
@@ -1146,15 +1157,14 @@ void Scene::ChargeDraw() {
 	}
 
 
-	// 2. その上に演出の案内（箱）を重ねる
+	// その上に演出の案内（箱）を重ねる
 	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
-		//Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0xFAFAD2FF, kFillModeSolid);
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), propGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	}
 
 	if (chargeSubPhase == SHOW_BOOST_TEXT) {
-		//Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0x006400FF, kFillModeSolid);
+		
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), boostGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
@@ -1162,7 +1172,6 @@ void Scene::ChargeDraw() {
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 	Novice::ScreenPrintf(300, 20, "hantei = %d", (chargeTimer / 120) % 2);
 
-	//Novice::DrawBox(900, 20, 360, 120, 0.0f, 0xffffffff, kFillModeSolid);
 }
 
 
@@ -1206,20 +1215,16 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
 
-
-
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
-	Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-
+	// Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 }
 
 void Scene::DifficultySelectDraw() {
-	//Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
-
+	
 	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
@@ -1227,8 +1232,7 @@ void Scene::DifficultySelectDraw() {
 	Novice::DrawSprite(0, 0, pressAstartGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
 	Novice::DrawSprite(0, 0, pressAbackGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(0, 0, selectLevelGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-	//Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
-
+	
 	for (int i = 0; i < 3; i++) {
 
 		// 選択中の項目を強調（白枠を出す）
@@ -1242,22 +1246,17 @@ void Scene::DifficultySelectDraw() {
 }
 
 void Scene::PauseDraw() {
-	// 画面を暗くする半透明のフィルター
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000088, kFillModeSolid);
+	// 画面全体を暗くするフィルター
+	Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
-	Novice::ScreenPrintf(600, 200, "PAUSE");
-
-	// メニュー項目
-	const char* menuTexts[] = { "RESUME", "RESTART", "DIFFICULTY SELECT" };
-	for (int i = 0; i < 3; i++) {
-	
-		// 選択中の項目を強調（白枠を出す）
-		if (selectedDifficulty == i) {
-			Novice::DrawSprite(0, 0, difficultyGH[i], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-			if (selectedPauseMenu == i) {
-				Novice::DrawBox(530, 300 + (i * 40), 10, 10, 0.0f, WHITE, kFillModeSolid);
-			}
-		}
-
+	int currentGH = 0;
+	switch (selectedPauseMenu) {
+	case 0: currentGH = pauseGH[0]; break; // returnPlay_active
+	case 1: currentGH = pauseGH[1]; break; // restart_active
+	case 2: currentGH = pauseGH[2]; break; // returnLevelSelect_active
 	}
+
+	// 画像の描画
+	Novice::DrawSprite(0, 0, currentGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 }
+

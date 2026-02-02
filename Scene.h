@@ -246,10 +246,18 @@ private:
 	int suuziGH[10];
 	int dotGH;
 
+	//　ポーズ
+	int pauseGH[3];
+	int pauseFilterGH;
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
+
+	// 上昇カーテン用
+	Vector2 curtainUpPos;
+	float curtainT = 0.0f;
+	bool isCurtainActive = false;
 	
 	// サウンド
 	int soundHandleSelect; // カーソル移動音
