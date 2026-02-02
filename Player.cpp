@@ -178,6 +178,11 @@ void Player::Update_charge_propeller() {
 				if (leftPropellerPower < MAX_LEFT_POWER) {
 					leftPropellerPower += 1.0f;
 				}
+
+				if (leftPropellerPower >= MAX_LEFT_POWER) {
+					leftPropellerPower = MAX_LEFT_POWER;
+				}
+
 				totalLeftRotation -= 1.2f;
 			}
 
@@ -237,6 +242,11 @@ void Player::Update_charge_propeller() {
 				if (rightPropellerPower < MAX_RIGHT_POWER) {
 					rightPropellerPower += 1.0f;
 				}
+
+				if (rightPropellerPower >= MAX_RIGHT_POWER) {
+					rightPropellerPower = MAX_RIGHT_POWER;
+				}
+
 				totalRightRotation -= 1.0f;
 			}
 
@@ -272,6 +282,10 @@ void Player::Update_charge_boost() {
 		if (boostGauge < MAX_BOOST_GAUGE) {
 			boostGauge += 0.4f;
 		}
+	}
+
+	if (boostGauge >= MAX_BOOST_GAUGE) {
+		boostGauge = MAX_BOOST_GAUGE;
 	}
 
 	// ブーストゲージの残量割合を計算
