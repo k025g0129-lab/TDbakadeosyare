@@ -62,6 +62,11 @@ public:
 	int leftOnlyGH[6];
 	int stopGH[6];
 
+	// アニメーション用変数
+	int animCount;
+	const int kMaxAnimCount = 240;
+	int GHindex;
+
 	// 自機の傾き
 	float angle;
 	float powerDiff;
