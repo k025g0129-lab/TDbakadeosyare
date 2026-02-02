@@ -562,7 +562,7 @@ void Scene::DifficultySelectUpdate() {
 		}
 
 		// Bボタンで決定
-		if (IsTriggerB()) {
+		if (IsTriggerA()) {
 			difficulty = static_cast<Difficulty>(selectedDifficulty);
 			ApplyDifficulty();
 			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
