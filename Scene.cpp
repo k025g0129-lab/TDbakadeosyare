@@ -20,20 +20,17 @@ Scene::~Scene() {
 
 void Scene::Initialize() {
 	// BGM停止
-	if (Novice::IsPlayingAudio(voiceHandleTitleBGM)) {
-		Novice::StopAudio(voiceHandleTitleBGM);
-	}
-	
 	if (Novice::IsPlayingAudio(voiceHandleMainBGM)) {
 		Novice::StopAudio(voiceHandleMainBGM);
+		voiceHandleMainBGM = -1;
 	}
 
 	if (Novice::IsPlayingAudio(voiceHandleResult)) {
 		Novice::StopAudio(voiceHandleResult);
+		voiceHandleResult = -1;
 	}
 
 	// 変数をリセット
-	voiceHandleTitleBGM = -1;
 	voiceHandleMainBGM = -1;
 	voiceHandleResult = -1;
 
