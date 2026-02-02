@@ -56,7 +56,12 @@ public:
 
 	int whiteTextureHandle = 0;
 
-	
+	// 自機グラフハンドル
+	int normalGH[6];
+	int rightOnlyGH[6];
+	int leftOnlyGH[6];
+	int stopGH[6];
+
 	// 自機の傾き
 	float angle;
 	float powerDiff;
