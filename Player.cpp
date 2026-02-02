@@ -77,6 +77,45 @@ Player::Player() {
 	planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
+
+	// 画像読み込み
+	// プロペラが両方残ってる時
+	normalGH[0] = Novice::LoadTexture("./Resources/images/player1.png");
+	normalGH[1] = Novice::LoadTexture("./Resources/images/player2.png");
+	normalGH[2] = Novice::LoadTexture("./Resources/images/player3.png");
+	normalGH[3] = Novice::LoadTexture("./Resources/images/player4.png");
+	normalGH[4] = Novice::LoadTexture("./Resources/images/player5.png");
+	normalGH[5] = Novice::LoadTexture("./Resources/images/player6.png");
+
+	// 右のみ
+	rightOnlyGH[0] = Novice::LoadTexture("./Resources/images/rightOnly_player1.png");
+	rightOnlyGH[1] = Novice::LoadTexture("./Resources/images/rightOnly_player2.png");
+	rightOnlyGH[2] = Novice::LoadTexture("./Resources/images/rightOnly_player3.png");
+	rightOnlyGH[3] = Novice::LoadTexture("./Resources/images/rightOnly_player4.png");
+	rightOnlyGH[4] = Novice::LoadTexture("./Resources/images/rightOnly_player5.png");
+	rightOnlyGH[5] = Novice::LoadTexture("./Resources/images/rightOnly_player6.png");
+
+	// 左のみ
+	leftOnlyGH[0] = Novice::LoadTexture("./Resources/images/leftOnly_player1.png");
+	leftOnlyGH[1] = Novice::LoadTexture("./Resources/images/leftOnly_player2.png");
+	leftOnlyGH[2] = Novice::LoadTexture("./Resources/images/leftOnly_player3.png");
+	leftOnlyGH[3] = Novice::LoadTexture("./Resources/images/leftOnly_player4.png");
+	leftOnlyGH[4] = Novice::LoadTexture("./Resources/images/leftOnly_player5.png");
+	leftOnlyGH[5] = Novice::LoadTexture("./Resources/images/leftOnly_player6.png");
+
+	// 両方終わったとき
+	stopGH[0] = Novice::LoadTexture("./Resources/images/stopProp_player1.png");
+	stopGH[1] = Novice::LoadTexture("./Resources/images/stopProp_player2.png");
+	stopGH[2] = Novice::LoadTexture("./Resources/images/stopProp_player3.png");
+	stopGH[3] = Novice::LoadTexture("./Resources/images/stopProp_player4.png");
+	stopGH[4] = Novice::LoadTexture("./Resources/images/stopProp_player5.png");
+	stopGH[5] = Novice::LoadTexture("./Resources/images/stopProp_player6.png");
+
+	// アニメカウント
+	animCount = 0;
+
+	// 何番目の画像かを指定する変数
+	GHindex = 0;
 }
 
 Player::~Player() {};
@@ -378,6 +417,16 @@ void Player::Update_play() {
 		// 回転した頂点に「共通の position」を足してワールド座標にする
 		planeWorldFourCornersPos[i] = Vector2Add(rotatedCorners[i], position);
 	}
+
+	// アニメカウントの計算
+	if (animCount < kMaxAnimCount) {
+		animCount++;
+	} else {
+		animCount = 0;
+	}
+
+	// 画像指定変数に代入
+	GHindex = (int)(animCount / 40);
 }
 
 void Player::Draw(float finalY) {
@@ -397,6 +446,65 @@ void Player::Draw(float finalY) {
 		0, 0, (int)width, (int)height,
 		whiteTextureHandle, 0xFFFFFFFF
 	);
+
+	// 自機描画
+	if ((leftPropellerPower > 0.0f) && (rightPropellerPower > 0.0f)) {  // どっちも残ってるとき
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			normalGH[GHindex], 0xFFFFFFFF
+		);
+
+	} else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower > 0.0f)) {  // 右のみ
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			rightOnlyGH[GHindex], 0xFFFFFFFF
+		);
+
+	} else if ((leftPropellerPower > 0.0f) && (rightPropellerPower <= 0.0f)) {  // 左のみ
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			leftOnlyGH[GHindex], 0xFFFFFFFF
+		);
+
+	} else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower <= 0.0f)) {  // どっちもない
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			stopGH[GHindex], 0xFFFFFFFF
+		);
+	}
+	
 
 	Novice::ScreenPrintf(0, 180, "pos = %0.2f, %0.3f", position.x, position.y);
 
