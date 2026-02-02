@@ -215,7 +215,9 @@ private:
 	Vector2 titleBGPos[2];
 
 	//高度
-	float altitude = 0.0f;
+	int altitude = 0;
+
+	int keta[6];
 
 
 	//GH

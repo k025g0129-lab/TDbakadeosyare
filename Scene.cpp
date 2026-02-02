@@ -119,7 +119,11 @@ void Scene::Initialize() {
 	titleBGPos[0] = {0.0f,0.0f};
 	titleBGPos[1] = {1280.0f,0.0f};
 
-	altitude = 0.0f;
+	altitude = 0;
+
+	for (int i = 0; i < 6; i++) {
+		 keta[i] = 0;
+	}
 
 	//GH
 	//タイトル
@@ -158,6 +162,15 @@ void Scene::Initialize() {
 
 	//数字
 	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
+	suuziGH[1] = Novice::LoadTexture("./Resources/images/1.png");
+	suuziGH[2] = Novice::LoadTexture("./Resources/images/2.png");
+	suuziGH[3] = Novice::LoadTexture("./Resources/images/3.png");
+	suuziGH[4] = Novice::LoadTexture("./Resources/images/4.png");
+	suuziGH[5] = Novice::LoadTexture("./Resources/images/5.png");
+	suuziGH[6] = Novice::LoadTexture("./Resources/images/6.png");
+	suuziGH[7] = Novice::LoadTexture("./Resources/images/7.png");
+	suuziGH[8] = Novice::LoadTexture("./Resources/images/8.png");
+	suuziGH[9] = Novice::LoadTexture("./Resources/images/9.png");
 
 	// サウンド
 	soundHandleSelect = Novice::LoadAudio("./Resources/sound/select.mp3");
@@ -638,7 +651,7 @@ void Scene::ChargeUpdate() {
 
 		player->Update_charge_propeller();
 
-		switch ((chargeTimer % 120)% 2) {
+		switch ((chargeTimer / 30)% 2) {
 		case 0:
 			mawaseGH= Novice::LoadTexture("./Resources/images/mawase1.png");
 			break;
@@ -717,8 +730,9 @@ void Scene::ChargeUpdate() {
 		chargeTimer++;
 
 		player->Update_charge_boost();
+		
 
-		switch ((chargeTimer % 120)% 2) {
+		switch ((chargeTimer / 30)% 2) {
 		case 0:
 			oseGH = Novice::LoadTexture("./Resources/images/ose1.png");
 			break;
@@ -764,8 +778,6 @@ void Scene::RiseUpdate() {
 	for (int i = 0; i < maxBird; i++) {
 		bird[i]->BirdUpdate();
 	}
-
-	altitude = -(player->position.y - 600.0f);
 
 	// スクロール処理 (カメラの制御)
 	float screenYLimit = 500.0f;
@@ -859,6 +871,16 @@ void Scene::RiseUpdate() {
 
 	if (progressY >= nextCheckPointDistance) {
 
+		//鳥削除
+		for (int i = 0; i < maxBird; i++) {
+			bird[i]->bird.isActive = false;
+			bird[i]->bird.isAppearance = false;
+
+			bird[i]->bird.skyPos.y = player->position.y + 1000.0f;
+			bird[i]->bird.screenPos.y = player->position.y + 1000.0f;
+		}
+
+
 		// 着地：完全停止
 		player->velocity.y = 0.0f;
 
@@ -906,6 +928,24 @@ void Scene::RiseUpdate() {
 			chargeSubPhase = SHOW_PROPELLER_TEXT;
 		}
 	}
+
+
+	//ビットマップフォント
+	altitude = -static_cast<int>(player->position.y - 600.0f) * 10;
+	
+
+	keta[0] = altitude/100000;
+	altitude %= 100000;
+	keta[1] = altitude/10000;
+	altitude %= 10000;
+	keta[2] = altitude/1000;
+	altitude %= 1000;
+	keta[3] = altitude/100;
+	altitude %= 100;
+	keta[4] = altitude/10;
+	altitude %= 10;
+	keta[5] = altitude;
+
 
 }
 
@@ -1095,16 +1135,19 @@ void Scene::ResultDraw() {
 
 void Scene::ChargeDraw() {
 	// 1. まず背景色を決定して画面全体を塗りつぶす
-	if (chargeTimer < propellerEndTime) {
+
+	if (chargeSubPhase == PROPELLER_CHARGE) {
 		// プロペラの色（暗い青系）
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
 		Novice::DrawSprite(900, 20, mawaseGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
-	else {
+
+	if (chargeSubPhase == BOOST_CHARGE) {
 		// ブーストの色（紫系）
 		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
 		Novice::DrawSprite(900, 20, oseGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
+
 
 	// 2. その上に演出の案内（箱）を重ねる
 	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
@@ -1120,6 +1163,7 @@ void Scene::ChargeDraw() {
 
 	// 3. デバッグ情報の表示
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
+	Novice::ScreenPrintf(300, 20, "hantei = %d", (chargeTimer / 120) % 2);
 
 	//Novice::DrawBox(900, 20, 360, 120, 0.0f, 0xffffffff, kFillModeSolid);
 }
@@ -1168,10 +1212,10 @@ void Scene::RiseDraw() {
 
 
 	for (int i = 0; i < 5; i++) {
-		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[0], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
-	Novice::DrawSprite(270 + 10, 20, suuziGH[0], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 
 }
