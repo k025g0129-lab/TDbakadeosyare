@@ -1305,7 +1305,7 @@ void Scene::DifficultySelectDraw() {
 }
 
 void Scene::PauseDraw() {
-	// 画面全体を暗くするフィルター（2毎重ねのほうがいいかも）
+	// 画面全体を暗くするフィルター（2枚重ねのほうがいいかも）
 	Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFF0);
 
