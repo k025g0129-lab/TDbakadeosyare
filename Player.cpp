@@ -579,9 +579,9 @@ void Player::Draw(float finalY) {
 	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
 	// ゲージ内部
-	Novice::DrawBox(65, 676, 51, (int)-(305.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(145, 676, 51, (int)-(305.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(1165, 676, 51, (int)-(305.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
+	Novice::DrawBox(65, 676, 51, (int)-(270.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(145, 676, 51, (int)-(270.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(1165, 676, 51, (int)-(270.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
 }
 
 // 着地リセット

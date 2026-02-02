@@ -247,8 +247,16 @@ private:
 	int dotGH;
 
 	//　ポーズ
+	int pauseGuidanceGH;
 	int pauseGH[3];
 	int pauseFilterGH;
+	int pauseLogoGH;
+
+	// チャージ中背景
+	int propChargingGH[3];
+	int boostChargingGH[3];
+	int animCount;
+	int GHindex;
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;
@@ -258,6 +266,7 @@ private:
 	Vector2 curtainUpPos;
 	float curtainT = 0.0f;
 	bool isCurtainActive = false;
+	int curtainGH;
 	
 	// サウンド
 	int soundHandleSelect; // カーソル移動音

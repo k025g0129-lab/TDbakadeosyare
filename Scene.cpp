@@ -122,6 +122,9 @@ void Scene::Initialize() {
 		 keta[i] = 0;
 	}
 
+	animCount = 0;
+	GHindex = 0;
+
 	//GH
 	//タイトル
 	titleBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
@@ -158,10 +161,12 @@ void Scene::Initialize() {
 	failedGH = Novice::LoadTexture("./Resources/images/failed.png");
 
 	// ポーズ
+	pauseGuidanceGH = Novice::LoadTexture("./Resources/images/displayPause.png");
 	pauseGH[0] = Novice::LoadTexture("./Resources/images/restart_active.png");
 	pauseGH[1] = Novice::LoadTexture("./Resources/images/returnLevelSelect_active.png");
 	pauseGH[2] = Novice::LoadTexture("./Resources/images/returnPlay_active.png");
 	pauseFilterGH = Novice::LoadTexture("./Resources/images/pause_filter.png");
+	pauseLogoGH = Novice::LoadTexture("./Resources/images/inPause.png");
 
 	//数字
 	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
@@ -174,6 +179,19 @@ void Scene::Initialize() {
 	suuziGH[7] = Novice::LoadTexture("./Resources/images/7.png");
 	suuziGH[8] = Novice::LoadTexture("./Resources/images/8.png");
 	suuziGH[9] = Novice::LoadTexture("./Resources/images/9.png");
+
+	// プロペラチャージ中背景
+	propChargingGH[0] = Novice::LoadTexture("./Resources/images/charging1.png");
+	propChargingGH[1] = Novice::LoadTexture("./Resources/images/charging2.png");
+	propChargingGH[2] = Novice::LoadTexture("./Resources/images/charging3.png");
+
+	// ブーストチャージ中背景
+	boostChargingGH[0] = Novice::LoadTexture("./Resources/images/charging_boost1.png");
+	boostChargingGH[1] = Novice::LoadTexture("./Resources/images/charging_boost2.png");
+	boostChargingGH[2] = Novice::LoadTexture("./Resources/images/charging_boost3.png");
+
+	// 上昇カーテン背景
+	curtainGH = Novice::LoadTexture("./Resources/images/go.png");
 
 	// サウンド
 	soundHandleSelect = Novice::LoadAudio("./Resources/sound/select.mp3");
@@ -340,7 +358,7 @@ bool Scene::IsPressY() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0;
 }
 
-// Xボタンが押された瞬間
+// Yボタンが押された瞬間
 bool Scene::IsTriggerY() const {
 	return (padState.Gamepad.wButtons & XINPUT_GAMEPAD_Y) &&
 		!(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_Y);
@@ -377,6 +395,28 @@ void Scene::TitleUpdate() {
 	//タイトルP上下用
 	theta += float(M_PI) / 120.0f;
 	PtitlePos.y = sinf(theta) * amplitude;
+
+	//文字を透明に
+	pressAT += pressATSpeed;
+
+	if (pressAT >= 1.0f) {
+		pressAT = 1.0f;
+		pressATSpeed *= -1.0f;
+	}
+
+	if (pressAT < 0.0f) {
+		pressAT = 0.0f;
+		pressATSpeed *= -1.0f;
+	}
+
+	//雲背景
+	for (int i = 0; i < 2; i++) {
+		titleBGPos[i].x -= 1.0f;
+
+		if (titleBGPos[i].x <= -1280.0f) {
+			titleBGPos[i].x = 1280.0f;
+		}
+	}
 
 	// スティック操作
 	// 左
@@ -546,7 +586,6 @@ void Scene::DifficultySelectUpdate() {
 	// Xボタンでタイトルへ戻る
 	if (IsTriggerX()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		Initialize();
 		gameScene = TITLE;
 	}
 
@@ -564,7 +603,7 @@ void Scene::DifficultySelectUpdate() {
 
 void Scene::MainGameUpdate() {
 	// ポーズ
-	if (IsTriggerY()) {
+	if (IsTriggerX()) {
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 		gameScene = PAUSE;
 		return; // ポーズに入ったらこのフレームのゲーム処理はしない
@@ -634,6 +673,13 @@ void Scene::ChargeUpdate() {
 	// プロペラチャージ
 	case PROPELLER_CHARGE:
 		chargeTimer++;
+
+		// チャージ中の背景描画で使うアニメーション
+		animCount++;
+		if (animCount >= 120) {
+			animCount = 0;
+		}
+		GHindex = (int)(animCount / 40);
 
 		player->Update_charge_propeller();
 
@@ -714,6 +760,13 @@ void Scene::ChargeUpdate() {
 	// ブーストチャージ
 	case BOOST_CHARGE:
 		chargeTimer++;
+
+		// チャージ中の背景描画で使うアニメーション
+		animCount++;
+		if (animCount >= 120) {
+			animCount = 0;
+		}
+		GHindex = (int)(animCount / 40);
 
 		player->Update_charge_boost();
 		
@@ -990,8 +1043,8 @@ void Scene::PauseUpdate() {
 			gameScene = MAIN_GAME;
 		}
 	}
-	// Yボタンでゲームに戻る
-	if (IsTriggerY()) {
+	// Xボタンでゲームに戻る
+	if (IsTriggerX()) {
 		gameScene = MAIN_GAME;
 	}
 }
@@ -1120,14 +1173,14 @@ void Scene::MainGameDraw() {
 
 	// 3. 上昇カーテン（幕）を最後に描くことで、全てを覆い隠せます
 	if (isCurtainActive || (phase == RISE && curtainT < 1.0f)) {
-		Novice::DrawBox(
+		/*Novice::DrawBox(
 			0, static_cast<int>(curtainUpPos.y),
 			1280, 720,
 			0.0f, 0x101010FF, kFillModeSolid
-		);
+		);*/
 
 		// もし専用の「幕」の画像があるならこちら
-		// Novice::DrawSprite(0, (int)curtainUpPos.y, curtainGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(0, (int)curtainUpPos.y, curtainGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 }
 
@@ -1142,31 +1195,34 @@ void Scene::ResultDraw() {
 }
 
 void Scene::ChargeDraw() {
-	// 1. まず背景色を決定して画面全体を塗りつぶす
 
 	if (chargeSubPhase == PROPELLER_CHARGE) {
 		// プロペラの色（暗い青系）
-		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x203744ff, kFillModeSolid);
+		Novice::DrawSprite(0, 0, propChargingGH[GHindex], 1.0f, 1.0f, 0.0f, 0xffffffff);
 		Novice::DrawSprite(900, 20, mawaseGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
 	if (chargeSubPhase == BOOST_CHARGE) {
 		// ブーストの色（紫系）
-		Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x522f60ff, kFillModeSolid);
+		Novice::DrawSprite(0, 0, boostChargingGH[GHindex], 1.0f, 1.0f, 0.0f, 0xffffffff);
 		Novice::DrawSprite(900, 20, oseGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
 
 	// その上に演出の案内（箱）を重ねる
 	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
+		Novice::DrawSprite(0, 0, propChargingGH[0], 1.0f, 1.0f, 0.0f, 0xffffffff);
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), propGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	}
 
 	if (chargeSubPhase == SHOW_BOOST_TEXT) {
-		
+		Novice::DrawSprite(0, 0, boostChargingGH[0], 1.0f, 1.0f, 0.0f, 0xffffffff);
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), boostGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
+
+	// ポーズの案内
+	Novice::DrawSprite(-1080, 0, pauseGuidanceGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
 	// 3. デバッグ情報の表示
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
@@ -1200,6 +1256,9 @@ void Scene::RiseDraw() {
 		);
 
 	}
+
+	// ポーズの案内
+	Novice::DrawSprite(0, 0, pauseGuidanceGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
 	// 目標距離
 	Novice::ScreenPrintf(300, 160, "CURRENT: %f / GOAL: %f", progressY, goalDistance);
@@ -1246,8 +1305,12 @@ void Scene::DifficultySelectDraw() {
 }
 
 void Scene::PauseDraw() {
-	// 画面全体を暗くするフィルター
+	// 画面全体を暗くするフィルター（2毎重ねのほうがいいかも）
 	Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFF0);
+
+	// PAUSEの文字
+	Novice::DrawSprite(0, 0, pauseLogoGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
 	int currentGH = 0;
 	switch (selectedPauseMenu) {
