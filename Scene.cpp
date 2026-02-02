@@ -161,6 +161,7 @@ void Scene::Initialize() {
 	pauseGH[0] = Novice::LoadTexture("./Resources/images/restart_active.png");
 	pauseGH[1] = Novice::LoadTexture("./Resources/images/returnLevelSelect_active.png");
 	pauseGH[2] = Novice::LoadTexture("./Resources/images/returnPlay_active.png");
+	pauseFilterGH = Novice::LoadTexture("./Resources/images/pause_filter.png");
 
 	//数字
 	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
@@ -1051,7 +1052,6 @@ void Scene::TitleDraw() {
 
 	}
 
-
 }
 
 void Scene::TutorialDraw() {
@@ -1069,8 +1069,6 @@ void Scene::TutorialDraw() {
 	if (asobikataPaper != maxAsobikataPaper-1) {
 		Novice::DrawSprite(0, 0, RightArrowGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
-
-
 
 	for (int i = 0; i < maxAsobikataPaper; i++) {
 		Novice::DrawSprite( 200 +(i * 1055) - (asobikataPaper * 1055 ), 150, whiteTextureHandle, 880, 420, 0.0f, 0xFFFFFFFF);
@@ -1207,6 +1205,9 @@ void Scene::RiseDraw() {
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
+
+	// Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
 }
 
 void Scene::DifficultySelectDraw() {
@@ -1233,7 +1234,7 @@ void Scene::DifficultySelectDraw() {
 
 void Scene::PauseDraw() {
 	// 画面全体を暗くするフィルター
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000088, kFillModeSolid);
+	Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	int currentGH = 0;
 	switch (selectedPauseMenu) {

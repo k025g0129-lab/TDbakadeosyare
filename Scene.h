@@ -248,7 +248,7 @@ private:
 
 	//　ポーズ
 	int pauseGH[3];
-
+	int pauseFilterGH;
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;
