@@ -192,14 +192,14 @@ void Scene::Initialize() {
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 1500.0f;
+		checkPoint.distance = 2000.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
 		goalDistance = 7000.0f;
 		break;
 
 	case NORMAL:
-		checkPoint.distance = 2000.0f;
+		checkPoint.distance = 2500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
 		goalDistance = 7000.0f;
@@ -981,7 +981,7 @@ void Scene::PauseUpdate() {
 			gameScene = MAIN_GAME;
 		}
 		else if (selectedPauseMenu == 2) {
-			// ★ポイント：一度InitializeでメインBGMを止める
+			// 一度InitializeでメインBGMを止める
 			Initialize();
 			// Initialize() 内で gameScene = TITLE になっているので、
 			// 難易度選択画面にしたい場合はここで上書きする
@@ -1037,11 +1037,7 @@ void Scene::TitleDraw() {
 
 	Novice::DrawSprite(0, 0, titleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
-	//PtitlePos.y = EaseInOutBack(titleT,0.0f,-720.0f,1.70158f);
-	//underPtitlePos.y = EaseInOutBack(titleT,720.0f,0.0f,1.70158f);
-
 	Novice::DrawSprite(static_cast<int>(PtitlePos.x), static_cast<int>(PtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-	//Novice::DrawSprite(static_cast<int>(underPtitlePos.x), static_cast<int>(underPtitlePos.y), PtitleLogoGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	switch (titleButton) {
 
@@ -1060,7 +1056,6 @@ void Scene::TitleDraw() {
 
 void Scene::TutorialDraw() {
 
-	Novice::DrawBox(440, 220, 400, 280, 0.0f, RED, kFillModeSolid);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
@@ -1151,15 +1146,14 @@ void Scene::ChargeDraw() {
 	}
 
 
-	// 2. その上に演出の案内（箱）を重ねる
+	// その上に演出の案内（箱）を重ねる
 	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
-		//Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0xFAFAD2FF, kFillModeSolid);
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), propGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	}
 
 	if (chargeSubPhase == SHOW_BOOST_TEXT) {
-		//Novice::DrawBox(240, static_cast<int>(chargeTextPos.y), 800, 120, 0.0f, 0x006400FF, kFillModeSolid);
+		
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), boostGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
@@ -1167,7 +1161,6 @@ void Scene::ChargeDraw() {
 	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
 	Novice::ScreenPrintf(300, 20, "hantei = %d", (chargeTimer / 120) % 2);
 
-	//Novice::DrawBox(900, 20, 360, 120, 0.0f, 0xffffffff, kFillModeSolid);
 }
 
 
@@ -1211,20 +1204,13 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
 
-
-
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
-
-	Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-
-
 }
 
 void Scene::DifficultySelectDraw() {
-	//Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
-
+	
 	Novice::DrawSprite(static_cast<int>(titleBGPos[0].x), static_cast<int>(titleBGPos[0].y), titleBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(static_cast<int>(titleBGPos[1].x), static_cast<int>(titleBGPos[1].y), titleBG2GH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000077, kFillModeSolid);
@@ -1232,8 +1218,7 @@ void Scene::DifficultySelectDraw() {
 	Novice::DrawSprite(0, 0, pressAstartGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF - int(pressAT * 255.0f));
 	Novice::DrawSprite(0, 0, pressAbackGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(0, 0, selectLevelGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
-	//Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x151515FF, kFillModeSolid);
-
+	
 	for (int i = 0; i < 3; i++) {
 
 		// 選択中の項目を強調（白枠を出す）
