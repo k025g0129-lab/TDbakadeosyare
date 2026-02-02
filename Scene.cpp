@@ -758,6 +758,7 @@ void Scene::ChargeUpdate() {
 			for (int i = 0; i < birdOccurrences; i++) {
 				bird[i]->BirdInitialize();
 				bird[i]->bird.isActive = false;
+
 			}
 
 			//上昇へ
@@ -804,7 +805,7 @@ void Scene::RiseUpdate() {
 
 	//鳥出現
 	for (int i = 0; i < birdOccurrences; i++) {
-		if (progressY >= (checkPoint.triggerProgressY * (float(i + 1) / float(birdOccurrences + 1)))) {
+		if (progressY >= ((checkPoint.triggerProgressY - preCheckPointPosY) * (float(i + 1) / float(birdOccurrences + 1))) + preCheckPointPosY) {
 			if (!bird[i]->bird.isAppearance) {
 				if (bird[i]->bird.isActive == false) {
 
@@ -817,13 +818,16 @@ void Scene::RiseUpdate() {
 		}
 	}
 
-
 	for (int i = 0; i < maxBird; i++) {
 		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
 	}
 
+
 	for (int i = 0; i < maxBird; i++) {
-		if (IsCollision({ bird[i]->bird.screenPos.x,bird[i]->bird.skyPos.y }, player->position, bird[i]->bird.radius, player->width)) {
+
+
+		//bird[i]->bird.screenPos
+		if (IsCollision({ bird[i]->bird.screenPos.x,bird[i]->bird.skyPos.y }, player->position, bird[i]->bird.radius, player->width/2.0f)) {
 			if (bird[i]->bird.isActive) {
 				bird[i]->bird.isActive = false;
 				bird[i]->bird.screenPos.x += 1000.0f;
@@ -875,6 +879,7 @@ void Scene::RiseUpdate() {
 
 			bird[i]->bird.skyPos.y = player->position.y + 1000.0f;
 			bird[i]->bird.screenPos.y = player->position.y + 1000.0f;
+			Novice::DrawBox(0, 0, 1280, 720, 5.0f, 0x000000FF, kFillModeSolid);
 		}
 
 
@@ -883,7 +888,7 @@ void Scene::RiseUpdate() {
 
 		//前回のチェックポイント記録
 		player->position.y = gameStartPlayerY - nextCheckPointDistance;
-
+		preCheckPointPosY = gameStartPlayerY - player->position.y;
 		// 次のチェックポイント準備
 		checkPoint.lv++;
 		checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -1205,6 +1210,16 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
 	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+
+
+
+	Novice::ScreenPrintf(300, 180, "progressY = %f", progressY);
+	Novice::ScreenPrintf(300, 200, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
+	for (int i = 0; i < 5; i++) {
+		Novice::ScreenPrintf(300, 220 + (i *20), "toriitiY = %f", (checkPoint.triggerProgressY - preCheckPointPosY) * (float(i + 1) / float(birdOccurrences + 1)) + preCheckPointPosY);
+	}
+	Novice::ScreenPrintf(300, 320 , "preCheckPointPosY = %f",  preCheckPointPosY);
+
 
 
 
