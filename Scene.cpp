@@ -979,18 +979,15 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
+			Initialize();
 			gameScene = MAIN_GAME;
 		}
 		else if (selectedPauseMenu == 1) {
 			Initialize();
-			gameScene = MAIN_GAME;
+			gameScene = DIFFICULTY_SELECT;
 		}
 		else if (selectedPauseMenu == 2) {
-			// 一度InitializeでメインBGMを止める
-			Initialize();
-			// Initialize() 内で gameScene = TITLE になっているので、
-			// 難易度選択画面にしたい場合はここで上書きする
-			gameScene = DIFFICULTY_SELECT;
+			gameScene = MAIN_GAME;
 		}
 	}
 	// Yボタンでゲームに戻る
