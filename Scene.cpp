@@ -196,21 +196,21 @@ void Scene::Initialize() {
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 2000.0f;
-		maxChargeTime = 1000;
-		propellerEndTime = 500;
-		goalDistance = 9000.0f;
-		break;
-
-	case NORMAL:
 		checkPoint.distance = 2500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
 		goalDistance = 9000.0f;
 		break;
 
-	case HARD:
+	case NORMAL:
 		checkPoint.distance = 3000.0f;
+		maxChargeTime = 1000;
+		propellerEndTime = 500;
+		goalDistance = 9000.0f;
+		break;
+
+	case HARD:
+		checkPoint.distance = 3500.0f;
 		maxChargeTime = 900;
 		propellerEndTime = 450;
 		goalDistance = 9000.0f;
@@ -1133,6 +1133,7 @@ void Scene::MainGameDraw() {
 
 void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	
 	if (isClear) {
 		Novice::ScreenPrintf(300, 0, "kuria");
 	} else {

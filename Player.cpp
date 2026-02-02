@@ -426,7 +426,7 @@ void Player::Update_play() {
 	}
 
 	// 画像指定変数に代入
-	GHindex = (int)(animCount / 40);
+	GHindex = (int)(animCount / 40) % 6;
 }
 
 void Player::Draw(float finalY) {
