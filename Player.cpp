@@ -50,6 +50,16 @@ Player::Player() {
 
 	playerScreenY=0.0f;
 
+	// 残量割合を保管
+	rightPropellerPercentage=0.0f;
+	leftPropellerPercentage = 0.0f;
+	boostGaugePercentage = 0.0f;
+
+	// 描画時のYスケールを保存する変数
+	rightPropGaugeScaleY = 0.0f;
+	leftPropGaugeScaleY = 0.0f;
+	boostGaugeScaleY = 0.0f;
+
 	// ----------------  本番では使わず、コードができているか確認するために使う変数  --------------------
 
 	
@@ -79,6 +89,14 @@ Player::Player() {
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
 
 	// 画像読み込み
+	// ゲージ関連グラフハンドル
+	rightPropBarGH = Novice::LoadTexture("./Resources/images/propBar_R.png");
+	leftPropBarGH = Novice::LoadTexture("./Resources/images/propBar_L.png");
+	propGaugeGH = Novice::LoadTexture("./Resources/images/propGauge.png");
+
+	boostBarGH = Novice::LoadTexture("./Resources/images/boostBar.png");
+	boostGaugeGH = Novice::LoadTexture("./Resources/images/boostGauge.png");
+
 	// プロペラが両方残ってる時
 	normalGH[0] = Novice::LoadTexture("./Resources/images/player1.png");
 	normalGH[1] = Novice::LoadTexture("./Resources/images/player2.png");
@@ -157,7 +175,9 @@ void Player::Update_charge_propeller() {
 
 			// 4. 1周判定
 			if (totalLeftRotation >= 1.2f) {
-				leftPropellerPower += 1.0f;
+				if (leftPropellerPower < MAX_LEFT_POWER) {
+					leftPropellerPower += 1.0f;
+				}
 				totalLeftRotation -= 1.2f;
 			}
 
@@ -169,6 +189,12 @@ void Player::Update_charge_propeller() {
 			oldLeftAngle = currentLeftAngle;
 		}
 	}
+
+	// 左プロペラパワーの残量割合を計算
+	leftPropellerPercentage = leftPropellerPower / MAX_RIGHT_POWER;
+
+	// ゲージ描画時のYスケールを計算
+	leftPropGaugeScaleY = leftPropellerPercentage;
 
 #pragma endregion
 
@@ -208,7 +234,9 @@ void Player::Update_charge_propeller() {
 
 			// 4. 1周判定
 			if (totalRightRotation >= 1.0f) {
-				rightPropellerPower += 1.0f;
+				if (rightPropellerPower < MAX_RIGHT_POWER) {
+					rightPropellerPower += 1.0f;
+				}
 				totalRightRotation -= 1.0f;
 			}
 
@@ -221,6 +249,12 @@ void Player::Update_charge_propeller() {
 		}
 	}
 
+	// 右プロペラパワーの残量割合を計算
+	rightPropellerPercentage = rightPropellerPower / MAX_LEFT_POWER;
+
+	// ゲージ描画時のYスケールを計算
+	rightPropGaugeScaleY = rightPropellerPercentage;
+
 #pragma endregion
 }
 
@@ -228,13 +262,23 @@ void Player::Update_charge_boost() {
 	// ブーストチャージ
 		// L2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
-		boostGauge += 0.4f;
+		if (boostGauge < MAX_BOOST_GAUGE) {
+			boostGauge += 0.4f;
+		}
 	}
 
 	// R2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton11)) {
-		boostGauge += 0.4f;
+		if (boostGauge < MAX_BOOST_GAUGE) {
+			boostGauge += 0.4f;
+		}
 	}
+
+	// ブーストゲージの残量割合を計算
+	boostGaugePercentage = boostGauge / MAX_BOOST_GAUGE;
+
+	// ゲージ描画時のYスケールを計算
+	boostGaugeScaleY = boostGaugePercentage;
 }
 
 void Player::Update_play() {
@@ -427,6 +471,16 @@ void Player::Update_play() {
 
 	// 画像指定変数に代入
 	GHindex = (int)(animCount / 40);
+
+	// 各パワーの残量割合を計算
+	rightPropellerPercentage = rightPropellerPower / MAX_RIGHT_POWER;
+	leftPropellerPercentage = leftPropellerPower / MAX_LEFT_POWER;
+	boostGaugePercentage = boostGauge / MAX_BOOST_GAUGE;
+
+	// ゲージ描画時のYスケールを計算
+	rightPropGaugeScaleY = rightPropellerPercentage;
+	leftPropGaugeScaleY = leftPropellerPercentage;
+	boostGaugeScaleY = boostGaugePercentage;
 }
 
 void Player::Draw(float finalY) {
@@ -505,35 +559,15 @@ void Player::Draw(float finalY) {
 		);
 	}
 	
+	// ゲージの外枠
+	Novice::DrawSprite(60, 340, leftPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
+	Novice::DrawSprite(140, 340, rightPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
+	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
-	Novice::ScreenPrintf(0, 180, "pos = %0.2f, %0.3f", position.x, position.y);
-
-	Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
-
-	Novice::ScreenPrintf(0, 60, "L propeller power %0.3f", leftPropellerPower);
-	Novice::ScreenPrintf(0, 80, "R propeller power %0.3f", rightPropellerPower);
-
-	Novice::ScreenPrintf(0, 120, "boost Gauge = %0.3f", boostGauge);
-	Novice::ScreenPrintf(0, 140, "boost Power = %0.3f", boostPower);
-
-	Novice::ScreenPrintf(0, 210, "velocity %0.3f", velocity.x);
-
-	Novice::ScreenPrintf(0, 240, "playerScreenY %0.3f", playerScreenY);
-
-	/*Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
-	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);
-
-	Novice::ScreenPrintf(0, 60, "currentRightStickPos.x = %d", currentRightStickPos.x);
-	Novice::ScreenPrintf(0, 80, "currentRightStickPos.y = %d", currentRightStickPos.y);
-
-	Novice::ScreenPrintf(0, 120, "currentLeftAngle = %f", currentLeftAngle);
-	Novice::ScreenPrintf(0, 140, "currentRightAngle = %f", currentRightAngle);
-
-	Novice::ScreenPrintf(0, 180, "totalLeftRotation = %f", totalLeftRotation);
-	Novice::ScreenPrintf(0, 200, "totalRightRotation = %f", totalRightRotation);
-
-	Novice::ScreenPrintf(0, 240, "leftPropellerPower = %f", leftPropellerPower);
-	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);*/
+	// ゲージ内部
+	Novice::DrawBox(65, 676, 51, (int)-(305.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(145, 676, 51, (int)-(305.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(1165, 676, 51, (int)-(305.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
 }
 
 // 着地リセット
