@@ -91,7 +91,7 @@ public:
 
 	// アニメーション用変数
 	int animCount;
-	const int kMaxAnimCount = 240;
+	const int kMaxAnimCount = 239;
 	int GHindex;
 
 	// 自機の傾き
