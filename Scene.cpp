@@ -894,6 +894,13 @@ void Scene::ChargeUpdate() {
 
 
 void Scene::RiseUpdate() {
+
+	animCount++;
+	if (animCount >= 60) {
+		animCount = 0;
+	}
+	GHindex = (int)(animCount / 30);
+
 	if (isCurtainActive) {
 		curtainT += 1.0f / 60.0f; // 約1秒で完了
 		if (curtainT > 1.0f) {
@@ -1395,7 +1402,7 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(550, 140, " goalDistance %f", goalDistance);
 
 	//チェックポイント
-	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[0],1.0f,1.0f,0.0f,0xFFFFFFFF);
+	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex],1.0f,1.0f,0.0f,0xFFFFFFFF);
 	//Novice::DrawLine(0, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,1280, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,0xFF0000FF);
 
 	//ビットマップフォント
