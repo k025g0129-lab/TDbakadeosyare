@@ -249,6 +249,8 @@ private:
 	int dotGH;
 	int mGH;
 
+	
+
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;

@@ -851,7 +851,6 @@ void Scene::RiseUpdate() {
 	if (progressY >= goalDistance) {
 		isClear = true;       // クリア
 		gameScene = RESULT;   // リザルト画面へ
-		return;
 	}
 
 	// 画面外判定
@@ -1127,6 +1126,9 @@ void Scene::MainGameDraw() {
 	case RISE:
 		RiseDraw();
 
+		for (int i = 0; i < maxBird; i++) {
+			bird[i]->BirdDraw();
+		}
 		player->Draw(player->playerScreenY);
 		break;
 
@@ -1137,10 +1139,10 @@ void Scene::ResultDraw() {
 	
 	MainGameDraw();
 
-	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000033, kFillModeSolid);
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000066, kFillModeSolid);
 
 	if (isClear) {
-		Novice::DrawSprite(0, 0, cloudBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(0, 0, clearGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	} else {
 		Novice::DrawSprite(0, 0, failedGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
@@ -1218,6 +1220,8 @@ void Scene::RiseDraw() {
 
 	}
 
+	
+
 	// 目標距離
 	Novice::ScreenPrintf(300, 160, "CURRENT: %f / GOAL: %f", progressY, goalDistance);
 
@@ -1231,15 +1235,16 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
 	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+	Novice::ScreenPrintf(550, 140, " goalDistance %f", goalDistance);
 
-	Novice::ScreenPrintf(550, 140, " %f", ((checkPoint.triggerProgressY - preCheckPointPosY) * (float(0 + 1) / float(birdOccurrences + 1))) + preCheckPointPosY);
+	//チェックポイント
+	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[0],1.0f,1.0f,0.0f,0xFFFFFFFF);
+	//Novice::DrawLine(0, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,1280, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,0xFF0000FF);
 
-
-	
+	//ビットマップフォント
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
-
 
 	Novice::DrawSprite(255 , 20, dotGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	Novice::DrawSprite(270 + 20, 20, suuziGH[keta[5]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
