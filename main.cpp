@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "Player.h"
 
-const char kWindowTitle[] = "1330_タイトル";
+const char kWindowTitle[] = "1330_PROP";
 
 
 // Windowsアプリでのエントリーポイント(main関数)
