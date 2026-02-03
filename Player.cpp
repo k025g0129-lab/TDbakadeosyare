@@ -48,10 +48,10 @@ Player::Player() {
 	powerDiff = 0.0f; // 左右差
 	angleFacter = 0.00007f; // 傾きの係数
 
-	playerScreenY=0.0f;
+	playerScreenY = 0.0f;
 
 	// 残量割合を保管
-	rightPropellerPercentage=0.0f;
+	rightPropellerPercentage = 0.0f;
 	leftPropellerPercentage = 0.0f;
 	boostGaugePercentage = 0.0f;
 
@@ -62,7 +62,7 @@ Player::Player() {
 
 	// ----------------  本番では使わず、コードができているか確認するために使う変数  --------------------
 
-	
+
 
 	// ------------------------------------------------------------------------------------------
 	angle = 0.0f;
@@ -187,7 +187,8 @@ void Player::Update_charge_propeller() {
 
 			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
 			oldLeftAngle = currentLeftAngle;
-		} else {
+		}
+		else {
 			// スティックを離した時は、次に倒した時に「変なジャンプ」が起きないよう
 			// 今の角度を old に逃がしておく処理を入れるとより安全です
 			oldLeftAngle = currentLeftAngle;
@@ -265,7 +266,8 @@ void Player::Update_charge_propeller() {
 
 			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
 			oldRightAngle = currentRightAngle;
-		} else {
+		}
+		else {
 			// スティックを離した時は、次に倒した時に「変なジャンプ」が起きないよう
 			// 今の角度を old に逃がしておく処理を入れるとより安全です
 			oldRightAngle = currentRightAngle;
@@ -300,7 +302,7 @@ void Player::Update_charge_propeller() {
 }
 
 void Player::Update_charge_boost() {
-	
+
 
 	// ブーストチャージ
 	// L2押されたとき
@@ -373,7 +375,8 @@ void Player::Update_play() {
 	// * else *  左右どちらかのプロペラが死んだとき、上昇量を徐々に減らし、上限値の半分に固定
 	if ((rightPropellerPower <= 0.0f) && (leftPropellerPower <= 0.0f)) {
 		upValue -= 0.5f;
-	} else if ((rightPropellerPower <= 0.0f) || (leftPropellerPower <= 0.0f)) {
+	}
+	else if ((rightPropellerPower <= 0.0f) || (leftPropellerPower <= 0.0f)) {
 		if (upValue > MAX_UP_VALUE / 2.0f) {
 			upValue -= 0.188f;
 
@@ -382,7 +385,7 @@ void Player::Update_play() {
 			}
 		}
 	}
-	
+
 	// ------------------------------------------------------------------------------------
 
 	// 傾く量の管理 --------------------------------------------------------------------------
@@ -404,38 +407,39 @@ void Player::Update_play() {
 	// *  if  * R2 L2同時押しでブーストゲージを消費しboostPowerを設定
 	// * else * boostPowerを1に固定
 	if (boostGauge > 0.0f) {
-		if(leftPropellerPower > 0.0f || rightPropellerPower > 0.0f)
-		if ((Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) || keys[DIK_SPACE]) {
-			boostGauge -= 0.12f;
+		if (leftPropellerPower > 0.0f || rightPropellerPower > 0.0f)
+			if ((Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) || keys[DIK_SPACE]) {
+				boostGauge -= 0.12f;
 
-			// 現在の燃料の割合 (1.0 ～ 0.0)
-			float fuelRatio = 0.0f;
-			if (maxPropellerPower > 0.0f) {
-				fuelRatio = (leftPropellerPower + rightPropellerPower) / maxPropellerPower;
+				// 現在の燃料の割合 (1.0 ～ 0.0)
+				float fuelRatio = 0.0f;
+				if (maxPropellerPower > 0.0f) {
+					fuelRatio = (leftPropellerPower + rightPropellerPower) / maxPropellerPower;
+				}
+
+				// 1. パワーの計算：fuelRatioを「掛ける」のではなく「少し足す」イメージにする
+				// // 残量が多いほど強いのは維持しつつ、最低限のパワー（1.5倍など）を保証する
+				float baseBoost = 1.5f;
+				boostPower = baseBoost + (2.0f * fuelRatio);
+
+				// 2. コストの計算：もう少しマイルドにする（今のままだと減りが早すぎるかも）
+				float penaltyCost = 0.04f * fuelRatio;
+
+				leftPropellerPower -= (0.02f + penaltyCost);
+				rightPropellerPower -= (0.02f + penaltyCost);
+
+				Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
+				Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
+
+
+				if (boostGauge <= 0.0f) {
+					boostGauge = 0.0f;
+				}
+
 			}
-
-			// 1. パワーの計算：fuelRatioを「掛ける」のではなく「少し足す」イメージにする
-			// // 残量が多いほど強いのは維持しつつ、最低限のパワー（1.5倍など）を保証する
-			float baseBoost = 1.5f;
-			boostPower = baseBoost + (2.0f * fuelRatio);
-
-			// 2. コストの計算：もう少しマイルドにする（今のままだと減りが早すぎるかも）
-			float penaltyCost = 0.04f * fuelRatio;
-
-			leftPropellerPower -= (0.02f + penaltyCost);
-			rightPropellerPower -= (0.02f + penaltyCost);
-
-			Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
-			Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
-
-			
-			if (boostGauge <= 0.0f) {
-				boostGauge = 0.0f;
+			else {
+				boostPower = 1.0f;
 			}
-
-		} else {
-			boostPower = 1.0f;
-		}
 	}
 
 	if (boostGauge <= 0.0f) {
@@ -448,7 +452,8 @@ void Player::Update_play() {
 	if (boostPower >= 1.0f) {
 		speed.x = sinf(angle) * upValue * (boostPower / 2.0f);
 		speed.y = -cosf(angle) * upValue * boostPower;
-	} else if (boostPower < 1.0f){
+	}
+	else if (boostPower < 1.0f) {
 		speed.x = sinf(angle) * upValue + (4.0f * boostPower);
 		speed.y = -cosf(angle) * upValue + (4.0f * boostPower);
 	}
@@ -466,14 +471,16 @@ void Player::Update_play() {
 	// 右移動
 	if (currentLeftStickPos.x > 100) {
 		velocity.x += 0.002f;
-	} else if (keys[DIK_D] || keys[DIK_RIGHT]) {
+	}
+	else if (keys[DIK_D] || keys[DIK_RIGHT]) {
 		velocity.x += 0.002f;
 	}
 
 	// 左
 	if (currentLeftStickPos.x < -100) {
 		velocity.x -= 0.002f;
-	} else if (keys[DIK_A] || keys[DIK_LEFT]) {
+	}
+	else if (keys[DIK_A] || keys[DIK_LEFT]) {
 		velocity.x -= 0.002f;
 	}
 
@@ -523,7 +530,8 @@ void Player::Update_play() {
 	// アニメカウントの計算
 	if (animCount < kMaxAnimCount) {
 		animCount++;
-	} else {
+	}
+	else {
 		animCount = 0;
 	}
 
@@ -546,6 +554,7 @@ void Player::Draw(float finalY) {
 	// 画面上の理想の位置(finalY) と 物理的な座標(position.y) の差を出す
 	float offsetY = finalY - position.y;
 
+
 	// 自機描画
 	if ((leftPropellerPower > 0.0f) && (rightPropellerPower > 0.0f)) {  // どっちも残ってるとき
 		Novice::DrawQuad(
@@ -561,7 +570,8 @@ void Player::Draw(float finalY) {
 			normalGH[GHindex], 0xFFFFFFFF
 		);
 
-	} else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower > 0.0f)) {  // 右のみ
+	}
+	else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower > 0.0f)) {  // 右のみ
 		Novice::DrawQuad(
 			(int)(planeWorldFourCornersPos[0].x),
 			(int)(planeWorldFourCornersPos[0].y + offsetY),
@@ -575,7 +585,8 @@ void Player::Draw(float finalY) {
 			rightOnlyGH[GHindex], 0xFFFFFFFF
 		);
 
-	} else if ((leftPropellerPower > 0.0f) && (rightPropellerPower <= 0.0f)) {  // 左のみ
+	}
+	else if ((leftPropellerPower > 0.0f) && (rightPropellerPower <= 0.0f)) {  // 左のみ
 		Novice::DrawQuad(
 			(int)(planeWorldFourCornersPos[0].x),
 			(int)(planeWorldFourCornersPos[0].y + offsetY),
@@ -589,7 +600,8 @@ void Player::Draw(float finalY) {
 			leftOnlyGH[GHindex], 0xFFFFFFFF
 		);
 
-	} else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower <= 0.0f)) {  // どっちもない
+	}
+	else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower <= 0.0f)) {  // どっちもない
 		Novice::DrawQuad(
 			(int)(planeWorldFourCornersPos[0].x),
 			(int)(planeWorldFourCornersPos[0].y + offsetY),
@@ -603,12 +615,16 @@ void Player::Draw(float finalY) {
 			stopGH[GHindex], 0xFFFFFFFF
 		);
 	}
-	
+
 	// ゲージの外枠
 	Novice::DrawSprite(60, 340, leftPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 	Novice::DrawSprite(140, 340, rightPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
+	// ゲージ内部
+	Novice::DrawBox(65, 676, 51, (int)-(268.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(145, 676, 51, (int)-(268.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(1165, 676, 51, (int)-(268.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
 }
 
 // 着地リセット
