@@ -139,6 +139,8 @@ Player::Player() {
 Player::~Player() {};
 
 void Player::Update_charge_propeller() {
+
+
 	// プロペラチャージ
 #pragma region Left
 		// 更新する前の座標を保存
@@ -179,10 +181,6 @@ void Player::Update_charge_propeller() {
 					leftPropellerPower += 1.0f;
 				}
 
-				if (leftPropellerPower >= MAX_LEFT_POWER) {
-					leftPropellerPower = MAX_LEFT_POWER;
-				}
-
 				totalLeftRotation -= 1.2f;
 			}
 
@@ -193,6 +191,24 @@ void Player::Update_charge_propeller() {
 			// 今の角度を old に逃がしておく処理を入れるとより安全です
 			oldLeftAngle = currentLeftAngle;
 		}
+	}
+
+	// キーボード操作バージョン
+	if (keys[DIK_A] && !preKeys[DIK_A]) {
+		if (leftPropellerPower < MAX_LEFT_POWER) {
+			leftPropellerPower += 0.5f;
+		}
+	}
+
+	if (keys[DIK_D] && !preKeys[DIK_D]) {
+		if (leftPropellerPower < MAX_LEFT_POWER) {
+			leftPropellerPower += 0.5f;
+		}
+	}
+
+	// 上限値を超えるとき上限値で固定
+	if (leftPropellerPower >= MAX_LEFT_POWER) {
+		leftPropellerPower = MAX_LEFT_POWER;
 	}
 
 	// 左プロペラパワーの残量割合を計算
@@ -243,10 +259,6 @@ void Player::Update_charge_propeller() {
 					rightPropellerPower += 1.0f;
 				}
 
-				if (rightPropellerPower >= MAX_RIGHT_POWER) {
-					rightPropellerPower = MAX_RIGHT_POWER;
-				}
-
 				totalRightRotation -= 1.0f;
 			}
 
@@ -259,6 +271,24 @@ void Player::Update_charge_propeller() {
 		}
 	}
 
+	// キーボード操作バージョン
+	if (keys[DIK_LEFT] && !preKeys[DIK_LEFT]) {
+		if (rightPropellerPower < MAX_RIGHT_POWER) {
+			rightPropellerPower += 0.5f;
+		}
+	}
+
+	if (keys[DIK_RIGHT] && !preKeys[DIK_RIGHT]) {
+		if (rightPropellerPower < MAX_RIGHT_POWER) {
+			rightPropellerPower += 0.5f;
+		}
+	}
+
+	// 上限値を超えるとき上限値で固定
+	if (rightPropellerPower >= MAX_RIGHT_POWER) {
+		rightPropellerPower = MAX_RIGHT_POWER;
+	}
+
 	// 右プロペラパワーの残量割合を計算
 	rightPropellerPercentage = rightPropellerPower / MAX_LEFT_POWER;
 
@@ -269,8 +299,10 @@ void Player::Update_charge_propeller() {
 }
 
 void Player::Update_charge_boost() {
+	
+
 	// ブーストチャージ
-		// L2押されたとき
+	// L2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
 		if (boostGauge < MAX_BOOST_GAUGE) {
 			boostGauge += 0.4f;
@@ -284,6 +316,12 @@ void Player::Update_charge_boost() {
 		}
 	}
 
+	// キーボード操作バージョン
+	if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+		boostGauge += 0.6f;
+	}
+
+	// 上限値を超えるとき上限値で固定
 	if (boostGauge >= MAX_BOOST_GAUGE) {
 		boostGauge = MAX_BOOST_GAUGE;
 	}
@@ -296,6 +334,7 @@ void Player::Update_charge_boost() {
 }
 
 void Player::Update_play() {
+
 	// プレイ中
 
 	// 毎フレーム左右のプロペラパワーを減少
@@ -365,7 +404,7 @@ void Player::Update_play() {
 	// * else * boostPowerを1に固定
 	if (boostGauge > 0.0f) {
 		if(leftPropellerPower > 0.0f || rightPropellerPower > 0.0f)
-		if (Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) {
+		if ((Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) || keys[DIK_SPACE]) {
 			boostGauge -= 0.12f;
 
 			// 現在の燃料の割合 (1.0 ～ 0.0)
@@ -419,17 +458,21 @@ void Player::Update_play() {
 	// 毎フレーム左右の差によって傾きを追加
 	angle += powerDiff * angleFacter;
 
-#pragma region スティックによる移動
+#pragma region 手動移動
 	// 左スティックの座標を取得
 	Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
 	// 右移動
 	if (currentLeftStickPos.x > 100) {
 		velocity.x += 0.002f;
+	} else if (keys[DIK_D] || keys[DIK_RIGHT]) {
+		velocity.x += 0.002f;
 	}
 
 	// 左
 	if (currentLeftStickPos.x < -100) {
+		velocity.x -= 0.002f;
+	} else if (keys[DIK_A] || keys[DIK_LEFT]) {
 		velocity.x -= 0.002f;
 	}
 
@@ -437,7 +480,7 @@ void Player::Update_play() {
 	position.x += 2.0f * velocity.x;
 
 	// 動いていないとき、velocityが0になるまで徐々に減らす
-	if (currentLeftStickPos.x <= 100 && currentLeftStickPos.x >= -100) {
+	if ((currentLeftStickPos.x <= 100 && currentLeftStickPos.x >= -100) && (!keys[DIK_A] && !keys[DIK_LEFT] && !keys[DIK_D] && !keys[DIK_RIGHT])) {
 		if (velocity.x != 0.0f) {
 
 			// 0超過のとき
@@ -579,9 +622,9 @@ void Player::Draw(float finalY) {
 	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
 	// ゲージ内部
-	Novice::DrawBox(65, 676, 51, (int)-(270.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(145, 676, 51, (int)-(270.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(1165, 676, 51, (int)-(270.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
+	Novice::DrawBox(65, 676, 51, (int)-(268.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(145, 676, 51, (int)-(268.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(1165, 676, 51, (int)-(268.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
 }
 
 // 着地リセット
