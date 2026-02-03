@@ -83,11 +83,6 @@ void Scene::Initialize() {
 	playerStartY = player->position.y;
 	gameStartPlayerY = player->position.y;
 
-	// 難易度設定
-	difficulty = NORMAL;
-	ApplyDifficulty();
-	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
-
 	Vector2 a = { 0.0f,0.0f };
 	for (int i = 0; i < maxBird; i++) {
 		bird[i] = new Object(a);
@@ -596,9 +591,7 @@ void Scene::PhaseUpdate() {
 		RiseUpdate();
 
 		break;
-
 	}
-
 }
 
 void Scene::ChargeUpdate() {
@@ -629,6 +622,7 @@ void Scene::ChargeUpdate() {
 			chargeTextPos.y = TEXT_START_Y;
 		}
 	}
+
 	return;
 
 	// プロペラチャージ
@@ -709,6 +703,7 @@ void Scene::ChargeUpdate() {
 			chargeTextPos.y = TEXT_START_Y;
 		}
 	}
+
 	return;
 
 	// ブーストチャージ

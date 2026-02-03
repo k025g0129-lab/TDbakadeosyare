@@ -116,6 +116,11 @@ Player::Player() {
 
 	// 何番目の画像かを指定する変数
 	GHindex = 0;
+
+
+	// チャージ用サウンドの読み込み
+	soundHandleCharge = Novice::LoadAudio("./Resources/sound/charge.mp3");
+
 }
 
 Player::~Player() {};
@@ -159,6 +164,8 @@ void Player::Update_charge_propeller() {
 			if (totalLeftRotation >= 1.2f) {
 				leftPropellerPower += 1.0f;
 				totalLeftRotation -= 1.2f;
+
+				Novice::PlayAudio(soundHandleCharge, false, 0.4f);
 			}
 
 			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
@@ -210,6 +217,8 @@ void Player::Update_charge_propeller() {
 			if (totalRightRotation >= 1.0f) {
 				rightPropellerPower += 1.0f;
 				totalRightRotation -= 1.0f;
+
+				Novice::PlayAudio(soundHandleCharge, false, 0.4f);
 			}
 
 			// 5. 【ここに移動】倒している間だけ、前回の角度を更新する
@@ -229,11 +238,15 @@ void Player::Update_charge_boost() {
 		// L2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
 		boostGauge += 0.4f;
+
+		Novice::PlayAudio(soundHandleCharge, false, 0.5f);
 	}
 
 	// R2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton11)) {
 		boostGauge += 0.4f;
+
+		Novice::PlayAudio(soundHandleCharge, false, 0.5f);
 	}
 }
 
