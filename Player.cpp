@@ -50,6 +50,16 @@ Player::Player() {
 
 	playerScreenY=0.0f;
 
+	// 残量割合を保管
+	rightPropellerPercentage=0.0f;
+	leftPropellerPercentage = 0.0f;
+	boostGaugePercentage = 0.0f;
+
+	// 描画時のYスケールを保存する変数
+	rightPropGaugeScaleY = 0.0f;
+	leftPropGaugeScaleY = 0.0f;
+	boostGaugeScaleY = 0.0f;
+
 	// ----------------  本番では使わず、コードができているか確認するために使う変数  --------------------
 
 	
@@ -77,11 +87,60 @@ Player::Player() {
 	planeWorldFourCornersPos[3] = Vector2Add(planeLocalFourCornersPos[3], planeWorldPos);
 
 	whiteTextureHandle = Novice::LoadTexture("./NoviceResources/white1x1.png");
+
+	// 画像読み込み
+	// ゲージ関連グラフハンドル
+	rightPropBarGH = Novice::LoadTexture("./Resources/images/propBar_R.png");
+	leftPropBarGH = Novice::LoadTexture("./Resources/images/propBar_L.png");
+	propGaugeGH = Novice::LoadTexture("./Resources/images/propGauge.png");
+
+	boostBarGH = Novice::LoadTexture("./Resources/images/boostBar.png");
+	boostGaugeGH = Novice::LoadTexture("./Resources/images/boostGauge.png");
+
+	// プロペラが両方残ってる時
+	normalGH[0] = Novice::LoadTexture("./Resources/images/player1.png");
+	normalGH[1] = Novice::LoadTexture("./Resources/images/player2.png");
+	normalGH[2] = Novice::LoadTexture("./Resources/images/player3.png");
+	normalGH[3] = Novice::LoadTexture("./Resources/images/player4.png");
+	normalGH[4] = Novice::LoadTexture("./Resources/images/player5.png");
+	normalGH[5] = Novice::LoadTexture("./Resources/images/player6.png");
+
+	// 右のみ
+	rightOnlyGH[0] = Novice::LoadTexture("./Resources/images/rightOnly_player1.png");
+	rightOnlyGH[1] = Novice::LoadTexture("./Resources/images/rightOnly_player2.png");
+	rightOnlyGH[2] = Novice::LoadTexture("./Resources/images/rightOnly_player3.png");
+	rightOnlyGH[3] = Novice::LoadTexture("./Resources/images/rightOnly_player4.png");
+	rightOnlyGH[4] = Novice::LoadTexture("./Resources/images/rightOnly_player5.png");
+	rightOnlyGH[5] = Novice::LoadTexture("./Resources/images/rightOnly_player6.png");
+
+	// 左のみ
+	leftOnlyGH[0] = Novice::LoadTexture("./Resources/images/leftOnly_player1.png");
+	leftOnlyGH[1] = Novice::LoadTexture("./Resources/images/leftOnly_player2.png");
+	leftOnlyGH[2] = Novice::LoadTexture("./Resources/images/leftOnly_player3.png");
+	leftOnlyGH[3] = Novice::LoadTexture("./Resources/images/leftOnly_player4.png");
+	leftOnlyGH[4] = Novice::LoadTexture("./Resources/images/leftOnly_player5.png");
+	leftOnlyGH[5] = Novice::LoadTexture("./Resources/images/leftOnly_player6.png");
+
+	// 両方終わったとき
+	stopGH[0] = Novice::LoadTexture("./Resources/images/stopProp_player1.png");
+	stopGH[1] = Novice::LoadTexture("./Resources/images/stopProp_player2.png");
+	stopGH[2] = Novice::LoadTexture("./Resources/images/stopProp_player3.png");
+	stopGH[3] = Novice::LoadTexture("./Resources/images/stopProp_player4.png");
+	stopGH[4] = Novice::LoadTexture("./Resources/images/stopProp_player5.png");
+	stopGH[5] = Novice::LoadTexture("./Resources/images/stopProp_player6.png");
+
+	// アニメカウント
+	animCount = 0;
+
+	// 何番目の画像かを指定する変数
+	GHindex = 0;
 }
 
 Player::~Player() {};
 
 void Player::Update_charge_propeller() {
+
+
 	// プロペラチャージ
 #pragma region Left
 		// 更新する前の座標を保存
@@ -118,7 +177,10 @@ void Player::Update_charge_propeller() {
 
 			// 4. 1周判定
 			if (totalLeftRotation >= 1.2f) {
-				leftPropellerPower += 1.0f;
+				if (leftPropellerPower < MAX_LEFT_POWER) {
+					leftPropellerPower += 1.0f;
+				}
+
 				totalLeftRotation -= 1.2f;
 			}
 
@@ -130,6 +192,30 @@ void Player::Update_charge_propeller() {
 			oldLeftAngle = currentLeftAngle;
 		}
 	}
+
+	// キーボード操作バージョン
+	if (keys[DIK_A] && !preKeys[DIK_A]) {
+		if (leftPropellerPower < MAX_LEFT_POWER) {
+			leftPropellerPower += 0.5f;
+		}
+	}
+
+	if (keys[DIK_D] && !preKeys[DIK_D]) {
+		if (leftPropellerPower < MAX_LEFT_POWER) {
+			leftPropellerPower += 0.5f;
+		}
+	}
+
+	// 上限値を超えるとき上限値で固定
+	if (leftPropellerPower >= MAX_LEFT_POWER) {
+		leftPropellerPower = MAX_LEFT_POWER;
+	}
+
+	// 左プロペラパワーの残量割合を計算
+	leftPropellerPercentage = leftPropellerPower / MAX_RIGHT_POWER;
+
+	// ゲージ描画時のYスケールを計算
+	leftPropGaugeScaleY = leftPropellerPercentage;
 
 #pragma endregion
 
@@ -169,7 +255,10 @@ void Player::Update_charge_propeller() {
 
 			// 4. 1周判定
 			if (totalRightRotation >= 1.0f) {
-				rightPropellerPower += 1.0f;
+				if (rightPropellerPower < MAX_RIGHT_POWER) {
+					rightPropellerPower += 1.0f;
+				}
+
 				totalRightRotation -= 1.0f;
 			}
 
@@ -182,23 +271,70 @@ void Player::Update_charge_propeller() {
 		}
 	}
 
+	// キーボード操作バージョン
+	if (keys[DIK_LEFT] && !preKeys[DIK_LEFT]) {
+		if (rightPropellerPower < MAX_RIGHT_POWER) {
+			rightPropellerPower += 0.5f;
+		}
+	}
+
+	if (keys[DIK_RIGHT] && !preKeys[DIK_RIGHT]) {
+		if (rightPropellerPower < MAX_RIGHT_POWER) {
+			rightPropellerPower += 0.5f;
+		}
+	}
+
+	// 上限値を超えるとき上限値で固定
+	if (rightPropellerPower >= MAX_RIGHT_POWER) {
+		rightPropellerPower = MAX_RIGHT_POWER;
+	}
+
+	// 右プロペラパワーの残量割合を計算
+	rightPropellerPercentage = rightPropellerPower / MAX_LEFT_POWER;
+
+	// ゲージ描画時のYスケールを計算
+	rightPropGaugeScaleY = rightPropellerPercentage;
+
 #pragma endregion
 }
 
 void Player::Update_charge_boost() {
+	
+
 	// ブーストチャージ
-		// L2押されたとき
+	// L2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton10)) {
-		boostGauge += 0.4f;
+		if (boostGauge < MAX_BOOST_GAUGE) {
+			boostGauge += 0.4f;
+		}
 	}
 
 	// R2押されたとき
 	if (Novice::IsTriggerButton(0, PadButton::kPadButton11)) {
-		boostGauge += 0.4f;
+		if (boostGauge < MAX_BOOST_GAUGE) {
+			boostGauge += 0.4f;
+		}
 	}
+
+	// キーボード操作バージョン
+	if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+		boostGauge += 0.6f;
+	}
+
+	// 上限値を超えるとき上限値で固定
+	if (boostGauge >= MAX_BOOST_GAUGE) {
+		boostGauge = MAX_BOOST_GAUGE;
+	}
+
+	// ブーストゲージの残量割合を計算
+	boostGaugePercentage = boostGauge / MAX_BOOST_GAUGE;
+
+	// ゲージ描画時のYスケールを計算
+	boostGaugeScaleY = boostGaugePercentage;
 }
 
 void Player::Update_play() {
+
 	// プレイ中
 
 	// 毎フレーム左右のプロペラパワーを減少
@@ -268,7 +404,7 @@ void Player::Update_play() {
 	// * else * boostPowerを1に固定
 	if (boostGauge > 0.0f) {
 		if(leftPropellerPower > 0.0f || rightPropellerPower > 0.0f)
-		if (Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) {
+		if ((Novice::IsPressButton(0, PadButton::kPadButton10) && Novice::IsPressButton(0, PadButton::kPadButton11)) || keys[DIK_SPACE]) {
 			boostGauge -= 0.12f;
 
 			// 現在の燃料の割合 (1.0 ～ 0.0)
@@ -322,17 +458,21 @@ void Player::Update_play() {
 	// 毎フレーム左右の差によって傾きを追加
 	angle += powerDiff * angleFacter;
 
-#pragma region スティックによる移動
+#pragma region 手動移動
 	// 左スティックの座標を取得
 	Novice::GetAnalogInputLeft(0, &currentLeftStickPos.x, &currentLeftStickPos.y);
 
 	// 右移動
 	if (currentLeftStickPos.x > 100) {
 		velocity.x += 0.002f;
+	} else if (keys[DIK_D] || keys[DIK_RIGHT]) {
+		velocity.x += 0.002f;
 	}
 
 	// 左
 	if (currentLeftStickPos.x < -100) {
+		velocity.x -= 0.002f;
+	} else if (keys[DIK_A] || keys[DIK_LEFT]) {
 		velocity.x -= 0.002f;
 	}
 
@@ -340,7 +480,7 @@ void Player::Update_play() {
 	position.x += 2.0f * velocity.x;
 
 	// 動いていないとき、velocityが0になるまで徐々に減らす
-	if (currentLeftStickPos.x <= 100 && currentLeftStickPos.x >= -100) {
+	if ((currentLeftStickPos.x <= 100 && currentLeftStickPos.x >= -100) && (!keys[DIK_A] && !keys[DIK_LEFT] && !keys[DIK_D] && !keys[DIK_RIGHT])) {
 		if (velocity.x != 0.0f) {
 
 			// 0超過のとき
@@ -378,6 +518,26 @@ void Player::Update_play() {
 		// 回転した頂点に「共通の position」を足してワールド座標にする
 		planeWorldFourCornersPos[i] = Vector2Add(rotatedCorners[i], position);
 	}
+
+	// アニメカウントの計算
+	if (animCount < kMaxAnimCount) {
+		animCount++;
+	} else {
+		animCount = 0;
+	}
+
+	// 画像指定変数に代入
+	GHindex = (int)(animCount / 40);
+
+	// 各パワーの残量割合を計算
+	rightPropellerPercentage = rightPropellerPower / MAX_RIGHT_POWER;
+	leftPropellerPercentage = leftPropellerPower / MAX_LEFT_POWER;
+	boostGaugePercentage = boostGauge / MAX_BOOST_GAUGE;
+
+	// ゲージ描画時のYスケールを計算
+	rightPropGaugeScaleY = rightPropellerPercentage;
+	leftPropGaugeScaleY = leftPropellerPercentage;
+	boostGaugeScaleY = boostGaugePercentage;
 }
 
 void Player::Draw(float finalY) {
@@ -398,34 +558,73 @@ void Player::Draw(float finalY) {
 		whiteTextureHandle, 0xFFFFFFFF
 	);
 
-	Novice::ScreenPrintf(0, 180, "pos = %0.2f, %0.3f", position.x, position.y);
+	// 自機描画
+	if ((leftPropellerPower > 0.0f) && (rightPropellerPower > 0.0f)) {  // どっちも残ってるとき
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			normalGH[GHindex], 0xFFFFFFFF
+		);
 
-	Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
+	} else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower > 0.0f)) {  // 右のみ
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			rightOnlyGH[GHindex], 0xFFFFFFFF
+		);
 
-	Novice::ScreenPrintf(0, 60, "L propeller power %0.3f", leftPropellerPower);
-	Novice::ScreenPrintf(0, 80, "R propeller power %0.3f", rightPropellerPower);
+	} else if ((leftPropellerPower > 0.0f) && (rightPropellerPower <= 0.0f)) {  // 左のみ
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			leftOnlyGH[GHindex], 0xFFFFFFFF
+		);
 
-	Novice::ScreenPrintf(0, 120, "boost Gauge = %0.3f", boostGauge);
-	Novice::ScreenPrintf(0, 140, "boost Power = %0.3f", boostPower);
+	} else if ((leftPropellerPower <= 0.0f) && (rightPropellerPower <= 0.0f)) {  // どっちもない
+		Novice::DrawQuad(
+			(int)(planeWorldFourCornersPos[0].x),
+			(int)(planeWorldFourCornersPos[0].y + offsetY),
+			(int)(planeWorldFourCornersPos[1].x),
+			(int)(planeWorldFourCornersPos[1].y + offsetY),
+			(int)(planeWorldFourCornersPos[2].x),
+			(int)(planeWorldFourCornersPos[2].y + offsetY),
+			(int)(planeWorldFourCornersPos[3].x),
+			(int)(planeWorldFourCornersPos[3].y + offsetY),
+			0, 0, (int)width, (int)height,
+			stopGH[GHindex], 0xFFFFFFFF
+		);
+	}
+	
+	// ゲージの外枠
+	Novice::DrawSprite(60, 340, leftPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
+	Novice::DrawSprite(140, 340, rightPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
+	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
-	Novice::ScreenPrintf(0, 210, "velocity %0.3f", velocity.x);
-
-	Novice::ScreenPrintf(0, 240, "playerScreenY %0.3f", playerScreenY);
-
-	/*Novice::ScreenPrintf(0, 0, "currentLeftStickPos.x = %d", currentLeftStickPos.x);
-	Novice::ScreenPrintf(0, 20, "currentLeftStickPos.y = %d", currentLeftStickPos.y);
-
-	Novice::ScreenPrintf(0, 60, "currentRightStickPos.x = %d", currentRightStickPos.x);
-	Novice::ScreenPrintf(0, 80, "currentRightStickPos.y = %d", currentRightStickPos.y);
-
-	Novice::ScreenPrintf(0, 120, "currentLeftAngle = %f", currentLeftAngle);
-	Novice::ScreenPrintf(0, 140, "currentRightAngle = %f", currentRightAngle);
-
-	Novice::ScreenPrintf(0, 180, "totalLeftRotation = %f", totalLeftRotation);
-	Novice::ScreenPrintf(0, 200, "totalRightRotation = %f", totalRightRotation);
-
-	Novice::ScreenPrintf(0, 240, "leftPropellerPower = %f", leftPropellerPower);
-	Novice::ScreenPrintf(0, 260, "rightPropellerPower = %f", rightPropellerPower);*/
+	// ゲージ内部
+	Novice::DrawBox(65, 676, 51, (int)-(268.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(145, 676, 51, (int)-(268.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
+	Novice::DrawBox(1165, 676, 51, (int)-(268.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
 }
 
 // 着地リセット

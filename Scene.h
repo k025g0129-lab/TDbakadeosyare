@@ -251,10 +251,27 @@ private:
 
 	
 
+	//　ポーズ
+	int pauseGuidanceGH;
+	int pauseGH[3];
+	int pauseFilterGH;
+	int pauseLogoGH;
+
+	// チャージ中背景
+	int propChargingGH[3];
+	int boostChargingGH[3];
+	int animCount;
+	int GHindex;
 
 	// 定数
 	const float TEXT_START_Y = 800.0f;
 	const float TEXT_END_Y = 360.0f;
+
+	// 上昇カーテン用
+	Vector2 curtainUpPos;
+	float curtainT = 0.0f;
+	bool isCurtainActive = false;
+	int curtainGH;
 	
 	// サウンド
 	int soundHandleSelect; // カーソル移動音
@@ -269,4 +286,8 @@ private:
 	int soundHandleClear;
 	int soundHandleGameOver;
 	int voiceHandleResult;
+
+	// キー入力結果を受け取る箱
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 };

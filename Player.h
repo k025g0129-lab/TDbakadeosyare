@@ -26,6 +26,9 @@ public:
 	float leftPropellerPower;
 	float rightPropellerPower;
 
+	const float MAX_LEFT_POWER = 100.0f;
+	const float MAX_RIGHT_POWER = 100.0f;
+
 	float maxPropellerPower;
 
 	Vector2 speed;
@@ -33,6 +36,17 @@ public:
 	float boostPower;
 	float upValue;
 	const float MAX_UP_VALUE = 4.127f; // 1f当たりに進む上昇量の最大値
+	const float MAX_BOOST_GAUGE = 80.0f;
+
+	// 残量割合を保管
+	float rightPropellerPercentage;
+	float leftPropellerPercentage;
+	float boostGaugePercentage;
+
+	// 描画時のYスケールを保存する変数
+	float rightPropGaugeScaleY;
+	float leftPropGaugeScaleY;
+	float boostGaugeScaleY;
 
 	// プレイヤー用スクロール変数
 	float playerScreenY;
@@ -56,7 +70,26 @@ public:
 
 	int whiteTextureHandle = 0;
 
-	
+	// ゲージ関連グラフハンドル
+	int rightPropBarGH;
+	int leftPropBarGH;
+	int propGaugeGH;
+
+	int boostBarGH;
+	int boostGaugeGH;
+
+
+	// 自機グラフハンドル
+	int normalGH[6];
+	int rightOnlyGH[6];
+	int leftOnlyGH[6];
+	int stopGH[6];
+
+	// アニメーション用変数
+	int animCount;
+	const int kMaxAnimCount = 240;
+	int GHindex;
+
 	// 自機の傾き
 	float angle;
 	float powerDiff;
@@ -74,5 +107,8 @@ public:
 	// 着地リセット
 	void ResetForCharge();
 
+	// キー入力結果を受け取る箱
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 };
 
