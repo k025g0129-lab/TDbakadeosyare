@@ -214,6 +214,8 @@ void Scene::Initialize() {
 	curtainUpPos = { 0.0f, 0.0f };
 	curtainT = 1.0f; // 最初はハケた状態にしておく
 	isCurtainActive = false;
+
+	isNotDetected = false;
 }
 
 void Scene::Finalize() {
@@ -665,6 +667,7 @@ void Scene::DifficultySelectUpdate() {
 		}
 	}
 
+	
 	// Xボタン、またはESCAPE、もしくはBACKSPACEでタイトルへ戻る
 	if (IsTriggerX()) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
@@ -674,18 +677,22 @@ void Scene::DifficultySelectUpdate() {
 		gameScene = TITLE;
 	}
 
-	// Aボタン、またはSPACEで決定
-	if (IsTriggerA()) {
-		difficulty = static_cast<Difficulty>(selectedDifficulty);
-		ApplyDifficulty();
-		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		gameScene = MAIN_GAME;
+	if (!isNotDetected) {
+		// Aボタン、またはSPACEで決定
+		if (IsTriggerA()) {
+			difficulty = static_cast<Difficulty>(selectedDifficulty);
+			ApplyDifficulty();
+			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+			gameScene = MAIN_GAME;
 
-	} else if (player->keys[DIK_SPACE] && !player->preKeys[DIK_SPACE]) {
-		difficulty = static_cast<Difficulty>(selectedDifficulty);
-		ApplyDifficulty();
-		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
-		gameScene = MAIN_GAME;
+		} else if (player->keys[DIK_SPACE] && !player->preKeys[DIK_SPACE]) {
+			difficulty = static_cast<Difficulty>(selectedDifficulty);
+			ApplyDifficulty();
+			Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+			gameScene = MAIN_GAME;
+		}
+	} else {
+		isNotDetected = false;
 	}
 
 }
@@ -1136,9 +1143,11 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
+			Finalize();
 			Initialize();
 			gameScene = MAIN_GAME;
 		} else if (selectedPauseMenu == 1) {
+			Finalize();
 			Initialize();
 			gameScene = DIFFICULTY_SELECT;
 		} else if (selectedPauseMenu == 2) {
@@ -1148,10 +1157,13 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
+			Finalize();
 			Initialize();
 			gameScene = MAIN_GAME;
 		} else if (selectedPauseMenu == 1) {
+			Finalize();
 			Initialize();
+			isNotDetected = true;
 			gameScene = DIFFICULTY_SELECT;
 		} else if (selectedPauseMenu == 2) {
 			gameScene = MAIN_GAME;
@@ -1190,6 +1202,7 @@ void Scene::ResultUpdate() {
 			Novice::StopAudio(voiceHandleResult);
 		}
 
+		Finalize();
 		Initialize(); // 全てをリセットしてタイトルへ
 	} else if (player->keys[DIK_SPACE] && !player->preKeys[DIK_SPACE]) {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
@@ -1198,6 +1211,7 @@ void Scene::ResultUpdate() {
 			Novice::StopAudio(voiceHandleResult);
 		}
 
+		Finalize();
 		Initialize();
 	}
 
