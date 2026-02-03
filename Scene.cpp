@@ -209,8 +209,6 @@ void Scene::Initialize() {
 	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
 	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
 
-	// チャージ用サウンドの読み込み
-	soundHandleCharge = Novice::LoadAudio("./Resources/sound/charge.mp3");
 
 	// 上昇カーテン初期化
 	curtainUpPos = { 0.0f, 0.0f };
@@ -776,10 +774,6 @@ void Scene::ChargeUpdate() {
 			break;
 		}
 
-		if (chargeTimer == propellerEndTime - 10) {
-			Novice::PlayAudio(soundHandleCharge, false, 1.0f);
-		}
-
 		if (chargeTimer >= propellerEndTime) {
 			
 			chargeTextT = 0.0f;
@@ -864,10 +858,6 @@ void Scene::ChargeUpdate() {
 
 		default:
 			break;
-		}
-
-		if (chargeTimer == maxChargeTime - 10) {
-			Novice::PlayAudio(soundHandleCharge, false, 1.0f);
 		}
 
 		if (chargeTimer >= maxChargeTime) {
