@@ -428,9 +428,6 @@ void Player::Update_play() {
 				leftPropellerPower -= (0.02f + penaltyCost);
 				rightPropellerPower -= (0.02f + penaltyCost);
 
-				Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
-				Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
-
 
 				if (boostGauge <= 0.0f) {
 					boostGauge = 0.0f;
