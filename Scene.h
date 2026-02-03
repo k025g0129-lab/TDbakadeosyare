@@ -244,6 +244,7 @@ private:
 	int oseGH = 0;
 	int cloudBGGH = 0;
 	int groundBGGH = 0;
+	int goleGH = 0;
 
 	int suuziGH[10];
 	int dotGH;

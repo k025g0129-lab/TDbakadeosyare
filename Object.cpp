@@ -13,6 +13,7 @@ Object::Object(Vector2 initialPosition) {
 
 Object::~Object() {
 
+
 };
 
 void Object::Draw() {
@@ -51,6 +52,7 @@ void Object::BirdInitialize() {
 	bird.isAppearance = false;
 	
 }
+
 
 void Object::BirdUpdate() {
 	if (bird.isActive) {

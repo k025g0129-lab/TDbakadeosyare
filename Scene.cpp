@@ -23,6 +23,7 @@ Scene::~Scene() {
 }
 
 void Scene::Initialize() {
+
 	// BGM停止
 	if (Novice::IsPlayingAudio(voiceHandleMainBGM)) {
 		Novice::StopAudio(voiceHandleMainBGM);
@@ -155,6 +156,7 @@ void Scene::Initialize() {
 	//メインゲーム
 	checkPointGH[0] = Novice::LoadTexture("./Resources/images/checkPoint1.png");
 	checkPointGH[1] = Novice::LoadTexture("./Resources/images/checkPoint2.png");
+	goleGH = Novice::LoadTexture("./Resources/images/gole.png");
 
 	cloudBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
 	groundBGGH = Novice::LoadTexture("./Resources/images/startBG.png");
@@ -1126,7 +1128,7 @@ void Scene::PauseUpdate() {
 			gameScene = MAIN_GAME;
 		} else if (selectedPauseMenu == 1) {
 			Initialize();
-			gameScene = DIFFICULTY_SELECT;
+			gameScene = DIFFICULTY_SELECT;	
 		} else if (selectedPauseMenu == 2) {
 			gameScene = MAIN_GAME;
 		}
@@ -1404,6 +1406,10 @@ void Scene::RiseDraw() {
 	//チェックポイント
 	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex],1.0f,1.0f,0.0f,0xFFFFFFFF);
 	//Novice::DrawLine(0, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,1280, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,0xFF0000FF);
+
+	//ゴール
+	Novice::DrawSprite(0, static_cast<int>(-goalDistance + progressY) + 600 - 160, goleGH,1.0f,1.0f,0.0f,0xFFFFFFFF);
+
 
 	//ビットマップフォント
 	for (int i = 0; i < 5; i++) {
