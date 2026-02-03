@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "Player.h"
 
-const char kWindowTitle[] = "1330_タイトル";
+const char kWindowTitle[] = "1330_PROP";
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -58,6 +58,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// フレームの終了
 		Novice::EndFrame();
 	}
+
+	scene.Finalize();
 
 	// ライブラリの終了
 	Novice::Finalize();

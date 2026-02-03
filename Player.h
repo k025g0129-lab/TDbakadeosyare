@@ -95,6 +95,7 @@ public:
 	float powerDiff;
 	float angleFacter;
 
+
 	Player();
 	~Player();
 
