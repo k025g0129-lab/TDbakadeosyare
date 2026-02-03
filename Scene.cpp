@@ -809,7 +809,7 @@ void Scene::ChargeUpdate() {
 
 		return;
 
-		// ブースト案内表示
+	// ブースト案内表示
 	case SHOW_BOOST_TEXT:
 	{
 		chargeTextT += 0.01f; // 進行
