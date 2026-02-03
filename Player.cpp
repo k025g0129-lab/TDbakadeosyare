@@ -546,19 +546,6 @@ void Player::Draw(float finalY) {
 	// 画面上の理想の位置(finalY) と 物理的な座標(position.y) の差を出す
 	float offsetY = finalY - position.y;
 
-	Novice::DrawQuad(
-		static_cast<int>(planeWorldFourCornersPos[0].x),
-		static_cast<int>(planeWorldFourCornersPos[0].y + offsetY), // offsetYを足す
-		static_cast<int>(planeWorldFourCornersPos[1].x),
-		static_cast<int>(planeWorldFourCornersPos[1].y + offsetY),
-		static_cast<int>(planeWorldFourCornersPos[2].x),
-		static_cast<int>(planeWorldFourCornersPos[2].y + offsetY),
-		static_cast<int>(planeWorldFourCornersPos[3].x),
-		static_cast<int>(planeWorldFourCornersPos[3].y + offsetY),
-		0, 0, (int)width, (int)height,
-		whiteTextureHandle, 0xFFFFFFFF
-	);
-
 	// 自機描画
 	if ((leftPropellerPower > 0.0f) && (rightPropellerPower > 0.0f)) {  // どっちも残ってるとき
 		Novice::DrawQuad(
@@ -622,10 +609,6 @@ void Player::Draw(float finalY) {
 	Novice::DrawSprite(140, 340, rightPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
-	// ゲージ内部
-	Novice::DrawBox(65, 676, 51, (int)-(268.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(145, 676, 51, (int)-(268.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(1165, 676, 51, (int)-(268.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
 }
 
 // 着地リセット
