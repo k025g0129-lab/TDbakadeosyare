@@ -121,6 +121,7 @@ public:
 
 	// 初期化
 	void Initialize();
+	void Finalize();
 	void Update();
 	void Draw();
 

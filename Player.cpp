@@ -425,9 +425,6 @@ void Player::Update_play() {
 			leftPropellerPower -= (0.02f + penaltyCost);
 			rightPropellerPower -= (0.02f + penaltyCost);
 
-			Novice::ScreenPrintf(0, 280, "raito = %f", fuelRatio);
-			Novice::ScreenPrintf(0, 300, "pena = %f", penaltyCost);
-
 			
 			if (boostGauge <= 0.0f) {
 				boostGauge = 0.0f;
@@ -545,19 +542,6 @@ void Player::Draw(float finalY) {
 
 	// 画面上の理想の位置(finalY) と 物理的な座標(position.y) の差を出す
 	float offsetY = finalY - position.y;
-
-	Novice::DrawQuad(
-		static_cast<int>(planeWorldFourCornersPos[0].x),
-		static_cast<int>(planeWorldFourCornersPos[0].y + offsetY), // offsetYを足す
-		static_cast<int>(planeWorldFourCornersPos[1].x),
-		static_cast<int>(planeWorldFourCornersPos[1].y + offsetY),
-		static_cast<int>(planeWorldFourCornersPos[2].x),
-		static_cast<int>(planeWorldFourCornersPos[2].y + offsetY),
-		static_cast<int>(planeWorldFourCornersPos[3].x),
-		static_cast<int>(planeWorldFourCornersPos[3].y + offsetY),
-		0, 0, (int)width, (int)height,
-		whiteTextureHandle, 0xFFFFFFFF
-	);
 
 	// 自機描画
 	if ((leftPropellerPower > 0.0f) && (rightPropellerPower > 0.0f)) {  // どっちも残ってるとき

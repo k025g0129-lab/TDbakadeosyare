@@ -216,6 +216,19 @@ void Scene::Initialize() {
 	isCurtainActive = false;
 }
 
+void Scene::Finalize() {
+	// ポインタの解放
+	if (player != nullptr) {
+		player = nullptr;
+	}
+
+	for (int i = 0; i < maxBird; i++) {
+		if (bird[i] != nullptr) {
+			delete bird[i];
+			bird[i] = nullptr;
+		}
+	}
+}
 
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
@@ -912,7 +925,7 @@ void Scene::RiseUpdate() {
 		// 下から上へ (0.0f から -720.0f へ)
 		curtainUpPos.y = EaseInOutCirc(curtainT, 0.0f, -720.0f);
 
-		player->playerScreenY = player->position.y + scrollY;
+		player->playerScreenY = player->position.y + scrollY - 100.0f;
 
 		return;
 	}
@@ -1339,9 +1352,7 @@ void Scene::ChargeDraw() {
 	// ポーズの案内
 	Novice::DrawSprite(-1080, 0, pauseGuidanceGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
-	// 3. デバッグ情報の表示
-	Novice::ScreenPrintf(300, 0, "charge Timer = %d", chargeTimer);
-	Novice::ScreenPrintf(300, 20, "hantei = %d", (chargeTimer / 120) % 2);
+	
 
 }
 
@@ -1383,21 +1394,6 @@ void Scene::RiseDraw() {
 
 	// ポーズの案内
 	Novice::DrawSprite(0, 0, pauseGuidanceGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
-
-	// 目標距離
-	Novice::ScreenPrintf(300, 160, "CURRENT: %f / GOAL: %f", progressY, goalDistance);
-
-	Novice::ScreenPrintf(300, 0, "%d", bird[1]->bird.isActive);
-	Novice::ScreenPrintf(300, 20, "%f", bird[1]->bird.screenPos.x);
-	Novice::ScreenPrintf(300, 40, "%f", bird[1]->bird.skyPos.y);
-	Novice::ScreenPrintf(300, 60, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
-	Novice::ScreenPrintf(300, 80, "progressY = %f", progressY);
-	Novice::ScreenPrintf(300, 100, "keisan = %f", (checkPoint.triggerProgressY + playerStartY) / 2.0f);
-	Novice::ScreenPrintf(300, 120, "player->position.y = %f", player->position.x);
-	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
-	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
-	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
-	Novice::ScreenPrintf(550, 140, " goalDistance %f", goalDistance);
 
 	//チェックポイント
 	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex],1.0f,1.0f,0.0f,0xFFFFFFFF);

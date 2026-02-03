@@ -59,6 +59,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Novice::EndFrame();
 	}
 
+	scene.Finalize();
+
 	// ライブラリの終了
 	Novice::Finalize();
 	return 0;
