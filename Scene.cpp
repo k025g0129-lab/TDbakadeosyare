@@ -181,6 +181,9 @@ void Scene::Initialize() {
 	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
 	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
 
+	// チャージ用サウンドの読み込み
+	soundHandleCharge = Novice::LoadAudio("./Resources/sound/charge.mp3");
+
 	// 上昇カーテン初期化
 	curtainUpPos = { 0.0f, 0.0f };
 	curtainT = 1.0f; // 最初はハケた状態にしておく
@@ -644,8 +647,12 @@ void Scene::ChargeUpdate() {
 			break;
 		}
 
+		if (chargeTimer == propellerEndTime - 10) {
+			Novice::PlayAudio(soundHandleCharge, false, 1.0f);
+		}
 
 		if (chargeTimer >= propellerEndTime) {
+			
 			chargeTextT = 0.0f;
 			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 
@@ -726,6 +733,10 @@ void Scene::ChargeUpdate() {
 			break;
 		}
 
+		if (chargeTimer == maxChargeTime - 10) {
+			Novice::PlayAudio(soundHandleCharge, false, 1.0f);
+		}
+
 		if (chargeTimer >= maxChargeTime) {
 
 			//何体鳥を配置するか
@@ -743,7 +754,7 @@ void Scene::ChargeUpdate() {
 				bird[i]->BirdInitialize();
 				bird[i]->bird.isActive = false;
 			}
-
+	
 			//上昇へ
 			phase = RISE;
 			curtainT = 0.0f;      // タイマーリセット
@@ -1255,4 +1266,3 @@ void Scene::PauseDraw() {
 	// 画像の描画
 	Novice::DrawSprite(0, 0, currentGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 }
-

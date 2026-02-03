@@ -72,7 +72,6 @@ public:
 	float powerDiff;
 	float angleFacter;
 
-	int soundHandleCharge;
 
 	Player();
 	~Player();

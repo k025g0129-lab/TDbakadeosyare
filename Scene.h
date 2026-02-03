@@ -273,4 +273,5 @@ private:
 	int soundHandleGameOver;
 	int voiceHandleResult;
 
+	int soundHandleCharge;
 };
