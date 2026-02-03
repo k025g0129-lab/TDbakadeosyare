@@ -154,8 +154,14 @@ void Scene::Initialize() {
 	//メインゲーム
 	checkPointGH[0] = Novice::LoadTexture("./Resources/images/checkPoint1.png");
 	checkPointGH[1] = Novice::LoadTexture("./Resources/images/checkPoint2.png");
+
+	cloudBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
+	groundBGGH = Novice::LoadTexture("./Resources/images/startBG.png");
+
+	//リザルト
 	clearGH = Novice::LoadTexture("./Resources/images/clear.png");
 	failedGH = Novice::LoadTexture("./Resources/images/failed.png");
+
 
 	//数字
 	suuziGH[0] = Novice::LoadTexture("./Resources/images/0.png");
@@ -168,6 +174,8 @@ void Scene::Initialize() {
 	suuziGH[7] = Novice::LoadTexture("./Resources/images/7.png");
 	suuziGH[8] = Novice::LoadTexture("./Resources/images/8.png");
 	suuziGH[9] = Novice::LoadTexture("./Resources/images/9.png");
+	dotGH = Novice::LoadTexture("./Resources/images/dot.png");
+	mGH = Novice::LoadTexture("./Resources/images/m.png");
 
 	// サウンド
 	soundHandleSelect = Novice::LoadAudio("./Resources/sound/select.mp3");
@@ -279,6 +287,7 @@ void Scene::Draw() {
 		break;
 
 	case RESULT:
+	
 		ResultDraw();
 
 		break;
@@ -945,8 +954,7 @@ void Scene::RiseUpdate() {
 	keta[3] = altitude/100;
 	altitude %= 100;
 	keta[4] = altitude/10;
-	altitude %= 10;
-	keta[5] = altitude;
+	keta[5] = rand() % 10;
 
 
 }
@@ -1126,11 +1134,15 @@ void Scene::MainGameDraw() {
 }
 
 void Scene::ResultDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	
+	MainGameDraw();
+
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000033, kFillModeSolid);
+
 	if (isClear) {
-		Novice::ScreenPrintf(300, 0, "kuria");
+		Novice::DrawSprite(0, 0, cloudBGGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	} else {
-		Novice::ScreenPrintf(300, 0, "gemuoba");
+		Novice::DrawSprite(0, 0, failedGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
 }
@@ -1185,15 +1197,24 @@ void Scene::RiseDraw() {
 		}
 
 		// 色の決定（偶数・奇数）
-		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
+		//unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
 
 		// 描画実行
 		Novice::DrawSprite(
 			0, drawY,           // Xは0固定、Yは計算後の座標
-			whiteTextureHandle,
-			1280, 720,
-			0.0f, color
+			cloudBGGH,
+			1.0f, 1.0f,
+			0.0f, 0xFFFFFFFF
 		);
+
+		if (i == 0) {
+			Novice::DrawSprite(
+				0, drawY,           // Xは0固定、Yは計算後の座標
+				groundBGGH,
+				1.0f, 1.0f,
+				0.0f,0xFFFFFFFF
+			);
+		}
 
 	}
 
@@ -1211,23 +1232,18 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
 
+	Novice::ScreenPrintf(550, 140, " %f", ((checkPoint.triggerProgressY - preCheckPointPosY) * (float(0 + 1) / float(birdOccurrences + 1))) + preCheckPointPosY);
 
 
-	Novice::ScreenPrintf(300, 180, "progressY = %f", progressY);
-	Novice::ScreenPrintf(300, 200, "checkPoint.triggerProgressY = %f", checkPoint.triggerProgressY);
-	for (int i = 0; i < 5; i++) {
-		Novice::ScreenPrintf(300, 220 + (i *20), "toriitiY = %f", (checkPoint.triggerProgressY - preCheckPointPosY) * (float(i + 1) / float(birdOccurrences + 1)) + preCheckPointPosY);
-	}
-	Novice::ScreenPrintf(300, 320 , "preCheckPointPosY = %f",  preCheckPointPosY);
-
-
-
-
+	
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
-	Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
+	Novice::DrawSprite(255 , 20, dotGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(270 + 20, 20, suuziGH[keta[5]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(290 + 50, 20, mGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 
 }
