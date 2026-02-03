@@ -78,6 +78,10 @@ public:
 	int boostBarGH;
 	int boostGaugeGH;
 
+	// ゲージの透明度保存変数
+	int rightPropBarAlpha;
+	int leftPropBarAlpha;
+	int boostBarAlpha;
 
 	// 自機グラフハンドル
 	int normalGH[6];

@@ -132,6 +132,11 @@ Player::Player() {
 	// アニメカウント
 	animCount = 0;
 
+	// ゲージの透明度保存変数
+	rightPropBarAlpha = 255;
+	leftPropBarAlpha = 255;
+	boostBarAlpha = 255;
+
 	// 何番目の画像かを指定する変数
 	GHindex = 0;
 
@@ -614,14 +619,15 @@ void Player::Draw(float finalY) {
 	}
 
 	// ゲージの外枠
-	Novice::DrawSprite(60, 340, leftPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
-	Novice::DrawSprite(140, 340, rightPropBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
-	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
+	Novice::DrawSprite(60, 340, leftPropBarGH, 1.0f, 1.0f, 0.0f, MakeColorWithAlpha(leftPropBarAlpha,0xffffff00));
+	Novice::DrawSprite(140, 340, rightPropBarGH, 1.0f, 1.0f, 0.0f, MakeColorWithAlpha(rightPropBarAlpha, 0xffffff00));
+	Novice::DrawSprite(1160, 340, boostBarGH, 1.0f, 1.0f, 0.0f, MakeColorWithAlpha(boostBarAlpha, 0xffffff00));
 
 	// ゲージ内部
-	Novice::DrawBox(65, 676, 51, (int)-(268.0f * leftPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(145, 676, 51, (int)-(268.0f * rightPropellerPercentage), 0.0f, 0xe24848ff, kFillModeSolid);
-	Novice::DrawBox(1165, 676, 51, (int)-(268.0f * boostGaugePercentage), 0.0f, 0x98bbf9ff, kFillModeSolid);
+	Novice::DrawBox(65, 676, 51, (int)-(268.0f * leftPropellerPercentage), 0.0f, MakeColorWithAlpha(leftPropBarAlpha, 0xe2484800), kFillModeSolid);
+	Novice::DrawBox(145, 676, 51, (int)-(268.0f * rightPropellerPercentage), 0.0f, MakeColorWithAlpha(rightPropBarAlpha, 0xe2484800), kFillModeSolid);
+	Novice::DrawBox(1165, 676, 51, (int)-(268.0f * boostGaugePercentage), 0.0f, MakeColorWithAlpha(boostBarAlpha, 0x98bbf900), kFillModeSolid);
+
 }
 
 // 着地リセット

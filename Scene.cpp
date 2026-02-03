@@ -712,6 +712,24 @@ void Scene::MainGameUpdate() {
 		voiceHandleMainBGM = Novice::PlayAudio(soundHandleMainBGM, true, 0.6f);
 	}
 
+	// ゲージにプレイヤ－が近いときは見やすいように半透明に
+	if (player->position.x <= 400.0f) {
+		player->rightPropBarAlpha = 140;
+	} else {
+		player->rightPropBarAlpha = 255;
+	}
+
+	if (player->position.x <= 300.0f) {
+		player->leftPropBarAlpha = 140;
+	} else {
+		player->leftPropBarAlpha = 255;
+	}
+
+	if (player->position.x >= 900.0f) {
+		player->boostBarAlpha = 140;
+	} else {
+		player->boostBarAlpha = 255;
+	}
 
 	PhaseUpdate();
 
@@ -925,7 +943,11 @@ void Scene::RiseUpdate() {
 		// 下から上へ (0.0f から -720.0f へ)
 		curtainUpPos.y = EaseInOutCirc(curtainT, 0.0f, -720.0f);
 
-		player->playerScreenY = player->position.y + scrollY - 100.0f;
+		if (player->position.y >= 600.0f) {
+			player->playerScreenY = player->position.y + scrollY - 90.0f;
+		} else {
+			player->playerScreenY = player->position.y + scrollY;
+		}
 
 		return;
 	}
@@ -1291,7 +1313,6 @@ void Scene::MainGameDraw() {
 	switch (phase) {
 	case CHARGE:
 		ChargeDraw();
-		player->Draw(player->playerScreenY);
 
 		break;
 
@@ -1338,16 +1359,21 @@ void Scene::ChargeDraw() {
 		Novice::DrawSprite(900, 20, oseGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
+	player->Draw(player->playerScreenY);
 
 	// その上に演出の案内（箱）を重ねる
 	if (chargeSubPhase == SHOW_PROPELLER_TEXT) {
 		Novice::DrawSprite(0, 0, propChargingGH[0], 1.0f, 1.0f, 0.0f, 0xffffffff);
+		player->Draw(player->playerScreenY);
+		Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), propGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 	}
 
 	if (chargeSubPhase == SHOW_BOOST_TEXT) {
 		Novice::DrawSprite(0, 0, boostChargingGH[0], 1.0f, 1.0f, 0.0f, 0xffffffff);
+		player->Draw(player->playerScreenY);
+		Novice::DrawSprite(0, 0, pauseFilterGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 		Novice::DrawSprite(240, static_cast<int>(chargeTextPos.y), boostGuidanceGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
