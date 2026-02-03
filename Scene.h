@@ -286,3 +286,6 @@ private:
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 };
+
+	int soundHandleCharge;
+};

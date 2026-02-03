@@ -202,6 +202,9 @@ void Scene::Initialize() {
 	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
 	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
 
+	// チャージ用サウンドの読み込み
+	soundHandleCharge = Novice::LoadAudio("./Resources/sound/charge.mp3");
+
 	// 上昇カーテン初期化
 	curtainUpPos = { 0.0f, 0.0f };
 	curtainT = 1.0f; // 最初はハケた状態にしておく
@@ -212,21 +215,21 @@ void Scene::Initialize() {
 void Scene::ApplyDifficulty() {
 	switch (difficulty) {
 	case EASY:
-		checkPoint.distance = 2000.0f;
-		maxChargeTime = 1000;
-		propellerEndTime = 500;
-		goalDistance = 9000.0f;
-		break;
-
-	case NORMAL:
 		checkPoint.distance = 2500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
 		goalDistance = 9000.0f;
 		break;
 
-	case HARD:
+	case NORMAL:
 		checkPoint.distance = 3000.0f;
+		maxChargeTime = 1000;
+		propellerEndTime = 500;
+		goalDistance = 9000.0f;
+		break;
+
+	case HARD:
+		checkPoint.distance = 3500.0f;
 		maxChargeTime = 900;
 		propellerEndTime = 450;
 		goalDistance = 9000.0f;
@@ -707,9 +710,7 @@ void Scene::PhaseUpdate() {
 		RiseUpdate();
 
 		break;
-
 	}
-
 }
 
 void Scene::ChargeUpdate() {
@@ -738,6 +739,7 @@ void Scene::ChargeUpdate() {
 			chargeTextPos.y = TEXT_START_Y;
 		}
 	}
+
 	return;
 
 	// プロペラチャージ
@@ -766,8 +768,12 @@ void Scene::ChargeUpdate() {
 			break;
 		}
 
+		if (chargeTimer == propellerEndTime - 10) {
+			Novice::PlayAudio(soundHandleCharge, false, 1.0f);
+		}
 
 		if (chargeTimer >= propellerEndTime) {
+			
 			chargeTextT = 0.0f;
 			player->maxPropellerPower = player->leftPropellerPower + player->rightPropellerPower;
 
@@ -822,6 +828,7 @@ void Scene::ChargeUpdate() {
 			chargeTextPos.y = TEXT_START_Y;
 		}
 	}
+
 	return;
 
 	// ブーストチャージ
@@ -851,6 +858,10 @@ void Scene::ChargeUpdate() {
 			break;
 		}
 
+		if (chargeTimer == maxChargeTime - 10) {
+			Novice::PlayAudio(soundHandleCharge, false, 1.0f);
+		}
+
 		if (chargeTimer >= maxChargeTime) {
 
 			//何体鳥を配置するか
@@ -868,7 +879,7 @@ void Scene::ChargeUpdate() {
 				bird[i]->BirdInitialize();
 				bird[i]->bird.isActive = false;
 			}
-
+	
 			//上昇へ
 			phase = RISE;
 			curtainT = 0.0f;      // タイマーリセット
@@ -1278,6 +1289,7 @@ void Scene::MainGameDraw() {
 
 void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
+	
 	if (isClear) {
 		Novice::ScreenPrintf(300, 0, "kuria");
 	} else {

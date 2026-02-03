@@ -134,6 +134,7 @@ Player::Player() {
 
 	// 何番目の画像かを指定する変数
 	GHindex = 0;
+
 }
 
 Player::~Player() {};
