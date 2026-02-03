@@ -155,6 +155,11 @@ void Scene::Initialize() {
 	//メインゲーム
 	checkPointGH[0] = Novice::LoadTexture("./Resources/images/checkPoint1.png");
 	checkPointGH[1] = Novice::LoadTexture("./Resources/images/checkPoint2.png");
+
+	cloudBGGH = Novice::LoadTexture("./Resources/images/skyBG.png");
+	groundBGGH = Novice::LoadTexture("./Resources/images/startBG.png");
+
+	//リザルト
 	clearGH = Novice::LoadTexture("./Resources/images/clear.png");
 	failedGH = Novice::LoadTexture("./Resources/images/failed.png");
 
@@ -177,6 +182,8 @@ void Scene::Initialize() {
 	suuziGH[7] = Novice::LoadTexture("./Resources/images/7.png");
 	suuziGH[8] = Novice::LoadTexture("./Resources/images/8.png");
 	suuziGH[9] = Novice::LoadTexture("./Resources/images/9.png");
+	dotGH = Novice::LoadTexture("./Resources/images/dot.png");
+	mGH = Novice::LoadTexture("./Resources/images/m.png");
 
 	// プロペラチャージ中背景
 	propChargingGH[0] = Novice::LoadTexture("./Resources/images/charging1.png");
@@ -310,6 +317,7 @@ void Scene::Draw() {
 		break;
 
 	case RESULT:
+	
 		ResultDraw();
 
 		break;
@@ -878,6 +886,7 @@ void Scene::ChargeUpdate() {
 			for (int i = 0; i < birdOccurrences; i++) {
 				bird[i]->BirdInitialize();
 				bird[i]->bird.isActive = false;
+
 			}
 	
 			//上昇へ
@@ -896,6 +905,13 @@ void Scene::ChargeUpdate() {
 
 
 void Scene::RiseUpdate() {
+
+	animCount++;
+	if (animCount >= 60) {
+		animCount = 0;
+	}
+	GHindex = (int)(animCount / 30);
+
 	if (isCurtainActive) {
 		curtainT += 1.0f / 60.0f; // 約1秒で完了
 		if (curtainT > 1.0f) {
@@ -944,7 +960,7 @@ void Scene::RiseUpdate() {
 
 	//鳥出現
 	for (int i = 0; i < birdOccurrences; i++) {
-		if (progressY >= (checkPoint.triggerProgressY * (float(i + 1) / float(birdOccurrences + 1)))) {
+		if (progressY >= ((checkPoint.triggerProgressY - preCheckPointPosY) * (float(i + 1) / float(birdOccurrences + 1))) + preCheckPointPosY) {
 			if (!bird[i]->bird.isAppearance) {
 				if (bird[i]->bird.isActive == false) {
 
@@ -957,13 +973,16 @@ void Scene::RiseUpdate() {
 		}
 	}
 
-
 	for (int i = 0; i < maxBird; i++) {
 		bird[i]->bird.screenPos.y = bird[i]->bird.skyPos.y + scrollY;
 	}
 
+
 	for (int i = 0; i < maxBird; i++) {
-		if (IsCollision({ bird[i]->bird.screenPos.x,bird[i]->bird.skyPos.y }, player->position, bird[i]->bird.radius, player->width)) {
+
+
+		//bird[i]->bird.screenPos
+		if (IsCollision({ bird[i]->bird.screenPos.x,bird[i]->bird.skyPos.y }, player->position, bird[i]->bird.radius, player->width/2.0f)) {
 			if (bird[i]->bird.isActive) {
 				bird[i]->bird.isActive = false;
 				bird[i]->bird.screenPos.x += 1000.0f;
@@ -978,7 +997,6 @@ void Scene::RiseUpdate() {
 	if (progressY >= goalDistance) {
 		isClear = true;       // クリア
 		gameScene = RESULT;   // リザルト画面へ
-		return;
 	}
 
 	// 画面外判定
@@ -1015,6 +1033,7 @@ void Scene::RiseUpdate() {
 
 			bird[i]->bird.skyPos.y = player->position.y + 1000.0f;
 			bird[i]->bird.screenPos.y = player->position.y + 1000.0f;
+			Novice::DrawBox(0, 0, 1280, 720, 5.0f, 0x000000FF, kFillModeSolid);
 		}
 
 
@@ -1023,7 +1042,7 @@ void Scene::RiseUpdate() {
 
 		//前回のチェックポイント記録
 		player->position.y = gameStartPlayerY - nextCheckPointDistance;
-
+		preCheckPointPosY = gameStartPlayerY - player->position.y;
 		// 次のチェックポイント準備
 		checkPoint.lv++;
 		checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
@@ -1078,9 +1097,8 @@ void Scene::RiseUpdate() {
 	altitude %= 1000;
 	keta[3] = altitude / 100;
 	altitude %= 100;
-	keta[4] = altitude / 10;
-	altitude %= 10;
-	keta[5] = altitude;
+	keta[4] = altitude/10;
+	keta[5] = rand() % 10;
 
 
 }
@@ -1269,6 +1287,9 @@ void Scene::MainGameDraw() {
 	case RISE:
 		RiseDraw();
 
+		for (int i = 0; i < maxBird; i++) {
+			bird[i]->BirdDraw();
+		}
 		player->Draw(player->playerScreenY);
 		break;
 
@@ -1291,9 +1312,9 @@ void Scene::ResultDraw() {
 	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
 	
 	if (isClear) {
-		Novice::ScreenPrintf(300, 0, "kuria");
+		Novice::DrawSprite(0, 0, clearGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	} else {
-		Novice::ScreenPrintf(300, 0, "gemuoba");
+		Novice::DrawSprite(0, 0, failedGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
 }
@@ -1349,15 +1370,24 @@ void Scene::RiseDraw() {
 		}
 
 		// 色の決定（偶数・奇数）
-		unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
+		//unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
 
 		// 描画実行
 		Novice::DrawSprite(
 			0, drawY,           // Xは0固定、Yは計算後の座標
-			whiteTextureHandle,
-			1280, 720,
-			0.0f, color
+			cloudBGGH,
+			1.0f, 1.0f,
+			0.0f, 0xFFFFFFFF
 		);
+
+		if (i == 0) {
+			Novice::DrawSprite(
+				0, drawY,           // Xは0固定、Yは計算後の座標
+				groundBGGH,
+				1.0f, 1.0f,
+				0.0f,0xFFFFFFFF
+			);
+		}
 
 	}
 
@@ -1377,12 +1407,21 @@ void Scene::RiseDraw() {
 	Novice::ScreenPrintf(300, 140, "checkPoint.lv = %d", checkPoint.lv);
 	Novice::ScreenPrintf(550, 80, " tori= %f", (checkPoint.triggerProgressY * (float(2) / float(birdOccurrences + 1))));
 	Novice::ScreenPrintf(550, 100, " nantaideruka %d", birdOccurrences);
+	Novice::ScreenPrintf(550, 140, " goalDistance %f", goalDistance);
 
+	//チェックポイント
+	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex],1.0f,1.0f,0.0f,0xFFFFFFFF);
+	//Novice::DrawLine(0, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,1280, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,0xFF0000FF);
+
+	//ビットマップフォント
 	for (int i = 0; i < 5; i++) {
 		Novice::DrawSprite(20 + (50 * i), 20, suuziGH[keta[i]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
-	// Novice::DrawSprite(270 + 10, 20, suuziGH[5], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(255 , 20, dotGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(270 + 20, 20, suuziGH[keta[5]], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	Novice::DrawSprite(290 + 50, 20, mGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+
 
 }
 

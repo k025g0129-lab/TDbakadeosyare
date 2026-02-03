@@ -73,14 +73,6 @@ void Object::BirdUpdate() {
 void Object::BirdDraw() {
 
 	if (bird.isActive) {
-		Novice::DrawEllipse(
-			static_cast<int>(bird.screenPos.x),
-			static_cast<int>(bird.screenPos.y),
-			static_cast<int>(bird.radius),
-			static_cast<int>(bird.radius),
-			0.0f, 0x0000FFFF,
-			kFillModeSolid
-		);
 
 		Novice::DrawSprite(
 			static_cast<int>(bird.screenPos.x - bird.radius),
