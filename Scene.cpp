@@ -1095,7 +1095,7 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
 	}
 
-	// ループさせるか決定、現時点の設定では端で止まる
+	// カーソルが端に来た時ループさせるか決定
 	if (selectedPauseMenu < 0) selectedPauseMenu = 2;
 	if (selectedPauseMenu > 2) selectedPauseMenu = 0;
 
