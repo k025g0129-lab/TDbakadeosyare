@@ -88,7 +88,6 @@ void Scene::Initialize() {
 
 	// 難易度設定
 	difficulty = EASY;
-	ApplyDifficulty();
 	selectedDifficulty = 0;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 
