@@ -276,15 +276,15 @@ void Scene::ApplyDifficulty() {
 
 	case NORMAL:
 		checkPoint.distance = 3000.0f;
-		maxChargeTime = 1000;
-		propellerEndTime = 500;
+		maxChargeTime = 900;
+		propellerEndTime = 450;
 		goalDistance = 9000.0f;
 		break;
 
 	case HARD:
 		checkPoint.distance = 3500.0f;
-		maxChargeTime = 900;
-		propellerEndTime = 450;
+		maxChargeTime = 800;
+		propellerEndTime = 400;
 		goalDistance = 9000.0f;
 		break;
 	}
