@@ -241,6 +241,7 @@ void Scene::Initialize() {
 	soundHandleClear = Novice::LoadAudio("./Resources/sound/clear.mp3");
 	soundHandleGameOver = Novice::LoadAudio("./Resources/sound/gameover.mp3");
 
+	soundHandlePageFlip = Novice::LoadAudio("./Resources/sound/pageFlip.mp3");
 
 	// 上昇カーテン初期化
 	curtainUpPos = { 0.0f, 0.0f };
@@ -612,14 +613,28 @@ void Scene::TutorialUpdate() {
 
 	// スティック、もしくはキーボードで表示切替
 	if (player->currentLeftStickPos.x > 0.0f && player->oldLeftStickPos.x <= 0.0f) {
+		if (asobikataPaper < maxAsobikataPaper - 1) { // ページが増える余地がある時だけ鳴らす
+			Novice::PlayAudio(soundHandlePageFlip, false, 2.0f);
+		}
 		asobikataPaper++;
-	} else if ((player->keys[DIK_D] && !player->preKeys[DIK_D]) || (player->keys[DIK_RIGHT] && !player->preKeys[DIK_RIGHT])) {
+	}
+	else if ((player->keys[DIK_D] && !player->preKeys[DIK_D]) || (player->keys[DIK_RIGHT] && !player->preKeys[DIK_RIGHT])) {
+		if (asobikataPaper < maxAsobikataPaper - 1) {
+			Novice::PlayAudio(soundHandlePageFlip, false, 2.0f);
+		}
 		asobikataPaper++;
 	}
 
 	if (player->currentLeftStickPos.x < 0.0f && player->oldLeftStickPos.x >= 0.0f) {
+		if (asobikataPaper > 0) { // ページが戻れる時だけ鳴らす
+			Novice::PlayAudio(soundHandlePageFlip, false, 2.0f);
+		}
 		asobikataPaper--;
-	} else if ((player->keys[DIK_A] && !player->preKeys[DIK_A]) || (player->keys[DIK_LEFT] && !player->preKeys[DIK_LEFT])) {
+	}
+	else if ((player->keys[DIK_A] && !player->preKeys[DIK_A]) || (player->keys[DIK_LEFT] && !player->preKeys[DIK_LEFT])) {
+		if (asobikataPaper > 0) {
+			Novice::PlayAudio(soundHandlePageFlip, false, 2.0f);
+		}
 		asobikataPaper--;
 	}
 
