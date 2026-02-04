@@ -1218,13 +1218,51 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
-			Finalize();
-			Initialize();
-			gameScene = MAIN_GAME;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 0;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 1;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 2;
+				break;
+			}
 		} else if (selectedPauseMenu == 1) {
-			Finalize();
-			Initialize();
-			gameScene = DIFFICULTY_SELECT;	
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 0;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 1;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 2;
+				break;
+			}
 		} else if (selectedPauseMenu == 2) {
 			gameScene = MAIN_GAME;
 		}
@@ -1232,14 +1270,54 @@ void Scene::PauseUpdate() {
 		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
 
 		if (selectedPauseMenu == 0) {
-			Finalize();
-			Initialize();
-			gameScene = MAIN_GAME;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 0;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 1;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 2;
+				break;
+			}
 		} else if (selectedPauseMenu == 1) {
-			Finalize();
-			Initialize();
-			isNotDetected = true;
-			gameScene = DIFFICULTY_SELECT;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 0;
+				isNotDetected = true;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 1;
+				isNotDetected = true;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 2;
+				isNotDetected = true;
+				break;
+			}
 		} else if (selectedPauseMenu == 2) {
 			gameScene = MAIN_GAME;
 		}
@@ -1304,13 +1382,51 @@ void Scene::ResultUpdate() {
 		}
 
 		if (selectedResultMenu == 0) {
-			Finalize();
-			Initialize();
-			gameScene = MAIN_GAME;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 0;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 1;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 2;
+				break;
+			}
 		} else if (selectedResultMenu == 1) {
-			Finalize();
-			Initialize();
-			gameScene = DIFFICULTY_SELECT;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 0;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 1;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 2;
+				break;
+			}
 		}
 
 	} else if (player->keys[DIK_SPACE] && !player->preKeys[DIK_SPACE]) {
@@ -1321,14 +1437,57 @@ void Scene::ResultUpdate() {
 		}
 
 		if (selectedResultMenu == 0) {
-			Finalize();
-			Initialize();
-			gameScene = MAIN_GAME;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 0;
+				isNotDetected = true;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 1;
+				isNotDetected = true;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = MAIN_GAME;
+				selectedDifficulty = 2;
+				isNotDetected = true;
+				break;
+			}
 		} else if (selectedResultMenu == 1) {
-			Finalize();
-			Initialize();
-			isNotDetected = true;
-			gameScene = DIFFICULTY_SELECT;
+			switch (selectedDifficulty) {
+			case 0:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 0;
+				isNotDetected = true;
+				break;
+
+			case 1:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 1;
+				isNotDetected = true;
+				break;
+
+			case 2:
+				Finalize();
+				Initialize();
+				gameScene = DIFFICULTY_SELECT;
+				selectedDifficulty = 2;
+				isNotDetected = true;
+				break;
+			}
 		}
 	}
 
