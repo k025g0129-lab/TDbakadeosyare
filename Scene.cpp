@@ -57,6 +57,7 @@ void Scene::Initialize() {
 	}
 	scrollY = 0.0f;
 	isTouchCheckpoint = false;
+	goalPos = { -2000.0f, -2000.0f };
 
 	// チェックポイント
 	checkPoint.lv = 1;
@@ -123,6 +124,8 @@ void Scene::Initialize() {
 
 	animCount = 0;
 	GHindex = 0;
+
+	selectedResultMenu = 0;
 
 	//GH
 	//タイトル
@@ -199,6 +202,33 @@ void Scene::Initialize() {
 
 	// 上昇カーテン背景
 	curtainGH = Novice::LoadTexture("./Resources/images/go.png");
+
+	//遊び方紙芝居
+	asobikatakami[0][0] = Novice::LoadTexture("./Resources/images/asobikatakamisibai1_1.png");
+	asobikatakami[0][1] = Novice::LoadTexture("./Resources/images/asobikatakamisibai1_2.png");
+	asobikatakami[0][2] = Novice::LoadTexture("./Resources/images/asobikatakamisibai1_3.png");
+	asobikatakami[0][3] = Novice::LoadTexture("./Resources/images/asobikatakamisibai1_4.png");
+
+	asobikatakami[1][0] = Novice::LoadTexture("./Resources/images/asobikatakamisibai2_1.png");
+	asobikatakami[1][1] = Novice::LoadTexture("./Resources/images/asobikatakamisibai2_2.png");
+	asobikatakami[1][2] = Novice::LoadTexture("./Resources/images/asobikatakamisibai2_3.png");
+	asobikatakami[1][3] = Novice::LoadTexture("./Resources/images/asobikatakamisibai2_4.png");
+
+	asobikatakami[2][0] = Novice::LoadTexture("./Resources/images/asobikatakamisibai3_1.png");
+	asobikatakami[2][1] = Novice::LoadTexture("./Resources/images/asobikatakamisibai3_2.png");
+	asobikatakami[2][2] = Novice::LoadTexture("./Resources/images/asobikatakamisibai3_3.png");
+	asobikatakami[2][3] = Novice::LoadTexture("./Resources/images/asobikatakamisibai3_4.png");
+
+	asobikatakami[3][0] = Novice::LoadTexture("./Resources/images/asobikatakamisibai4_1.png");
+	asobikatakami[3][1] = Novice::LoadTexture("./Resources/images/asobikatakamisibai4_2.png");
+	asobikatakami[3][2] = Novice::LoadTexture("./Resources/images/asobikatakamisibai4_3.png");
+	asobikatakami[3][3] = Novice::LoadTexture("./Resources/images/asobikatakamisibai4_4.png");
+
+	//リザルトメニュー
+	resultMenuGH[0] = Novice::LoadTexture("./Resources/images/clear_restart_active.png");
+	resultMenuGH[1] = Novice::LoadTexture("./Resources/images/clear_levelSelect_active.png");
+
+
 
 	// サウンド
 	soundHandleSelect = Novice::LoadAudio("./Resources/sound/select.mp3");
@@ -332,7 +362,6 @@ void Scene::Draw() {
 		break;
 
 	case RESULT:
-	
 		ResultDraw();
 
 		break;
@@ -540,6 +569,7 @@ void Scene::TutorialUpdate() {
 		gameScene = TITLE;
 	}
 
+	//点滅用演出
 	pressAT += pressATSpeed;
 
 	if (pressAT >= 1.0f) {
@@ -552,6 +582,7 @@ void Scene::TutorialUpdate() {
 		pressATSpeed *= -1.0f;
 	}
 
+	//BGスクリーン用
 	for (int i = 0; i < 2; i++) {
 		titleBGPos[i].x -= 1.0f;
 
@@ -560,6 +591,13 @@ void Scene::TutorialUpdate() {
 			titleBGPos[i].x = 1280.0f;
 		}
 	}
+
+	//アニメ描画
+	animCount++;
+	if (animCount >= 239) {
+		animCount = 0;
+	}
+	GHindex = (int)(animCount / 60);
 
 	//コントローラー情報取得
 	player->oldLeftStickPos.x = player->currentLeftStickPos.x;
@@ -900,7 +938,7 @@ void Scene::ChargeUpdate() {
 				bird[i]->bird.isActive = false;
 
 			}
-	
+
 			//上昇へ
 			phase = RISE;
 			curtainT = 0.0f;      // タイマーリセット
@@ -925,6 +963,9 @@ void Scene::RiseUpdate() {
 	GHindex = (int)(animCount / 30);
 
 	if (isCurtainActive) {
+
+		goalPos.y = -2000.0f;
+
 		curtainT += 1.0f / 60.0f; // 約1秒で完了
 		if (curtainT > 1.0f) {
 			curtainT = 1.0f;
@@ -969,6 +1010,9 @@ void Scene::RiseUpdate() {
 
 	// 進捗（どれだけ上に進んだか）の計算
 	progressY = gameStartPlayerY - player->position.y;
+
+	//ゴールのバグ用
+	goalPos.y = -goalDistance + progressY;
 
 	//鳥出現
 	for (int i = 0; i < birdOccurrences; i++) {
@@ -1181,10 +1225,66 @@ void Scene::PauseUpdate() {
 }
 
 void Scene::ResultUpdate() {
+
+	// 上入力
+	if ((padState.Gamepad.sThumbLY > 10000 && prevPadState.Gamepad.sThumbLY <= 10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP))) {
+		selectedResultMenu--;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	} else if ((player->keys[DIK_W] && !player->preKeys[DIK_W]) || (player->keys[DIK_UP] && !player->preKeys[DIK_UP])) {
+		selectedResultMenu--;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	}
+
+	// 下入力
+	if ((padState.Gamepad.sThumbLY < -10000 && prevPadState.Gamepad.sThumbLY >= -10000) ||
+		(padState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN && !(prevPadState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN))) {
+		selectedResultMenu++;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	} else if ((player->keys[DIK_S] && !player->preKeys[DIK_S]) || (player->keys[DIK_DOWN] && !player->preKeys[DIK_DOWN])) {
+		selectedResultMenu++;
+		Novice::PlayAudio(soundHandleSelect, false, 1.0f);
+	}
+
+	// カーソルが端に来た時ループさせるか決定
+	if (selectedResultMenu < 0) selectedResultMenu = 1;
+	if (selectedResultMenu > 1) selectedResultMenu = 0;
+
+	// Aボタン、またはSPACEで決定
+	if (IsTriggerA()) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+
+		if (selectedResultMenu == 0) {
+			Finalize();
+			Initialize();
+			gameScene = MAIN_GAME;
+		} else if (selectedResultMenu == 1) {
+			Finalize();
+			Initialize();
+			gameScene = DIFFICULTY_SELECT;
+		} 
+
+	} else if (player->keys[DIK_SPACE] && !player->preKeys[DIK_SPACE]) {
+		Novice::PlayAudio(soundHandleDecide, false, 1.0f);
+
+		if (selectedResultMenu == 0) {
+			Finalize();
+			Initialize();
+			gameScene = MAIN_GAME;
+		} else if (selectedResultMenu == 1) {
+			Finalize();
+			Initialize();
+			isNotDetected = true;
+			gameScene = DIFFICULTY_SELECT;
+		}
+	}
+
+
 	if (voiceHandleMainBGM != -1) {
 		Novice::StopAudio(voiceHandleMainBGM);
 		voiceHandleMainBGM = -1;
 	}
+
 
 	if (voiceHandleResult == -1 || !Novice::IsPlayingAudio(voiceHandleResult)) {
 		if (isClear) {
@@ -1265,7 +1365,7 @@ void Scene::TutorialDraw() {
 	}
 
 	for (int i = 0; i < maxAsobikataPaper; i++) {
-		Novice::DrawSprite(200 + (i * 1055) - (asobikataPaper * 1055), 150, whiteTextureHandle, 880, 420, 0.0f, 0xFFFFFFFF);
+		Novice::DrawSprite(200 + (i * 1055) - (asobikataPaper * 1055), 150, asobikatakami[i][GHindex], 1.0f,1.0f, 0.0f, 0xFFFFFFFF);
 	}
 
 }
@@ -1328,13 +1428,25 @@ void Scene::MainGameDraw() {
 }
 
 void Scene::ResultDraw() {
-	Novice::DrawBox(540, 320, 200, 80, 0.0f, 0xffffffff, kFillModeSolid);
-	
+
+	RiseDraw();
+
+	Novice::DrawBox(0, 0, 1280, 720, 0.0f, 0x00000066, kFillModeSolid);
+
 	if (isClear) {
 		Novice::DrawSprite(0, 0, clearGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	} else {
 		Novice::DrawSprite(0, 0, failedGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 	}
+
+	int currentGH = 0;
+	switch (selectedResultMenu) {
+	case 0: currentGH = resultMenuGH[0]; break; // returnPlay_active
+	case 1: currentGH = resultMenuGH[1]; break; // restart_active
+	}
+
+	// 画像の描画
+	Novice::DrawSprite(0, 0, currentGH, 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
 
 }
 
@@ -1390,6 +1502,7 @@ void Scene::RiseDraw() {
 		//unsigned int color = (i % 2 == 0) ? 0xFF000044 : 0x00FF0044;
 
 		// 描画実行
+		//雲
 		Novice::DrawSprite(
 			0, drawY,           // Xは0固定、Yは計算後の座標
 			cloudBGGH,
@@ -1397,6 +1510,7 @@ void Scene::RiseDraw() {
 			0.0f, 0xFFFFFFFF
 		);
 
+		//地面
 		if (i == 0) {
 			Novice::DrawSprite(
 				0, drawY,           // Xは0固定、Yは計算後の座標
@@ -1412,12 +1526,19 @@ void Scene::RiseDraw() {
 	Novice::DrawSprite(0, 0, pauseGuidanceGH, 1.0f, 1.0f, 0.0f, 0xffffffff);
 
 	//チェックポイント
-	Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex],1.0f,1.0f,0.0f,0xFFFFFFFF);
+	if (checkPoint.lv != 3) {
+		Novice::DrawSprite(0, static_cast<int>(- checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex],1.0f,1.0f,0.0f,0xFFFFFFFF);
+	}
+
+	if (difficulty == EASY) {
+		Novice::DrawSprite(0, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160, checkPointGH[GHindex], 1.0f, 1.0f, 0.0f, 0xFFFFFFFF);
+	}
+
 	//Novice::DrawLine(0, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,1280, static_cast<int>(-checkPoint.triggerProgressY + progressY) + 600 - 160,0xFF0000FF);
 
 	//ゴール
-	Novice::DrawSprite(0, static_cast<int>(-goalDistance + progressY) + 600 - 160, goleGH,1.0f,1.0f,0.0f,0xFFFFFFFF);
-
+	Novice::DrawSprite(0, static_cast<int>(goalPos.y) + 600 - 160, goleGH,1.0f,1.0f,0.0f,0xFFFFFFFF);
+	
 
 	//ビットマップフォント
 	for (int i = 0; i < 5; i++) {

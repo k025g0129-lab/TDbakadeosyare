@@ -189,6 +189,9 @@ private:
 	int asobikataPaper = 0;
 	int maxAsobikataPaper = 4;
 
+	//リザルト用
+	int selectedResultMenu = 0;
+
 	// プレイヤー
 	Player* player;
 	float playerStartY;
@@ -198,6 +201,7 @@ private:
 	Vector2 PtitlePos = { 0.0f,0.0f };
 	//Vector2 underPtitlePos = {0.0f,720.0f};
 	TitleButton titleButton = GAME_PLAY_BUTTON;
+	Vector2 goalPos = { -2000.0f, -2000.0f};
 
 	//float titleT = 0.0f;
 
@@ -219,6 +223,7 @@ private:
 	int altitude = 0;
 
 	int keta[6];
+
 
 
 	//GH
@@ -246,6 +251,9 @@ private:
 	int cloudBGGH = 0;
 	int groundBGGH = 0;
 	int goleGH = 0;
+	int asobikatakami[4][4];
+	int resultMenuGH[2];
+
 
 	int suuziGH[10];
 	int dotGH;
