@@ -1225,7 +1225,7 @@ void Scene::PauseUpdate() {
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 0;
 				difficulty = EASY;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 1:
@@ -1234,7 +1234,7 @@ void Scene::PauseUpdate() {
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 1;
 				difficulty = NORMAL;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 2:
@@ -1243,7 +1243,7 @@ void Scene::PauseUpdate() {
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 2;
 				difficulty = HARD;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 			}
 		} else if (selectedPauseMenu == 1) {
@@ -1254,7 +1254,7 @@ void Scene::PauseUpdate() {
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 0;
 				difficulty = EASY;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 1:
@@ -1263,7 +1263,7 @@ void Scene::PauseUpdate() {
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 1;
 				difficulty = NORMAL;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 2:
@@ -1272,7 +1272,7 @@ void Scene::PauseUpdate() {
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 2;
 				difficulty = HARD;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 			}
 		} else if (selectedPauseMenu == 2) {
@@ -1289,7 +1289,7 @@ void Scene::PauseUpdate() {
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 0;
 				difficulty = EASY;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 1:
@@ -1298,7 +1298,7 @@ void Scene::PauseUpdate() {
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 1;
 				difficulty = NORMAL;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 2:
@@ -1307,7 +1307,7 @@ void Scene::PauseUpdate() {
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 2;
 				difficulty = HARD;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 			}
 		} else if (selectedPauseMenu == 1) {
@@ -1318,7 +1318,7 @@ void Scene::PauseUpdate() {
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 0;
 				difficulty = EASY;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 
@@ -1328,7 +1328,7 @@ void Scene::PauseUpdate() {
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 1;
 				difficulty = NORMAL;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 
@@ -1338,7 +1338,7 @@ void Scene::PauseUpdate() {
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 2;
 				difficulty = HARD;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 			}
@@ -1412,7 +1412,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 0;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 1:
@@ -1420,7 +1420,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 1;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 2:
@@ -1428,7 +1428,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 2;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 			}
 		} else if (selectedResultMenu == 1) {
@@ -1438,7 +1438,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 0;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 1:
@@ -1446,7 +1446,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 1;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 
 			case 2:
@@ -1454,7 +1454,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 2;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				break;
 			}
 		}
@@ -1473,7 +1473,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 0;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 
@@ -1482,7 +1482,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 1;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 
@@ -1491,7 +1491,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 2;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 			}
@@ -1502,7 +1502,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 0;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 
@@ -1511,7 +1511,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 1;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 
@@ -1520,7 +1520,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 2;
-				ApplyDifficulty;
+				ApplyDifficulty();
 				isNotDetected = true;
 				break;
 			}
