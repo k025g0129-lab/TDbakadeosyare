@@ -88,7 +88,6 @@ void Scene::Initialize() {
 
 	// 難易度設定
 	difficulty = EASY;
-	ApplyDifficulty();
 	selectedDifficulty = 0;
 	checkPoint.triggerProgressY = float(checkPoint.lv) * checkPoint.distance;
 
@@ -1412,6 +1411,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 0;
+				difficulty = EASY;
 				ApplyDifficulty();
 				break;
 
@@ -1420,6 +1420,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 1;
+				difficulty = NORMAL;
 				ApplyDifficulty();
 				break;
 
@@ -1428,6 +1429,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 2;
+				difficulty = HARD;
 				ApplyDifficulty();
 				break;
 			}
@@ -1438,6 +1440,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 0;
+				difficulty = EASY;
 				ApplyDifficulty();
 				break;
 
@@ -1446,6 +1449,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 1;
+				difficulty = NORMAL;
 				ApplyDifficulty();
 				break;
 
@@ -1454,6 +1458,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 2;
+				difficulty = HARD;
 				ApplyDifficulty();
 				break;
 			}
@@ -1473,6 +1478,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 0;
+				difficulty = EASY;
 				ApplyDifficulty();
 				isNotDetected = true;
 				break;
@@ -1482,6 +1488,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 1;
+				difficulty = NORMAL;
 				ApplyDifficulty();
 				isNotDetected = true;
 				break;
@@ -1491,6 +1498,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = MAIN_GAME;
 				selectedDifficulty = 2;
+				difficulty = HARD;
 				ApplyDifficulty();
 				isNotDetected = true;
 				break;
@@ -1502,6 +1510,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 0;
+				difficulty = EASY;
 				ApplyDifficulty();
 				isNotDetected = true;
 				break;
@@ -1511,6 +1520,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 1;
+				difficulty = NORMAL;
 				ApplyDifficulty();
 				isNotDetected = true;
 				break;
@@ -1520,6 +1530,7 @@ void Scene::ResultUpdate() {
 				Initialize();
 				gameScene = DIFFICULTY_SELECT;
 				selectedDifficulty = 2;
+				difficulty = HARD;
 				ApplyDifficulty();
 				isNotDetected = true;
 				break;
