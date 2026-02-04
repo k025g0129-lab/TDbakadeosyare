@@ -78,6 +78,10 @@ public:
 	int boostBarGH;
 	int boostGaugeGH;
 
+	// ゲージの透明度保存変数
+	int rightPropBarAlpha;
+	int leftPropBarAlpha;
+	int boostBarAlpha;
 
 	// 自機グラフハンドル
 	int normalGH[6];
@@ -87,7 +91,7 @@ public:
 
 	// アニメーション用変数
 	int animCount;
-	const int kMaxAnimCount = 240;
+	const int kMaxAnimCount = 239;
 	int GHindex;
 
 	// 自機の傾き
