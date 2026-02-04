@@ -271,7 +271,7 @@ void Scene::ApplyDifficulty() {
 		checkPoint.distance = 2500.0f;
 		maxChargeTime = 1000;
 		propellerEndTime = 500;
-		goalDistance = 10000.0f;
+		goalDistance = 9000.0f;
 		break;
 
 	case NORMAL:
